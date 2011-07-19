@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_height="wrap_content"
+              android:layout_width="fill_parent">
+	<ImageView android:id="@+listview_item2/icon"
+               android:layout_height="48px"
+               android:layout_width="48px"
+               android:src="@drawable/icon"/>
+	<TextView android:id="@+listview_item2/label"
+			  android:text="Default text"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:textSize="24px"/>
+</LinearLayout>

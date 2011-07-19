@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+  			  android:layout_width="fill_parent"
+  			  android:layout_height="fill_parent">
+  			  
+	<TextView android:text="Statisztika"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:paddingBottom="10sp"
+    		  android:textSize="20sp"
+    		  android:layout_gravity="center_horizontal"
+    		  android:textStyle="bold">
+    </TextView>
+    
+	<TableLayout android:layout_height="wrap_content"
+				 android:layout_width="fill_parent"
+				 android:stretchColumns="1">
+		<TableRow>
+			<TextView android:text="Betegségek száma:"
+			    	  android:layout_width="wrap_content"
+			    	  android:layout_height="wrap_content"
+			    	  android:textStyle="bold">
+    		</TextView>
+    		
+    		<EditText android:layout_width="fill_parent"
+    		  		  android:id="@+statistics/sicknessCnt"
+    		  		  android:layout_height="wrap_content" 
+    		  		  android:editable="false">
+    		</EditText>
+		</TableRow>
+		
+		<TableRow>
+			<TextView android:text="Tünetek száma:"
+			    	  android:layout_width="wrap_content"
+			    	  android:layout_height="wrap_content"
+			    	  android:textStyle="bold">
+    		</TextView>
+    		
+    		<EditText android:layout_width="fill_parent"
+    		  		  android:id="@+statistics/symptomCnt"
+    		  		  android:layout_height="wrap_content"
+    		  		  android:editable="false">
+    		</EditText>
+		</TableRow>
+		
+		<TableRow>
+			<TextView android:text="Tünetek átlagos száma:"
+			    	  android:layout_width="wrap_content"
+			    	  android:layout_height="wrap_content"
+			    	  android:textStyle="bold">
+    		</TextView>
+    		
+    		<EditText android:layout_width="fill_parent"
+    		  		  android:id="@+statistics/symptomAvg"
+    		  		  android:layout_height="wrap_content"
+    		  		  android:editable="false">
+    		</EditText>
+		</TableRow>
+		
+	</TableLayout>
+
+	<LinearLayout android:layout_width="fill_parent"
+    			  android:layout_height="wrap_content">
+    			  
+        <Button android:text="Frissítés"
+        		android:id="@+statistics/refresh"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <Button android:text="Vissza"
+        		android:id="@+statistics/back"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <LinearLayout android:layout_height="fill_parent"
+        		 	  android:layout_width="fill_parent"
+        		 	  android:orientation="vertical">
+            <ProgressBar android:id="@+statistics/progress"
+            			 android:layout_width="wrap_content"
+            			 android:layout_height="wrap_content"
+            			 android:layout_gravity="right" android:visibility="invisible">
+            </ProgressBar>
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+  			  android:layout_width="fill_parent"
+  			  android:layout_height="fill_parent">
+  			  
+    <TextView android:text="Regisztráció"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:paddingBottom="10sp"
+    		  android:textSize="20sp"
+    		  android:layout_gravity="center_horizontal"
+    		  android:textStyle="bold">
+    </TextView>
+
+    <TextView android:text="Felhasználónév:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+register/username"
+    		  android:layout_height="wrap_content" android:hint="&lt;felhasználónév&gt;">
+    </EditText>
+    
+    <TextView android:text="Jelszó:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+register/password1"
+    		  android:layout_height="wrap_content"
+    		  android:password="true" android:hint="&lt;jelszó&gt;">
+    </EditText>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+register/password2"
+    		  android:layout_height="wrap_content"
+    		  android:password="true" android:hint="&lt;jelszó megerősítése&gt;">
+    </EditText>
+    
+    <RadioGroup android:id="@+register/userType"
+    			android:layout_width="wrap_content"
+    			android:layout_height="wrap_content">
+        <RadioButton android:layout_width="wrap_content"
+        			 android:layout_height="wrap_content"
+        			 android:text="Orvos"
+        			 android:id="@+register/doctorUser"
+        			 android:checked="true">
+        </RadioButton>
+        <RadioButton android:layout_width="wrap_content"
+        			 android:layout_height="wrap_content"
+        			 android:text="Páciens"
+        			 android:id="@+register/patientUser">
+        </RadioButton>
+    </RadioGroup>
+    
+    <LinearLayout android:layout_width="fill_parent"
+    			  android:layout_height="wrap_content">
+        <Button android:text="Rendben"
+        		android:id="@+register/okay"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <Button android:text="Vissza"
+        		android:id="@+register/back"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <LinearLayout android:layout_height="fill_parent"
+        		 	  android:layout_width="fill_parent"
+        		 	  android:orientation="vertical">
+            <ProgressBar android:id="@+register/progress"
+            			 android:layout_width="wrap_content"
+            			 android:layout_height="wrap_content"
+            			 android:layout_gravity="right"
+            			 android:visibility="invisible">
+            </ProgressBar>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>
