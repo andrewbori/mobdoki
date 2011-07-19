@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+  			  android:layout_width="fill_parent"
+  			  android:layout_height="fill_parent">
+  			  
+    <TextView android:text="Felhasználói profil"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:paddingBottom="10sp"
+    		  android:textSize="20sp"
+    		  android:layout_gravity="center_horizontal"
+    		  android:textStyle="bold">
+    </TextView>
+
+    <TextView android:text="Felhasználónév:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:id="@+userprofile/username"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="wrap_content"
+    		  android:editable="false" android:hint="&lt;felhasználónév&gt;">
+    </EditText>
+
+    <TextView android:text="Név:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:id="@+userprofile/name"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="wrap_content" android:hint="&lt;név&gt;">
+    </EditText>
+    
+    <TextView android:text="Cím:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:id="@+userprofile/address"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="wrap_content" android:hint="&lt;cím&gt;">
+    </EditText>
+    
+    <TextView android:text="E-mail cím:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:id="@+userprofile/email"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="wrap_content" android:hint="&lt;e-mail cím&gt;">
+    </EditText>
+    
+    <TextView android:text="Régi jelszó:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+userprofile/oldpassword"
+    		  android:layout_height="wrap_content"
+    		  android:password="true" android:hint="&lt;régi jelszó&gt;">
+    </EditText>
+    
+    <TextView android:text="Új jelszó:"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content"
+    		  android:textStyle="bold">
+    </TextView>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+userprofile/password1"
+    		  android:layout_height="wrap_content"
+    		  android:password="true" android:hint="&lt;új jelszó&gt;">
+    </EditText>
+    <EditText android:layout_width="fill_parent"
+    		  android:id="@+userprofile/password2"
+    		  android:layout_height="wrap_content"
+    		  android:password="true" android:hint="&lt;új jelszó megerősítése&gt;">
+    </EditText>
+    
+    <LinearLayout android:layout_width="fill_parent"
+    			  android:layout_height="wrap_content">
+        <Button android:text="Mentés"
+        		android:id="@+userprofile/save"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <Button android:text="Vissza"
+        		android:id="@+userprofile/back"
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content">
+        </Button>
+        
+        <LinearLayout android:layout_height="fill_parent"
+        		 	  android:layout_width="fill_parent"
+        		 	  android:orientation="vertical">
+            <ProgressBar android:id="@+userprofile/progress"
+            			 android:layout_width="wrap_content"
+            			 android:layout_height="wrap_content"
+            			 android:layout_gravity="right"
+            			 android:visibility="invisible">
+            </ProgressBar>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>
