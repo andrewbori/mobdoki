@@ -62,6 +62,34 @@
     		</EditText>
 		</TableRow>
 		
+		<TableRow>
+			<TextView android:text="Kórházak száma:"
+			    	  android:layout_width="wrap_content"
+			    	  android:layout_height="wrap_content"
+			    	  android:textStyle="bold">
+    		</TextView>
+    		
+    		<EditText android:layout_width="fill_parent"
+    		  		  android:id="@+statistics/hospitalCnt"
+    		  		  android:layout_height="wrap_content"
+    		  		  android:editable="false">
+    		</EditText>
+		</TableRow>
+		
+		<TableRow>
+			<TextView android:text="Páciensek száma:"
+			    	  android:layout_width="wrap_content"
+			    	  android:layout_height="wrap_content"
+			    	  android:textStyle="bold">
+    		</TextView>
+    		
+    		<EditText android:layout_width="fill_parent"
+    		  		  android:id="@+statistics/patientCnt"
+    		  		  android:layout_height="wrap_content"
+    		  		  android:editable="false">
+    		</EditText>
+		</TableRow>
+		
 	</TableLayout>
 
 	<LinearLayout android:layout_width="fill_parent"

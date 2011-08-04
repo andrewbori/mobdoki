@@ -1,5 +1,6 @@
 package mobdoki.client.activity.medicalinfo;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +21,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -30,41 +36,48 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-public class NearestHospitalsActivity extends MapActivity {
+public class NearestHospitalsActivity extends MapActivity implements OnClickListener {
 
-	HttpGetConnection downloadHospital = null;				// szal a korhazak letoltesehez
+	private HttpGetConnection downloadHospital = null;		// szal a korhazak letoltesehez
+	private HttpGetConnection downloadGeoCode = null;		// szal a megadott cim koordinatainak lekerdezesehez
 	private ArrayList<Hospital> listHospitals = null;		// lekerdezett korhazak tombje
 	
 	private LocationManager locationManager;
-	private LocationListener locationListenerGPS;			// koordinatak valtozasat figyelok
+	private LocationListener locationListenerGPS;			// koordinatak valtozasat figyelo objektumok
 	private LocationListener locationListenerNetwork;
 	private MapView mapView;
 	private MapController mapController;
 	private Location myLocation = null;
+	private boolean isCurrentPosition=true;					// Igaz ha a sajat pozicio szamit
+	private String address0="";								// Legutobbi cim
+	private double alatitude=0, alongitude=0;				// Legutobbi cim koordinatai
+	private double latitude0=0, longitude0=0;				// Legutobbi pozicio koordinatai
+	private double distance0 = 0;							// legutobbi tavolsag
 	
+	private boolean isMapDisplayed = false;					// Igaz ha a terkep meg van jelenitve
 	private Activity activity = this;
+	private ProgressBar progressbar;
+	private RadioButton currentRadio;
+	private RadioButton customRadio;
+	private ViewSwitcher switcher;
+	private EditText addressBox;
+	private EditText distanceBox;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) { 
 		super.onCreate(savedInstanceState);
 	    setContentView(R.layout.nearesthospitals);
 	    
-        // Mutasd! gomb esemenykezeloje
-        Button showButton = (Button) findViewById(R.nearesthospitals.show);
-        showButton.setOnClickListener(new View.OnClickListener() {
-        	public void onClick(View view) {
-        		setLocations(myLocation);
-        		//if (download==null || (download!=null && !download.isAlive())) addRequest();
-        	}
-        });
+	    progressbar = (ProgressBar)findViewById(R.nearesthospitals.progress);
+	    switcher = (ViewSwitcher) findViewById(R.nearesthospitals.viewSwitcher);
+	    addressBox = (EditText) findViewById(R.nearesthospitals.address);
+	    distanceBox = (EditText)findViewById(R.nearesthospitals.distance);
+	    currentRadio = (RadioButton) findViewById(R.nearesthospitals.currentPos);
+        customRadio = (RadioButton) findViewById(R.nearesthospitals.customPos);
 	    
-        // Vissza gomb esemenykezeloje
-        Button backButton = (Button) findViewById(R.nearesthospitals.back);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        ((Button) findViewById(R.nearesthospitals.show)).setOnClickListener(this);
+        ((Button) findViewById(R.nearesthospitals.back)).setOnClickListener(this);
+        addressBox.setOnClickListener(this);
 	    
         // Terkep beallitasa
 	    mapView = (MapView) findViewById(R.googlemaps.mapview);
@@ -78,19 +91,61 @@ public class NearestHospitalsActivity extends MapActivity {
 		locationListenerGPS = new MyLocationListener();
 		locationListenerNetwork = new MyLocationListener();		
 		try {
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1, locationListenerGPS);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 1, locationListenerGPS);
 		} catch (Exception e) { Log.v("NearestHospitalActivity","GPS PROVIDER nincs engedélyezve."); }
 		try {
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, locationListenerNetwork);
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 1, locationListenerNetwork);
 		} catch (Exception e) { Log.v("NearestHospitalActivity","NETWORK PROVIDER nincs engedélyezve."); }
 	}
+	
+	// Gombnyomás eseménykezelõ
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		
+			// Mutasd! gomb esemenykezeloje
+			case R.nearesthospitals.show:
+				isCurrentPosition = currentRadio.isChecked();
+				if (isCurrentPosition) {
+	        		setLocations(myLocation);
+	        		//if (download==null || (download!=null && !download.isAlive())) addRequest();
+	        		isMapDisplayed = true;
+	        		switcher.showNext();
+				}
+				else {
+					addressCheck();
+				}
+				break;
+				
+			// Vissza gomb esemenykezeloje
+			case R.nearesthospitals.back:
+				finish();
+				break;
+			
+			// A cimmezore kattintas esemenykezeloje
+			case R.nearesthospitals.address:
+				customRadio.setChecked(true);
+				break;
+		}	
+	}
 
+	// Keszulek vissza gombjanak megnyomasakor...
+	@Override
+	public void onBackPressed() {
+		if (isMapDisplayed) {
+			isMapDisplayed=false;
+			switcher.showPrevious();
+		} else super.onBackPressed();
+	}
+	
 	// Helyzetvaltozast figyelo osztaly
 	private class MyLocationListener implements LocationListener {
 		@Override
 		public void onLocationChanged(Location location) {
 			myLocation = new Location(location);
-			setLocations(location);
+			if (isCurrentPosition) {
+				setLocations(location);
+			}
 		}
 		@Override
 		public void onProviderDisabled(String provider) {}
@@ -102,13 +157,26 @@ public class NearestHospitalsActivity extends MapActivity {
 	
 	// Markerek beallitasa a helyzet es a tavolsag fuggvenyeben
 	private void setLocations (Location location) {
-		String distanceStr = ((EditText)findViewById(R.nearesthospitals.distance)).getText().toString();	// tavolsag beolvasasa
+		if (location != null) {
+			setLocations (location.getLatitude(), location.getLongitude());
+		}
+	}
+	private void setLocations (double latitude, double longitude) {
+		String distanceStr = distanceBox.getText().toString();	// tavolsag beolvasasa
 		int distance = 0;
 		if (!distanceStr.equals("")) distance = (int)Double.parseDouble(distanceStr);
 		
-		if (location != null && distance>0) {																// helyzet beolvasasa
-			GeoPoint point = new GeoPoint(  (int) (location.getLatitude() * 1E6), 
-											(int) (location.getLongitude() * 1E6));
+		if (distance>0) {
+			if (latitude==latitude0 && longitude==longitude0 && distance==distance0) return;	// Nincs valtozas, nem kell ujra szamolni
+			else {
+				latitude0=latitude;
+				longitude0=longitude;
+				distance0=distance;
+			}
+			Log.v("NearestHospitalsActivity","Tavolsagok ujraszamolasa.");
+			
+			GeoPoint point = new GeoPoint(  (int) (latitude * 1E6), 		// helyzet beolvasasa
+											(int) (longitude * 1E6));
 			
 			mapController.animateTo(point);			// menj az uj helyre
 			// mapController.setZoom(14);				// zoomolj ra
@@ -121,7 +189,7 @@ public class NearestHospitalsActivity extends MapActivity {
 										activity
 			);
 
-			OverlayItem overlayitem = new OverlayItem(point, "", "Saját pozició");				// uj hely letrehozasa
+			OverlayItem overlayitem = new OverlayItem(point, "", "Saját pozíció");				// uj hely letrehozasa
 			itemizedOverlay.addOverlay(overlayitem);											// uj hely hozzaadasa a sajat listahoz
 			mapOverlays.add(itemizedOverlay);													// sajat lista hozzaadasa a terkep listajahoz
 		      
@@ -137,7 +205,7 @@ public class NearestHospitalsActivity extends MapActivity {
 		    	double y = listHospitals.get(index).longitude;
 		        
 		    	try {
-		    		listHospitals.get(index).distance = gps2m(location.getLatitude(),location.getLongitude(),x,y);
+		    		listHospitals.get(index).distance = gps2m(latitude,longitude,x,y);
 				    
 				    if (listHospitals.get(index).distance<distance) {
 				    	
@@ -152,7 +220,8 @@ public class NearestHospitalsActivity extends MapActivity {
 		}
 	}
 	
-	private double gps2m (double lat_a, double lng_a, double lat_b, double lng_b) throws Exception {	// GPS koordinatak kozotti tavolsag meterben       
+	// GPS koordinatak kozotti tavolsag meterben
+	private double gps2m (double lat_a, double lng_a, double lat_b, double lng_b) throws Exception {      
     	double pk = 180.0/Math.PI;
     	double a1 = lat_a / pk;    
     	double a2 = lng_a / pk;     
@@ -176,19 +245,28 @@ public class NearestHospitalsActivity extends MapActivity {
 	}
 
 	// Megszakitaskor a futo szalak leallitasa
-	    @Override
-	    public void onPause() {		// megszakitaskor a futo szalak leallitasa
-	    	super.onPause();
-	    	if (downloadHospital!=null && downloadHospital.isAlive()) {
-	    		downloadHospital.stop(); downloadHospital=null;
-	    	}
-	    }
+    @Override
+    public void onPause() {		// megszakitaskor a futo szalak leallitasa
+    	super.onPause();
+    	if (downloadHospital!=null && downloadHospital.isAlive()) {
+    		downloadHospital.stop(); downloadHospital=null;
+    	}
+    	if (downloadGeoCode!=null && downloadGeoCode.isAlive()) {
+    		downloadGeoCode.stop(); downloadGeoCode=null;
+    		progressbar.setVisibility(View.INVISIBLE);
+    	}
+    }
 	  
-	  public Handler hospitalHandler = new Handler() {
+      // Korhazak lekerdezeset / cim koordinakka forditasat kezelo handler
+	  public Handler mHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
-				switch(msg.arg1){
-					case 1:
+				
+				switch(msg.what) {
+				
+				// Korhazak lekerdezese (msg.what=1)
+				case 1:
+					if(msg.arg1==1){
 						if (downloadHospital.isOK()) {
 							Log.v("NearestHospitalsActivity","Korhazak lekerdezve");
 					        
@@ -210,7 +288,38 @@ public class NearestHospitalsActivity extends MapActivity {
 								Log.v("NearestHospitalsActivity","JSON beolvasasi hiba!");
 							}
 						}
+					}
+				break;
+					
+				// Megadott cim koordinatakka forditasa (msg.what=2)
+				case 2:
+					progressbar.setVisibility(View.INVISIBLE);
+					switch(msg.arg1){
+						case 0:
+							Log.v("NewHospitalActivity","Sikertelen GeoCode lekeres.");
+							Toast.makeText(activity, "Nem sikerült a megadott címet kódolni.", Toast.LENGTH_LONG).show();
 						break;
+						case 1:
+							JSONObject json = downloadGeoCode.getJSON();
+							try {
+								if (json.getJSONObject("Status").getInt("code") == 200) {	// Ha ervenyes a megadott cim
+									JSONArray coordinates = json.getJSONArray("Placemark").getJSONObject(0).getJSONObject("Point").getJSONArray("coordinates");
+									alongitude=coordinates.getDouble(0);	// y		// koordinatak lekerdezese
+									alatitude=coordinates.getDouble(1);		// x
+									setLocations(alatitude, alongitude);
+									isMapDisplayed = true;
+					        		switcher.showNext();
+								} else {
+									Toast.makeText(activity, "A megadott cím hibás.", Toast.LENGTH_SHORT).show();
+									address0="";
+								}
+							} catch (Exception e) {
+			            		Toast.makeText(activity, "Geokódolási hiba.", Toast.LENGTH_SHORT).show();
+			            		address0="";
+							}
+						break;
+					}
+				break;
 				}
 			}
 		};
@@ -218,8 +327,33 @@ public class NearestHospitalsActivity extends MapActivity {
 	    // Korhazak lekerdezese
 	    private void getHospital(){
 	    	String url = "NearestHospitals";
-		    downloadHospital = new HttpGetConnection(url, hospitalHandler);
+		    downloadHospital = new HttpGetConnection(url, mHandler);
 		    downloadHospital.start();
+	    }
+	    
+		// Megadott cim koordinatainak lekerdezese
+	    private void addressCheck(){   	
+	    	String address = addressBox.getText().toString();		// a mezobe beirt cim
+	    	
+	    	if (address.equals("")) {
+	    		Toast.makeText(activity, "Adjon meg egy tetszõleges címet!", Toast.LENGTH_SHORT).show();
+	    		return;
+	    	}
+	    	
+	    	if (!address.equals(address0)) {	// Ha a cim meg nem lett kodolva
+	    		address0 = address;
+		    	progressbar.setVisibility(View.VISIBLE);
+	
+		    	String url = "http://maps.google.com/maps/geo?key=yourkeyhere&output=json&q="+URLEncoder.encode(address);
+		    	downloadGeoCode = new HttpGetConnection("", mHandler, 2);
+		    	downloadGeoCode.setURL(url);
+		    	downloadGeoCode.start();		// megadott cim kodolasa
+	    	}
+	    	else {
+	    		setLocations(alatitude, alongitude);
+				isMapDisplayed = true;
+        		switcher.showNext();
+	    	}
 	    }
 	    
 	    // Korhaz adatait tartalmazo osztaly

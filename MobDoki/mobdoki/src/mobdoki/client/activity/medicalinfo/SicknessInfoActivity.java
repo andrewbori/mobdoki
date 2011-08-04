@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,9 +46,31 @@ public class SicknessInfoActivity extends Activity {
 
 		((TextView)findViewById(R.sicknessinfo.sickness)).setText(sickness);
 		
+		// Tabok beallitasa
+		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
+		tabs.setup();
+		 
+		TabHost.TabSpec spec = tabs.newTabSpec("symptomTab");   
+		spec.setContent(R.sicknessinfo.symptomTab);
+	   	spec.setIndicator("Tünetek");
+  		tabs.addTab(spec);
+		
+		spec=tabs.newTabSpec("hospitalTab");
+		spec.setContent(R.sicknessinfo.hospitalTab);
+		spec.setIndicator("Kórházak");
+		tabs.addTab(spec);
+	    
+		tabs.setCurrentTab(0);
+		
+		for (int i = 0; i < tabs.getTabWidget().getTabCount(); i++) {
+		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 30;
+		}  
+
+		
 		// Vissza gomb esemenykezeloje
 		Button backButton = (Button) findViewById(R.sicknessinfo.back);
 		backButton.setOnClickListener(new View.OnClickListener() {
+			@Override
 			public void onClick(View view) {
 				finish();
 			}
@@ -56,14 +79,13 @@ public class SicknessInfoActivity extends Activity {
 		// A korhazak listajanak esemenykezeloje
 		ListView listview = ((ListView) findViewById(R.sicknessinfo.hospitallist));
 		listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
 				Intent myIntent = new Intent(activity,ShowHospitalActivity.class);
 				myIntent.putExtra("x", listCoordinates.get(position).getLatitudeE6());
 				myIntent.putExtra("y", listCoordinates.get(position).getLongitudeE6());
 				myIntent.putExtra("hospital", listHospitals.get(position));	
 				Log.v("SicknessInfoActivity",listHospitals.get(position));
-				//Intent myIntent = new Intent();
-				// myIntent.setClassName("onlab.aprohirdetes","onlab.aprohirdetes.MyGoogleMaps");
 				startActivity(myIntent);
 			}
 		});
@@ -95,7 +117,7 @@ public class SicknessInfoActivity extends Activity {
     	super.onPause();
     	if (download!=null && download.isAlive()) {
     		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.addsymptom.progress)).setVisibility(ProgressBar.INVISIBLE);
+    		((ProgressBar)findViewById(R.addsymptom.progress)).setVisibility(View.INVISIBLE);
     	}
     }
 
@@ -103,7 +125,7 @@ public class SicknessInfoActivity extends Activity {
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.sicknessinfo.progress)).setVisibility(ProgressBar.INVISIBLE);
+			((ProgressBar)findViewById(R.sicknessinfo.progress)).setVisibility(View.INVISIBLE);
 			switch(msg.arg1){
 				case 0:
 					Log.v("SicknessInfoActivity","Sikertelen lekeres.");
@@ -145,7 +167,7 @@ public class SicknessInfoActivity extends Activity {
 	
 	// Lista lekeresenek kezdemenyezese
     private void getData(){
-    	((ProgressBar)findViewById(R.sicknessinfo.progress)).setVisibility(ProgressBar.VISIBLE);
+    	((ProgressBar)findViewById(R.sicknessinfo.progress)).setVisibility(View.VISIBLE);
     	
 	    String url = "SicknessInfo?sickness=" + URLEncoder.encode(sickness);
 	    download = new HttpGetConnection(url, mHandler);
