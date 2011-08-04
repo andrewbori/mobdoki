@@ -21,7 +21,14 @@ import android.util.Log;
 public class HttpGetConnection extends Thread {
 	private String url;							// a cimzett
 	private Handler handler;					// a hivo osztaly Handler-je
+	private int what = 1;						// a hivo azonositoja - ezzel osztalyonkent eleg egy Handler
 	private JSONObject responseJSON;			// válasz
+	
+	public HttpGetConnection (String url0, Handler handler0, int what0) {
+		url = new String(Connection.myhost + url0);
+		handler = handler0;
+		what = what0;
+	} 
 	
 	public HttpGetConnection (String url0, Handler handler0) {
 		url = new String(Connection.myhost + url0);
@@ -59,6 +66,7 @@ public class HttpGetConnection extends Thread {
             responseJSON = new JSONObject(responseStr);
 
             Message msg = handler.obtainMessage();
+            msg.what = what;
             msg.arg1 = 1;							// 1 = sikeres csatlakozas
             handler.sendMessage(msg);				// uzenet elkuldese a hivo Handler-jenek
                 
@@ -66,6 +74,7 @@ public class HttpGetConnection extends Thread {
         	Log.v("HttpGetConnection", "Csatlakozasi hiba!");
             
         	Message msg = handler.obtainMessage();
+        	msg.what = what;
             msg.arg1 = 0;								// 0 = sikertelen csatlakozas
             handler.sendMessage(msg);					// uzenet elkuldese a hivo Handler-jenek
         }

@@ -8,14 +8,17 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class StatisticsActivity extends Activity {
+public class StatisticsActivity extends Activity implements OnClickListener {
 	HttpGetConnection download = null;		// szal a webszerverhez csatlakozashoz
 	private Activity activity = this;
+	
+	private ProgressBar progressbar;
 	
     /** Called when the activity is first created. */
     @Override
@@ -23,22 +26,29 @@ public class StatisticsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.statistics);
         
-        // Frissites gomb esemenykezeloje
-        Button refreshButton = (Button) findViewById(R.statistics.refresh);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-        	public void onClick(View view) {
-        		if (download==null || (download!=null && !download.isAlive())) statisticsRequest();
-        	}
-        });
+        // Gombokra kattintas esemenykezeloje maga az osztaly
+        ((Button) findViewById(R.statistics.refresh)).setOnClickListener(this);
+        ((Button) findViewById(R.statistics.back)).setOnClickListener(this);
         
-        // Vissza gomb esemenykezeloje
-        Button backButton = (Button) findViewById(R.statistics.back);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        progressbar = (ProgressBar)findViewById(R.statistics.progress);
     }
+    
+    // Kattintas esemenykezelo
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		
+			// Frissites gomb esemenykezeloje
+			case R.statistics.refresh:
+				if (download==null || (download!=null && !download.isAlive())) statisticsRequest();
+				break;
+		    
+		    // Vissza gomb esemenykezeloje
+			case R.statistics.back:
+				finish();
+				break;
+		}
+	}
     
     // Indulaskor a statiszikai adatok lekerdezese
     @Override
@@ -53,7 +63,7 @@ public class StatisticsActivity extends Activity {
     	super.onPause();
     	if (download!=null && download.isAlive()) {
     		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.statistics.progress)).setVisibility(ProgressBar.INVISIBLE);
+    		progressbar.setVisibility(View.INVISIBLE);
     	}
     }
     
@@ -61,7 +71,7 @@ public class StatisticsActivity extends Activity {
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.statistics.progress)).setVisibility(ProgressBar.INVISIBLE);
+			progressbar.setVisibility(View.INVISIBLE);
 			switch(msg.arg1){
 				case 0:
 					Log.v("StatisticsActivity","Sikertelen lekeres.");
@@ -72,6 +82,8 @@ public class StatisticsActivity extends Activity {
 						((EditText)findViewById(R.statistics.sicknessCnt)).setText(download.getJSONString("sickness"));				// mutatok bellitasa
 						((EditText)findViewById(R.statistics.symptomCnt)).setText(download.getJSONString("symptom"));
 						((EditText)findViewById(R.statistics.symptomAvg)).setText(download.getJSONString("symptomAvarage"));
+						((EditText)findViewById(R.statistics.hospitalCnt)).setText(download.getJSONString("hospital"));
+						((EditText)findViewById(R.statistics.patientCnt)).setText(download.getJSONString("patient"));
 					} else {
 						Log.v("StatisticsActivity",download.getMessage());
 						Toast.makeText(activity, download.getMessage(), Toast.LENGTH_LONG).show();
@@ -84,7 +96,7 @@ public class StatisticsActivity extends Activity {
 	// Statisztika lekerdezesenek kezdemenyezese
     private void statisticsRequest(){
     	
-    	((ProgressBar)findViewById(R.statistics.progress)).setVisibility(ProgressBar.VISIBLE);
+    	progressbar.setVisibility(View.VISIBLE);
     	
 	    String url = "Statistics";
 	    download = new HttpGetConnection(url, mHandler);

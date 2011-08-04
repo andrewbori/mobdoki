@@ -59,6 +59,23 @@ public class Statistics extends HttpServlet {
                     json.put("symptom",results.getInt(1));
                     results.close();
                 } else json.put("symptom","?");
+                
+                sqlText = "SELECT COUNT(name) AS db FROM \"Hospital\"";          // Korhazak szama
+                ps = db.prepareStatement(sqlText);
+                results = ps.executeQuery();
+                if (results != null && results.next()) {                            // van talalat? akkor kiir
+                    json.put("hospital",results.getInt(1));
+                    results.close();
+                } else json.put("hopsital","?");
+                
+                sqlText = "SELECT COUNT(username) AS db FROM \"User\" " +       // Paciensek szama
+                          "WHERE usertype='patient'";
+                ps = db.prepareStatement(sqlText);
+                results = ps.executeQuery();
+                if (results != null && results.next()) {                            // van talalat? akkor kiir
+                    json.put("patient",results.getInt(1));
+                    results.close();
+                } else json.put("patient","?");
 
                 sqlText = "SELECT COUNT(sickness)/sicknessCnt as symptomAvg " +
                           "FROM \"Diagnosis\", (SELECT COUNT(name) as sicknessCnt FROM \"Sickness\") SicknessCnt " +
