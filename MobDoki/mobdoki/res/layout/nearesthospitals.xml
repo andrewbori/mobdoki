@@ -4,115 +4,97 @@
 			  android:layout_height="fill_parent"
    			  android:id="@+nearesthospitals/viewSwitcher">
     	
-    <ScrollView android:orientation="vertical"
-	  			android:layout_width="fill_parent"
-	  			android:layout_height="fill_parent" >
-   	<LinearLayout android:layout_width="fill_parent"
+    <LinearLayout android:layout_width="fill_parent"
  			  	  android:layout_height="fill_parent"
- 			  	  android:orientation="vertical"
- 			  	  android:paddingLeft="3sp"
-	  			  android:paddingRight="3sp">
- 		
- 		<TextView android:text="Közeli kórházak"
-	    		  android:layout_width="wrap_content"
-	    		  android:layout_height="wrap_content"
-	    	 	  android:paddingBottom="10sp"
-	    		  android:textSize="20sp"
-	    		  android:layout_gravity="center_horizontal"
-	    		  android:textStyle="bold">
-    	</TextView>
-    	
- 		<TextView android:layout_width="wrap_content"
- 				  android:layout_height="wrap_content"
- 				  android:text="Kórházak..."
- 				  android:textStyle="bold">
- 		</TextView>
- 		
-	    <RadioGroup android:id="@+nearesthospitals/position"
-	    			android:layout_width="wrap_content"
-	    			android:layout_height="wrap_content">
-	        <RadioButton android:id="@+nearesthospitals/currentPos"
-	        			 android:text="a saját pozíciómtól"
-	        			 android:layout_width="wrap_content"
-	        			 android:layout_height="wrap_content"
-	        			 android:checked="true" >
-	        </RadioButton>
-	        <RadioButton android:id="@+nearesthospitals/customPos"
-	        	 		 android:text="az alábbi címtől:"
-	        	 		 android:layout_width="wrap_content"
-	        			 android:layout_height="wrap_content" >
-	        </RadioButton>
-	    </RadioGroup>
- 		
- 		<EditText android:layout_width="match_parent"
- 				  android:layout_height="wrap_content"
- 				  android:id="@+nearesthospitals/address"
- 				  android:inputType="textPostalAddress"
- 				  android:clickable="true">
- 		</EditText>
- 			  	  
-	    <LinearLayout android:layout_width="fill_parent"
-		  			  android:layout_height="wrap_content"
-		  			  android:orientation="horizontal"
-		  			  android:paddingTop="5sp">
-		  			  
-		    <TextView android:layout_width="wrap_content"
-		    		  android:layout_height="wrap_content"
-		    		  android:textStyle="bold"
-		    		  android:text="maximum"
-		    		  android:paddingRight="5sp">
-		    </TextView>
+ 			  	  android:orientation="vertical" >
+	    <ScrollView android:orientation="vertical"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="fill_parent"
+		  			android:layout_weight="1" >
+	   	<LinearLayout android:layout_width="fill_parent"
+	 			  	  android:layout_height="fill_parent"
+	 			  	  android:orientation="vertical"
+	 			  	  android:paddingLeft="3sp"
+		  			  android:paddingRight="3sp" >
+	    	
+	 		<TextView android:layout_width="wrap_content"
+	 				  android:layout_height="wrap_content"
+	 				  android:text="Kórházak..."
+	 				  style="@style/TopLabel">
+	 		</TextView>
+	 		
+		    <RadioGroup android:id="@+nearesthospitals/position"
+		    			android:layout_width="wrap_content"
+		    			android:layout_height="wrap_content">
+		        <RadioButton android:id="@+nearesthospitals/currentPos"
+		        			 android:text="a saját pozíciómtól"
+		        			 android:layout_width="wrap_content"
+		        			 android:layout_height="wrap_content"
+		        			 android:checked="true" >
+		        </RadioButton>
+		        <RadioButton android:id="@+nearesthospitals/customPos"
+		        	 		 android:text="az alábbi címtől:"
+		        	 		 android:layout_width="wrap_content"
+		        			 android:layout_height="wrap_content" >
+		        </RadioButton>
+		    </RadioGroup>
+	 		
+	 		<EditText android:layout_width="match_parent"
+	 				  android:layout_height="wrap_content"
+	 				  android:id="@+nearesthospitals/address"
+	 				  android:inputType="textPostalAddress"
+	 				  android:clickable="true">
+	 		</EditText>
+	 			  	  
+		    <LinearLayout android:layout_width="fill_parent"
+			  			  android:layout_height="wrap_content"
+			  			  android:orientation="horizontal"
+			  			  android:paddingTop="5sp">
+			  			  
+			    <TextView android:layout_width="wrap_content"
+			    		  android:layout_height="wrap_content"
+			    		  android:textStyle="bold"
+			    		  android:text="legfeljebb"
+			    		  android:paddingRight="5sp">
+			    </TextView>
+			
+			    <EditText android:id="@+nearesthospitals/distance"
+			    		  android:text="1000"
+			    		  android:layout_width="wrap_content"
+			    		  android:layout_height="wrap_content"
+			    		  android:layout_weight="50"
+			    		  android:numeric="integer|decimal"
+			    		  android:lines="1"
+			    		  android:gravity="right"
+			    		  android:scrollHorizontally="true">
+			    		  <requestFocus></requestFocus>
+			    </EditText>
+			    
+			    <TextView android:layout_width="wrap_content"
+			    		  android:layout_height="wrap_content"
+			    		  android:textStyle="bold"
+			    		  android:text="méterre."
+			    		  android:paddingLeft="5sp">
+			    </TextView>
+			    
+			</LinearLayout>
 		
-		    <EditText android:id="@+nearesthospitals/distance"
-		    		  android:text="1000"
-		    		  android:layout_width="wrap_content"
-		    		  android:layout_height="wrap_content"
-		    		  android:layout_weight="50"
-		    		  android:numeric="integer|decimal"
-		    		  android:lines="1"
-		    		  android:gravity="right"
-		    		  android:scrollHorizontally="true">
-		    		  <requestFocus></requestFocus>
-		    </EditText>
-		    
-		    <TextView android:layout_width="wrap_content"
-		    		  android:layout_height="wrap_content"
-		    		  android:textStyle="bold" android:text="méterre."
-		    		  android:paddingLeft="5sp">
-		    </TextView>
-		    
 		</LinearLayout>
-	
-	    <LinearLayout android:layout_width="fill_parent"
-	    			  android:layout_height="wrap_content"
-	    			  android:paddingTop="5sp">
-	    			  
+		</ScrollView>
+		 <LinearLayout style="@style/BottomLayout">
+	    			 
+	    	<Button android:text="Vissza"
+	        		android:id="@+nearesthospitals/back"
+	        		style="@style/BottomButton">
+	        </Button>
+	    	 
 	        <Button android:text="Mutasd!"
 	        		android:id="@+nearesthospitals/show"
-	        		android:layout_width="wrap_content"
-	        		android:layout_height="wrap_content">
+	        		style="@style/BottomButton">
 	        </Button>
-	        
-	        <Button android:text="Vissza"
-	        		android:id="@+nearesthospitals/back"
-	        		android:layout_width="wrap_content"
-	        		android:layout_height="wrap_content">
-	        </Button>
-	        
-	        <LinearLayout android:layout_height="wrap_content"
-	        		 	  android:layout_width="fill_parent"
-	        		 	  android:orientation="vertical">
-	            <ProgressBar android:id="@+nearesthospitals/progress"
-	            			 android:layout_width="wrap_content"
-	            			 android:layout_height="wrap_content"
-	            			 android:layout_gravity="right"
-	            			 android:visibility="invisible">
-	            </ProgressBar>
-	        </LinearLayout>
-	        
+	              
 	    </LinearLayout>
 	</LinearLayout>
-	</ScrollView>
 	
 	<LinearLayout android:layout_width="fill_parent"
  			  	  android:layout_height="fill_parent"

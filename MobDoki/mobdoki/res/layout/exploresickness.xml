@@ -3,47 +3,19 @@
     		  android:orientation="vertical"
     		  android:layout_width="fill_parent"
     		  android:layout_height="fill_parent">
-
-    <TextView android:text="Betegségek listája"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:paddingBottom="10sp"
-    		  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold">
-    </TextView>
-   	
+ 	
    	<ListView android:id="@+exploresickness/sicknesslist"
     		  android:layout_height="fill_parent"
     		  android:layout_width="fill_parent"
-    		  android:layout_weight="50">
+    		  android:layout_weight="1">
     </ListView>
     
-        <LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
-
-        <Button android:text="Frissítés"
-        		android:id="@+exploresickness/refresh"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
-        </Button>
+    <LinearLayout style="@style/BottomLayout">
 
         <Button android:text="Vissza"
         		android:id="@+exploresickness/back"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
+        		style="@style/BottomButton">
         </Button>
-        
-        <LinearLayout android:layout_height="fill_parent"
-        		 	  android:layout_width="fill_parent"
-        		 	  android:orientation="vertical">
-            <ProgressBar android:id="@+exploresickness/progress"
-            			 android:layout_width="wrap_content"
-            			 android:layout_height="wrap_content"
-            			 android:layout_gravity="right"
-            			 android:visibility="invisible">
-            </ProgressBar>
-        </LinearLayout>
         
     </LinearLayout>
     

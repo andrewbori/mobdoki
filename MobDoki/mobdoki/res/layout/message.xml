@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+			  android:layout_height="fill_parent"
+    		  android:layout_width="fill_parent">
+  
+    <ListView android:id="@+message/list"
+    		  android:layout_height="fill_parent"
+    		  android:layout_width="fill_parent"
+    		  android:layout_weight="1">
+    </ListView>
+    
+    <LinearLayout style="@style/BottomLayout">
+
+       <Button android:text="Vissza"
+        		android:id="@+message/back"
+        		style="@style/BottomButton">
+       </Button>
+       
+       <Button android:text="Elküldött üzenetek"
+        		android:id="@+message/sent"
+        		style="@style/BottomButton">
+       </Button>
+       
+       <Button android:text="Beérkező üzenetek"
+        		android:id="@+message/inbox"
+        		android:visibility="gone"
+        		style="@style/BottomButton">
+       </Button>
+       
+       <Button android:text="Új üzenet"
+        		android:id="@+message/newmessage"
+        		android:visibility="gone"
+        		style="@style/BottomButton">
+       </Button>
+        
+    </LinearLayout>
+    
+</LinearLayout>

@@ -3,9 +3,11 @@ package mobdoki.client.activity.user;
 import java.net.URLEncoder;
 
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,55 +15,114 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class LogInActivity extends Activity {
-	private HttpGetConnection download = null;		// szal a webszerverhez csatlakozashoz
+public class LogInActivity extends Activity implements OnClickListener {
+	private HttpGetJSONConnection download = null;		// szal a webszerverhez csatlakozashoz
 	private Activity activity = this;
 	private String username = null;
+	private String password = null;
+	private String usertype = null;
+	
+	private EditText usernameText;
+	private EditText passwordText;
+	private CheckBox checkbox;
+	
+	ProgressDialog progress;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.login);
+        setTitle("MobDoki: Bejelentkezés");
         
-        // Bejelentkezes gomb esemenykezeloje
-        Button loginButton = (Button) findViewById(R.login.login);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-            	if (download==null || (download!=null && !download.isAlive())) loginRequest();
-            }
-        });  
-    
-	    // Regisztracio gomb esemenykezeloje
-	    Button registerButton = (Button) findViewById(R.login.register);
-	    registerButton.setOnClickListener(new View.OnClickListener() {
-	        public void onClick(View view) {
-	            Intent myIntent = new Intent(view.getContext(), RegisterActivity.class);
-	            startActivity(myIntent);
-	        }
-	    });
+        UserInfo.init(this.getApplicationContext());
+        
+        usernameText = (EditText)findViewById(R.login.username);
+        passwordText = (EditText)findViewById(R.login.password);
+
+	    checkbox = (CheckBox) findViewById(R.login.checkBox1);
+	    checkbox.setOnClickListener(this);
+	    
+        ((Button) findViewById(R.login.login)).setOnClickListener(this);
+	    ((Button) findViewById(R.login.register)).setOnClickListener(this);
     }
+    
+    @Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.login.login:				// Bejelentkezes
+			if (download==null || download.isNotUsed()) loginRequest();
+			break;
+		case R.login.register:			// Regisztracio
+			Intent myIntent = new Intent(activity, RegisterActivity.class);
+            startActivity(myIntent);
+			break;
+		case R.login.checkBox1:
+			UserInfo.putBoolean("isSaved", checkbox.isChecked());
+			break;
+		}
+	}
     
     // Megszakitaskor a futo szalak leallitasa
     @Override
     public void onPause() {
     	super.onPause();
-    	if (download!=null && download.isAlive()) {
-    		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.login.progress)).setVisibility(ProgressBar.INVISIBLE);
+    	if (download!=null && download.isUsed()) {
+    		download.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
+    		progress.cancel();
     	}
+    }
+    
+    @Override
+    public void onResume(){
+    	super.onResume();
+    	if (UserInfo.getBoolean("isLoggedIn")) {
+    		usertype = UserInfo.getString("usertype");
+    		username = UserInfo.getString("username");
+    		if (usertype.equals("doctor")) {										// ha a felhazsnalo orvos
+				Intent myIntent = new Intent(activity,HomeDoctorActivity.class);		// orvos fomenujenek betoltese
+				startActivityForResult(myIntent,0);
+			}
+			else if (usertype.equals("patient")) {									// ha a felhasznalo paciens
+				Intent myIntent = new Intent(activity,HomePatientActivity.class);		// paciens fomenujenek betoltese
+				startActivityForResult(myIntent,0);
+			}
+    	}
+    	
+    	if (UserInfo.getBoolean("isSaved")) {
+    		checkbox.setChecked(true);
+	    	usernameText.setText(UserInfo.getString("username"));
+	    	passwordText.setText(UserInfo.getString("password"));
+    	}
+    	else {
+    		checkbox.setChecked(false);
+    		usernameText.setText("");
+	    	passwordText.setText("");
+    	}
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        
+        	if (resultCode==RESULT_CANCELED) {					// ha nem jelentkezett ki, akkor a keszulek fomenujebe lep
+        		finish();
+        	}
     }
     
     // Bejelentkezest kezelo Handler
 	public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.login.progress)).setVisibility(ProgressBar.INVISIBLE);
 			switch(msg.arg1){
 				case 0:
 					Log.v("LogInActivity","Sikertelen lekeres.");
@@ -70,25 +131,29 @@ public class LogInActivity extends Activity {
 				case 1:
 					
 					if (download.isOK()) {										// Ha a feldolgozas sikeres
-						String userType = download.getJSONString("userType");
+						String SSID = download.getString("ssid");
+						int userid = download.getInt("userid");
+						usertype = download.getString("usertype");
+						int usertypeid = download.getInt("usertypeid");
 						
-						if (userType.equals("doctor")) {										// ha a felhazsnalo orvos
-							((EditText)findViewById(R.login.username)).setText("");					// mezok torlese
-							((EditText)findViewById(R.login.password)).setText("");
-							
+						
+						
+						UserInfo.putString("ssid", SSID);
+						UserInfo.putInt("userid", userid);
+						UserInfo.putString("username", username);
+						UserInfo.putInt("usertype", usertypeid);
+						UserInfo.putString("usertype", usertype);
+						UserInfo.putString("password", password);
+						
+						if (usertype.equals("doctor")) {										// ha a felhazsnalo orvos
 							Intent myIntent = new Intent(activity,HomeDoctorActivity.class);		// orvos fomenujenek betoltese
-							myIntent.putExtra("username", username);
-			                startActivity(myIntent);
+							startActivityForResult(myIntent,0);
 						}
-						else if (userType.equals("patient")) {									// ha a felhasznalo paciens
-							((EditText)findViewById(R.login.username)).setText("");					// mezok torlese
-							((EditText)findViewById(R.login.password)).setText("");
-							
+						else if (usertype.equals("patient")) {									// ha a felhasznalo paciens
 							Intent myIntent = new Intent(activity,HomePatientActivity.class);		// paciens fomenujenek betoltese
-							myIntent.putExtra("username", username);
-							startActivity(myIntent);
+							startActivityForResult(myIntent,0);
 						} else {																// egyebkent: hibauzenet megjelenitese
-							Log.v("LogInActivity",userType);
+							Log.v("LogInActivity",usertype);
 							Toast.makeText(activity, "Ismeretlen felhasználói típus.", Toast.LENGTH_SHORT).show();
 						}
 					} else if (download.isERROR()) {						// ha egyszeru hiba tortent
@@ -105,14 +170,18 @@ public class LogInActivity extends Activity {
 					}
 					break;
 			}
+			setProgressBarIndeterminateVisibility(false);
+			progress.cancel();
+			
+			download.setNotUsed();
 		}
 	};
     
 	// Belepes kezdemenyezes
     private void loginRequest(){
     	
-    	username = ((EditText)findViewById(R.login.username)).getText().toString();			// a mezobe beirt felhasznalonev
-    	String password = ((EditText)findViewById(R.login.password)).getText().toString();	// a mezobe beirt jelszo
+    	username = usernameText.getText().toString();			// a mezobe beirt felhasznalonev
+    	password = passwordText.getText().toString();			// a mezobe beirt jelszo
 			
     	if (username.equals("")) {															// ha nincs adat: hibauzenet	
     		Toast.makeText(activity, "Adja meg a felhasználónevét!", Toast.LENGTH_SHORT).show();
@@ -125,10 +194,15 @@ public class LogInActivity extends Activity {
     	
     	int pass = password.hashCode();				// a mezobe beirt jelszo hashkodja
     	
-    	((ProgressBar)findViewById(R.login.progress)).setVisibility(ProgressBar.VISIBLE);
+    	setProgressBarIndeterminateVisibility(true);
+    	progress = new ProgressDialog(this);
+        progress.setMessage("Bejelentkezés...");
+        progress.setIndeterminate(true);
+        progress.setCancelable(true);
+    	progress.show();
     	
 	    String url = "Login?username=" + URLEncoder.encode(username) + "&password=" + pass;
-	    download = new HttpGetConnection(url, mHandler);
+	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
     }
 }

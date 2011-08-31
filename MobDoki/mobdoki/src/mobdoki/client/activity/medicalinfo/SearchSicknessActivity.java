@@ -5,69 +5,49 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
-public class SearchSicknessActivity extends Activity {
-	HttpGetConnection download = null;				// szal a webszerverhez csatlakozashoz
-	HttpGetConnection downloadSymptom = null;		// szál a tunetek letoltesehez
-	private Activity activity=this;
+public class SearchSicknessActivity extends Activity implements OnClickListener {
+	private final int TASK_GETSYMPTOMS=1;
+	private final int TASK_SEARCH=2;
+	
+	private HttpGetJSONConnection download = null;				// szal a webszerverhez csatlakozashoz
+	private HttpGetJSONConnection downloadSymptom = null;		// szál a tunetek letoltesehez
 	
 	HashMap<String, Integer> lines = null;			// betegsegek
 	private ArrayList<String> listElements;			// betegsegek (talalatok listaja)
 	private ArrayList<String> listSymptom;			// tunetek listaja
 	
+	private Activity activity=this;
+	private AlertDialog symptomDialog;
+	private MultiAutoCompleteTextView symptomsText;
 	private ListView listview;						// talalati lista
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.searchsickness);
-    
-		// Kereses gomb esemenykezeloje
-		Button searchButton = (Button) findViewById(R.searchsickness.search);
-		searchButton.setOnClickListener(new View.OnClickListener() {
-	      	public void onClick(View view) {
-	      		if (download==null || (download!=null && !download.isAlive())) searchRequest();
-	      	}
-		});
-   
-		// Vissza gomb esemenykezeloje
-		Button backButton = (Button) findViewById(R.searchsickness.back);
-		backButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				finish();
-			}
-		});
-	
-        // A tunetek spinnerjenek elemkivalaszto esemenykezeloje
-        Spinner spinnerSymptom = (Spinner) findViewById(R.searchsickness.spinnerSymptom);
-        spinnerSymptom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position!=0) {
-                	MultiAutoCompleteTextView symptom = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);
-	                symptom.setText(symptom.getText() + listSymptom.get(position) + ", ");			// TextView-ba a kivalasztott hozzadasa
-	                Spinner spinner = (Spinner) findViewById(R.searchsickness.spinnerSymptom);
-	                spinner.setSelection(0);														// visszaugras a 0. elemre (ami ures)
-                }
-            }
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+		setTitle("MobDoki: Betegség keresése");
 	
 		// Lista esemenykezeloje
 		listview = (ListView) findViewById(R.searchsickness.sicknesslist);
@@ -82,12 +62,31 @@ public class SearchSicknessActivity extends Activity {
 			}
 		});
 	
-		MultiAutoCompleteTextView symptoms = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);
+		symptomsText = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item,
         																  new ArrayList<String>());
-        symptoms.setAdapter(adapter);
-        symptoms.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        symptomsText.setAdapter(adapter);
+        symptomsText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
+        ((ImageButton) findViewById(R.searchsickness.buttonSymptom)).setOnClickListener(this);
+		((Button) findViewById(R.searchsickness.search)).setOnClickListener(this);
+		((Button) findViewById(R.searchsickness.back)).setOnClickListener(this);
+	}
+	
+	// Kattintas esemenykezeloje
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.searchsickness.buttonSymptom:
+			if (symptomDialog!=null) symptomDialog.show();
+			break;
+		case R.searchsickness.search:
+			if (download==null || download.isNotUsed()) searchRequest();
+			break;
+		case R.searchsickness.back:
+			finish();
+			break;
+		}	
 	}
 	
 	// Indulaskor a tunetek lekerdezese
@@ -101,52 +100,53 @@ public class SearchSicknessActivity extends Activity {
     @Override
     public void onPause() {
     	super.onPause();
-    	if (download!=null && download.isAlive()) {
-    		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.searchsickness.progress)).setVisibility(ProgressBar.INVISIBLE);
+    	if (download!=null && download.isUsed()) {
+    		download.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
     	}
-    	if (downloadSymptom!=null && downloadSymptom.isAlive()) {
-    		downloadSymptom.stop(); downloadSymptom=null;
+    	if (downloadSymptom!=null && downloadSymptom.isUsed()) {
+    		downloadSymptom.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
     	}
     }
 	
-    // Tunetek betolteset kezelo Handler
-	public Handler symptomHandler = new Handler() {
+    // 
+	public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			
+			// Tunetek betoltese
+			case TASK_GETSYMPTOMS:
+				if (msg.arg1==1 && downloadSymptom.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
+					Log.v("SearchSicknessActivity","Tunetek betoltve");
+					
+					listSymptom = downloadSymptom.getStringArrayList("names");
+			        MultiAutoCompleteTextView symptoms = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);	// Autocomplete lista
+			        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSymptom);
+			        symptoms.setAdapter(adapter);
+			        symptoms.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+			        
+			        listSymptom.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
 
-			switch(msg.arg1){
-				case 1:
-					if(downloadSymptom.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
-						Log.v("SearchSicknessActivity","Tunetek betoltve");
-				        MultiAutoCompleteTextView symptoms = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);	// Autocomplete lista
-				        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item,
-				        														downloadSymptom.getJSONStringArray("names"));
-				        symptoms.setAdapter(adapter);
-				        symptoms.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-				        
-				        listSymptom = downloadSymptom.getJSONStringArray("names");												// Spinner lista
-				        listSymptom.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
-	
-				        Spinner spinner = (Spinner) findViewById(R.searchsickness.spinnerSymptom);
-				        adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, 
-				        								   listSymptom);
-				        
-				        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-				        spinner.setAdapter(adapter);
-				        spinner.setSelection(0);
-					}
-					break;
-			}
-		}
-	};
-
-	// Talalatok listazasat kezelo Handler
-    public Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.searchsickness.progress)).setVisibility(ProgressBar.INVISIBLE);
-			switch(msg.arg1){
+			        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			        builder.setItems(downloadSymptom.getStringArray("names", true), new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int position) {
+			            	if (position!=0) {
+			            		symptomsText.setText(symptomsText.getText() + listSymptom.get(position) + ", ");			// TextView-ba a kivalasztott hozzadasa
+			                } else {
+			                	symptomsText.setText("");			// TextView torlese
+			                }
+			            }
+			        });
+			        symptomDialog = builder.create();
+				}
+				downloadSymptom.setNotUsed();
+				break;	
+			
+			// Talalatok listazasat kezelo Handler
+			case TASK_SEARCH:
+				switch(msg.arg1){
 				case 0:
 					Log.v("SearchSicknessActivity","Sikertelen lekeres.");
 					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
@@ -154,25 +154,9 @@ public class SearchSicknessActivity extends Activity {
 				case 1:
 					if (download.isOK()) {
 						Log.v("SearchSicknessActivity","Sikeres keresés");
-						int num = download.getJSONInt("size");									// Tuntek szama (amelyek alapjan kerestunk)
 						
-						HashMap<String, Integer> sicknesses = new HashMap<String, Integer>();	// betegsegek + talalati darabszamuk
-						listElements = new ArrayList<String>();
-						
-						for (String sickness : download.getJSONStringArray("sicknesses")) {		// Talalatok beolvasasa, elofordulas szamolasa
-							if (sicknesses.containsKey(sickness)) {										// Ha mar a listaban van a betegseg: darabszam novelese
-								sicknesses.put(sickness, sicknesses.get(sickness)+1);
-							} else {															// Ha nem, akkor felvetel, 1-es darabszammal (es a listahoz hozzaadas)
-								sicknesses.put(sickness, 1);
-								listElements.add(sickness);
-							}
-						}
-						
-						ArrayList<String> listElements2 = new ArrayList<String>();
-						for (int i=0; i<listElements.size(); i++) {				// megjelenitendo listaelemek kiegeszitese szazalekos egyezessel
-							String sickness = listElements.get(i);
-							listElements2.add(sickness + " (" + (int)(((float)sicknesses.get(sickness))/num*100.0) + "%)");	
-						}
+						listElements = download.getStringArrayList("sicknesses");
+						ArrayList<String> listElements2 = download.getStringArrayList("list");
 						
 						listview = (ListView) findViewById(R.searchsickness.sicknesslist);
 						ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
@@ -183,9 +167,12 @@ public class SearchSicknessActivity extends Activity {
 					else {
 						Toast.makeText(activity, download.getMessage(), Toast.LENGTH_LONG).show();
 					}
-					
 					break;
+				}
+				download.setNotUsed();
+				break;
 			}
+			if (!((download!=null && download.isUsed()) || (downloadSymptom!=null && downloadSymptom.isUsed()))) setProgressBarIndeterminateVisibility(false);
 		}
 	};
 	
@@ -199,17 +186,19 @@ public class SearchSicknessActivity extends Activity {
     		return;
     	}
     	
-    	((ProgressBar)findViewById(R.searchsickness.progress)).setVisibility(ProgressBar.VISIBLE);
+    	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "SearchSickness?symptoms=" + URLEncoder.encode(symptoms);
-	    download = new HttpGetConnection(url, mHandler);
+	    String url = "SearchSickness?symptoms=" + URLEncoder.encode(symptoms) + "&ssid=" + UserInfo.getSSID();
+	    download = new HttpGetJSONConnection(url, mHandler, TASK_SEARCH);
 	    download.start();
     }
     
     // Tunetek lekerdezese
     private void getSymptom(){
-    	String url = "GetAll?table=Symptom";
-	    downloadSymptom = new HttpGetConnection(url, symptomHandler);
+    	setProgressBarIndeterminateVisibility(true);
+    	
+    	String url = "GetAll?table=Symptom"  + "&ssid=" + UserInfo.getSSID();
+	    downloadSymptom = new HttpGetJSONConnection(url, mHandler, TASK_GETSYMPTOMS);
 	    downloadSymptom.start();
     }
 }

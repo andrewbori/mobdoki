@@ -6,7 +6,8 @@ import java.util.List;
 
 import mobdoki.client.CustomItemizedOverlay;
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,9 +23,9 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -37,9 +38,11 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 public class NearestHospitalsActivity extends MapActivity implements OnClickListener {
-
-	private HttpGetConnection downloadHospital = null;		// szal a korhazak letoltesehez
-	private HttpGetConnection downloadGeoCode = null;		// szal a megadott cim koordinatainak lekerdezesehez
+	private final int TASK_GETHOSPITALS = 1;
+	private final int TASK_ADDRESSCHECK = 2;
+		
+	private HttpGetJSONConnection downloadHospital = null;		// szal a korhazak letoltesehez
+	private HttpGetJSONConnection downloadGeoCode = null;		// szal a megadott cim koordinatainak lekerdezesehez
 	private ArrayList<Hospital> listHospitals = null;		// lekerdezett korhazak tombje
 	
 	private LocationManager locationManager;
@@ -56,7 +59,6 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 	
 	private boolean isMapDisplayed = false;					// Igaz ha a terkep meg van jelenitve
 	private Activity activity = this;
-	private ProgressBar progressbar;
 	private RadioButton currentRadio;
 	private RadioButton customRadio;
 	private ViewSwitcher switcher;
@@ -66,9 +68,10 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 	@Override
 	public void onCreate(Bundle savedInstanceState) { 
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 	    setContentView(R.layout.nearesthospitals);
+	    setTitle("MobDoki: Kórházak a közelben");
 	    
-	    progressbar = (ProgressBar)findViewById(R.nearesthospitals.progress);
 	    switcher = (ViewSwitcher) findViewById(R.nearesthospitals.viewSwitcher);
 	    addressBox = (EditText) findViewById(R.nearesthospitals.address);
 	    distanceBox = (EditText)findViewById(R.nearesthospitals.distance);
@@ -91,10 +94,10 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 		locationListenerGPS = new MyLocationListener();
 		locationListenerNetwork = new MyLocationListener();		
 		try {
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 1, locationListenerGPS);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 5, locationListenerGPS);
 		} catch (Exception e) { Log.v("NearestHospitalActivity","GPS PROVIDER nincs engedélyezve."); }
 		try {
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 1, locationListenerNetwork);
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 5, locationListenerNetwork);
 		} catch (Exception e) { Log.v("NearestHospitalActivity","NETWORK PROVIDER nincs engedélyezve."); }
 	}
 	
@@ -108,12 +111,11 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 				isCurrentPosition = currentRadio.isChecked();
 				if (isCurrentPosition) {
 	        		setLocations(myLocation);
-	        		//if (download==null || (download!=null && !download.isAlive())) addRequest();
 	        		isMapDisplayed = true;
 	        		switcher.showNext();
 				}
 				else {
-					addressCheck();
+					if (downloadGeoCode==null || downloadGeoCode.isNotUsed()) addressCheck();
 				}
 				break;
 				
@@ -248,12 +250,12 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
     @Override
     public void onPause() {		// megszakitaskor a futo szalak leallitasa
     	super.onPause();
-    	if (downloadHospital!=null && downloadHospital.isAlive()) {
-    		downloadHospital.stop(); downloadHospital=null;
+    	if (downloadHospital!=null && downloadHospital.isUsed()) {
+    		downloadHospital.setNotUsed();
     	}
-    	if (downloadGeoCode!=null && downloadGeoCode.isAlive()) {
-    		downloadGeoCode.stop(); downloadGeoCode=null;
-    		progressbar.setVisibility(View.INVISIBLE);
+    	if (downloadGeoCode!=null && downloadGeoCode.isUsed()) {
+    		downloadGeoCode.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
     	}
     }
 	  
@@ -264,43 +266,41 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 				
 				switch(msg.what) {
 				
-				// Korhazak lekerdezese (msg.what=1)
-				case 1:
-					if(msg.arg1==1){
-						if (downloadHospital.isOK()) {
-							Log.v("NearestHospitalsActivity","Korhazak lekerdezve");
-					        
-							listHospitals = new ArrayList<Hospital>();
-							
-							try {
-								JSONArray hospitals = downloadHospital.getJSONArray("hospitals");
-								for (int i=0; i<hospitals.length(); i++) {						// korhazak beolvasasa
-									JSONObject hospital = (JSONObject)hospitals.get(i);
-									
-									String name = hospital.getString("name");							// korhaz neve
-									JSONObject coordinates = hospital.getJSONObject("coordinates");		// korhaz koordinatai
-									double x = coordinates.getDouble("x");
-									double y = coordinates.getDouble("y");
-									
-									listHospitals.add( new Hospital(name, x, y) );						// korhaz hozzaadasa a listahoz
-								}
-							} catch (Exception e) {
-								Log.v("NearestHospitalsActivity","JSON beolvasasi hiba!");
+				// Korhazak lekerdezese
+				case TASK_GETHOSPITALS:
+					if(msg.arg1==1 && downloadHospital.isOK()) {
+						Log.v("NearestHospitalsActivity","Korhazak lekerdezve");
+				        
+						listHospitals = new ArrayList<Hospital>();
+						
+						try {
+							JSONArray hospitals = downloadHospital.getJSONArray("hospitals");
+							for (int i=0; i<hospitals.length(); i++) {						// korhazak beolvasasa
+								JSONObject hospital = (JSONObject)hospitals.get(i);
+								
+								String name = hospital.getString("name");							// korhaz neve
+								JSONObject coordinates = hospital.getJSONObject("coordinates");		// korhaz koordinatai
+								double x = coordinates.getDouble("x");
+								double y = coordinates.getDouble("y");
+								
+								listHospitals.add( new Hospital(name, x, y) );						// korhaz hozzaadasa a listahoz
 							}
+						} catch (Exception e) {
+							Log.v("NearestHospitalsActivity","JSON beolvasasi hiba!");
 						}
 					}
-				break;
+					downloadHospital.setNotUsed();
+					break;
 					
-				// Megadott cim koordinatakka forditasa (msg.what=2)
-				case 2:
-					progressbar.setVisibility(View.INVISIBLE);
+				// Megadott cim koordinatakka forditasa
+				case TASK_ADDRESSCHECK:
 					switch(msg.arg1){
 						case 0:
 							Log.v("NewHospitalActivity","Sikertelen GeoCode lekeres.");
 							Toast.makeText(activity, "Nem sikerült a megadott címet kódolni.", Toast.LENGTH_LONG).show();
 						break;
 						case 1:
-							JSONObject json = downloadGeoCode.getJSON();
+							JSONObject json = downloadGeoCode.getJSONObject();
 							try {
 								if (json.getJSONObject("Status").getInt("code") == 200) {	// Ha ervenyes a megadott cim
 									JSONArray coordinates = json.getJSONArray("Placemark").getJSONObject(0).getJSONObject("Point").getJSONArray("coordinates");
@@ -319,15 +319,17 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 							}
 						break;
 					}
-				break;
+					setProgressBarIndeterminateVisibility(false);
+					downloadGeoCode.setNotUsed();
+					break;
 				}
 			}
 		};
 		
 	    // Korhazak lekerdezese
 	    private void getHospital(){
-	    	String url = "NearestHospitals";
-		    downloadHospital = new HttpGetConnection(url, mHandler);
+	    	String url = "NearestHospitals?ssid=" + UserInfo.getSSID();
+		    downloadHospital = new HttpGetJSONConnection(url, mHandler, TASK_GETHOSPITALS);
 		    downloadHospital.start();
 	    }
 	    
@@ -342,10 +344,10 @@ public class NearestHospitalsActivity extends MapActivity implements OnClickList
 	    	
 	    	if (!address.equals(address0)) {	// Ha a cim meg nem lett kodolva
 	    		address0 = address;
-		    	progressbar.setVisibility(View.VISIBLE);
+		    	setProgressBarIndeterminateVisibility(true);
 	
 		    	String url = "http://maps.google.com/maps/geo?key=yourkeyhere&output=json&q="+URLEncoder.encode(address);
-		    	downloadGeoCode = new HttpGetConnection("", mHandler, 2);
+		    	downloadGeoCode = new HttpGetJSONConnection("", mHandler, TASK_ADDRESSCHECK);
 		    	downloadGeoCode.setURL(url);
 		    	downloadGeoCode.start();		// megadott cim kodolasa
 	    	}

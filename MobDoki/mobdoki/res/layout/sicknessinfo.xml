@@ -27,6 +27,69 @@
 	      			 android:layout_height="fill_parent"
 	      			 android:paddingTop="30px">
 	      
+	      	<LinearLayout android:id="@+sicknessinfo/sicknessTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Betegség adatai:"
+			    		  android:layout_height="wrap_content"
+			    		  android:layout_width="fill_parent"
+			    		  android:textStyle="bold"
+			    		  android:textColor="#FFFFFF"
+			    		  android:background="#777777">
+			    </TextView>
+			    
+			    <TextView android:text="Betegség neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+sicknessinfo/sicknessname"
+			    		  android:layout_height="wrap_content"
+			    		  android:editable="false">
+			    </EditText>
+			    
+			    <TextView android:text="Súlyosság:"
+			    		  style="@style/TopLabel">
+			   	</TextView>
+			    <RatingBar android:id="@+sicknessinfo/sicknessRating"
+			    		   android:layout_width="wrap_content"
+			    		   android:layout_height="wrap_content"
+			    		   android:isIndicator="true">
+			    </RatingBar>
+			    
+			    <TextView android:text="Információ a betegségről:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+sicknessinfo/sicknessURL"
+			    		  android:layout_height="wrap_content"
+			    		  android:editable="false">
+			    </EditText>
+			    
+			    <LinearLayout android:layout_width="fill_parent"
+    			  			  android:layout_height="wrap_content">
+        
+			        <Button android:text="Mutasd!"
+			        		android:id="@+sicknessinfo/show"
+			        		android:layout_width="wrap_content"
+			        		android:layout_height="wrap_content">
+			        </Button>
+			        
+			        <Button android:text="Google"
+			        		android:id="@+sicknessinfo/google"
+			        		android:layout_width="wrap_content"
+			        		android:layout_height="wrap_content">
+			        </Button>
+			        
+			        <Button android:text="Wikipédia"
+			        		android:id="@+sicknessinfo/wiki"
+			        		android:layout_width="wrap_content"
+			        		android:layout_height="wrap_content">
+			        </Button>
+				</LinearLayout>	    
+			    
+			</LinearLayout>
+	      	
 	      	<LinearLayout android:id="@+sicknessinfo/symptomTab"
 			    		  android:orientation="vertical"
 			    		  android:layout_width="fill_parent"
@@ -64,24 +127,12 @@
 	    </FrameLayout>
     </TabHost>
     
-    <LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
+    <LinearLayout style="@style/BottomLayout">
         
         <Button android:text="Vissza"
         		android:id="@+sicknessinfo/back"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
+        		style="@style/BottomButton">
         </Button>
-        <LinearLayout android:layout_height="fill_parent"
-			          android:layout_width="fill_parent"
-			          android:orientation="vertical">
-            <ProgressBar android:layout_height="wrap_content"
-			             android:visibility="invisible"
-			             android:layout_width="wrap_content"
-			             android:id="@+sicknessinfo/progress"
-			             android:layout_gravity="right">
-            </ProgressBar>
-        </LinearLayout>
         
     </LinearLayout>
     

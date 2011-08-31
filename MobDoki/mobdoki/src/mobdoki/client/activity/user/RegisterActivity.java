@@ -3,53 +3,76 @@ package mobdoki.client.activity.user;
 import java.net.URLEncoder;
 
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-public class RegisterActivity extends Activity {
-	HttpGetConnection download = null;		// szal a webszerverhez csatlakozashoz
+public class RegisterActivity extends Activity implements OnClickListener {
+	private HttpGetJSONConnection download = null;		// szal a webszerverhez csatlakozashoz
 	private Activity activity = this;
+	
+	private String username;
+	private String password1;
+	private String usertype;
+	
+	private EditText usernameText;
+	private EditText password1Text;
+	private EditText password2Text;
+	private RadioButton isDoctorRB;
+	private ProgressDialog progress;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
+        setTitle("MobDoki: Regisztráció");
         
-        // Oke gomb esemenykezeloje
-        Button okayButton = (Button) findViewById(R.register.okay);
-        okayButton.setOnClickListener(new View.OnClickListener() {
-        	public void onClick(View view) {
-        		if (download==null || (download!=null && !download.isAlive())) registerRequest();
-        	}
-        });
+        usernameText = (EditText)findViewById(R.register.username);
+    	password1Text = (EditText)findViewById(R.register.password1);
+    	password2Text = (EditText)findViewById(R.register.password2);
+    	isDoctorRB = (RadioButton)findViewById(R.register.doctorUser);
+
+    	progress = new ProgressDialog(this);
+        progress.setMessage("Regisztráció...");
+        progress.setIndeterminate(true);
+        progress.setCancelable(true);
         
-        // Vissza gomb esemenykezeloje
-        Button backButton = (Button) findViewById(R.register.back);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        ((Button) findViewById(R.register.okay)).setOnClickListener(this);
+        ((Button) findViewById(R.register.back)).setOnClickListener(this);
     }
+    
+    // Kattintas esemenykezelo
+    @Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.register.okay:				// Ok - Regisztracio
+			if (download==null || download.isNotUsed()) registerRequest();
+			break;
+		case R.register.back:				// Vissza
+			finish();
+			break;
+		}
+	}
     
     // Megszakitaskor a futo szalak leallitasa
     @Override
     public void onPause() {
     	super.onPause();
-    	if (download!=null && download.isAlive()) {
-    		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.register.progress)).setVisibility(ProgressBar.INVISIBLE);
+    	if (download!=null && download.isUsed()) {
+    		download.setNotUsed();
+    		progress.cancel();
     	}
     }
     
@@ -57,7 +80,6 @@ public class RegisterActivity extends Activity {
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.register.progress)).setVisibility(ProgressBar.INVISIBLE);
 			switch(msg.arg1){
 				case 0:
 					Log.v("RegisterActivity","Sikertelen lekeres.");
@@ -68,18 +90,29 @@ public class RegisterActivity extends Activity {
 						String message = download.getMessage();							// Uzenet lekerdezese es megjelenitese
 						Log.v("RegisterActivity", message);
 						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+						
+						if(download.isOK()) {
+							UserInfo.putString("username", username);
+							UserInfo.putString("usetype", usertype);
+							UserInfo.putString("password", password1);
+							UserInfo.putBoolean("isLoggedIn", false);
+							UserInfo.putBoolean("isSaved", true);
+							finish();
+						}
 					}
 					break;
 			}
+			progress.cancel();
+			download.setNotUsed();
 		}
 	};
     
 	// Regisztracio kezdemenyezese
     private void registerRequest(){
-    	String username = ((EditText)findViewById(R.register.username)).getText().toString();		// a mezobe beirt felhasznalonev
-    	String password1 = ((EditText)findViewById(R.register.password1)).getText().toString();
-    	String password2 = ((EditText)findViewById(R.register.password2)).getText().toString();
-    	boolean isDoctor = ((RadioButton)findViewById(R.register.doctorUser)).isChecked();
+    	username = usernameText.getText().toString();		// a mezobe beirt felhasznalonev
+    	password1 = password1Text.getText().toString();
+    	String password2 = password2Text.getText().toString();
+    	boolean isDoctor = isDoctorRB.isChecked();
 		
     	if (username.equals("") || password1.equals("") || password2.equals("")) {					// Ha nincs adat: hibauzenet
     		Toast.makeText(activity, "Adja meg a regisztrációhoz szükséges adatokat!", Toast.LENGTH_SHORT).show();
@@ -93,26 +126,26 @@ public class RegisterActivity extends Activity {
     	
     	if (!password1.equals(password2)) {
     		Toast.makeText(activity, "A megadott jelszavak nem egyeznek.", Toast.LENGTH_SHORT).show();
-    		((EditText)findViewById(R.register.password1)).setText("");
-    		((EditText)findViewById(R.register.password2)).setText("");
+    		password1Text.setText("");
+    		password2Text.setText("");
     		return;
     	}
     	
     	if (password1.length()<6) {
     		Toast.makeText(activity, "A megadott jelszó túl rövid.", Toast.LENGTH_SHORT).show();
-    		((EditText)findViewById(R.register.password1)).setText("");
-    		((EditText)findViewById(R.register.password2)).setText("");
+    		password1Text.setText("");
+    		password2Text.setText("");
     		return;
     	}
     	
     	int pass = password1.hashCode();		// a mezobe beirt jelszo hashkodja
-    	String usertype;						// a felhasznalo tipusa
+    											// a felhasznalo tipusa
     	if (isDoctor) usertype="doctor"; else usertype="patient";
     	
-    	((ProgressBar)findViewById(R.register.progress)).setVisibility(ProgressBar.VISIBLE);
+    	progress.show();
     	
 	    String url = "Register?username=" + URLEncoder.encode(username) + "&password=" + pass + "&usertype=" + usertype;
-	    download = new HttpGetConnection(url, mHandler);
+	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
     }
 }

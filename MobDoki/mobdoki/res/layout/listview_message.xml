@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_height="wrap_content"
+              android:layout_width="fill_parent"
+              android:paddingTop="3sp"
+              android:paddingBottom="3sp">
+             
+	<ImageView android:id="@+listview_message/mailicon"
+			   android:layout_height="wrap_content"
+			   android:layout_width="wrap_content"
+			   android:src="@drawable/mail_unviewed">
+	</ImageView>
+<LinearLayout android:orientation="vertical"
+              android:layout_height="wrap_content"
+              android:layout_width="fill_parent"
+              android:focusable="false">
+    <LinearLayout android:orientation="horizontal"
+              	  android:layout_height="wrap_content"
+              	  android:layout_width="fill_parent">
+		<TextView android:id="@+listview_message/subject"
+				  android:text="Tárgy"
+	              android:layout_height="wrap_content"
+	              android:layout_width="fill_parent"
+	              android:layout_weight="1"
+	              android:textAppearance="?android:attr/textAppearanceMedium"
+	              android:maxLines="1"
+	              android:ellipsize="end"
+	              android:scrollHorizontally="true"
+	              android:focusable="false"/>
+	   <ImageView android:id="@+listview_message/imageicon"
+			   android:layout_height="wrap_content"
+			   android:layout_width="wrap_content"
+			   android:src="@drawable/mail_attachment"
+			   android:layout_gravity="right|center_vertical">
+		</ImageView>
+    </LinearLayout>
+    
+    <LinearLayout android:orientation="horizontal"
+          	      android:layout_height="wrap_content"
+          	      android:layout_width="fill_parent">
+    	<TextView android:id="@+listview_message/sender"
+				  android:layout_height="wrap_content"
+	              android:layout_width="fill_parent"
+	              android:layout_weight="1"
+	              android:text="Feladó"
+	              android:paddingRight="15sp"
+	              android:textAppearance="?android:attr/textAppearanceSmall"
+	              android:maxLines="1"
+	              android:ellipsize="end"
+	              android:scrollHorizontally="true"
+	              android:focusable="false"/>
+		<TextView android:id="@+listview_message/date"
+				  android:text="2010-01-01"
+	              android:layout_height="wrap_content"
+	              android:layout_width="wrap_content"
+	              android:gravity="right"
+	              android:textAppearance="?android:attr/textAppearanceSmall"
+	              android:maxLines="1"
+	              android:scrollHorizontally="true"
+	              android:focusable="false"/>
+    </LinearLayout>
+    
+</LinearLayout>
+</LinearLayout>

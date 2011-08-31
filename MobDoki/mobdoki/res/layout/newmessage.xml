@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+newmessage/linearLayout1"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:orientation="vertical">
+	<ScrollView android:orientation="vertical"
+	  			android:layout_width="fill_parent"
+	  			android:layout_height="fill_parent"
+	  			android:layout_weight="1">
+	<LinearLayout android:layout_width="fill_parent"
+				  android:layout_height="fill_parent"
+				  android:orientation="vertical">
+		
+		<TextView android:text="Címzett:"
+			  	  style="@style/TopLabel">
+		</TextView>
+		<LinearLayout android:layout_width="fill_parent"
+					  android:layout_height="wrap_content">
+			<AutoCompleteTextView android:layout_width="fill_parent"
+								  android:layout_height="wrap_content"
+								  android:layout_weight="1"
+								  android:id="@+newmessage/username"
+								  android:inputType="textAutoComplete">
+			</AutoCompleteTextView>
+			<ImageButton android:id="@+newmessage/buttonUsers"
+						 style="@style/ButtonChooser">	 
+			</ImageButton>
+		</LinearLayout>
+		
+		<TextView android:text="Tárgy:"
+				  style="@style/TopLabel">
+		</TextView>
+		<EditText android:id="@+newmessage/subject"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hint="Tárgy"
+				android:inputType="textEmailSubject">
+		</EditText>
+		
+		<TextView android:text="Üzenet:"
+				  style="@style/TopLabel">
+		</TextView>
+		<EditText android:id="@+newmessage/text"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent"
+			android:hint="Üzenet szövege" android:minLines="8"
+			android:gravity="top|left"
+			android:inputType="textMultiLine">
+		</EditText>
+		
+		
+		<LinearLayout android:id="@+newmessage/imagelayout"
+				  android:layout_width="fill_parent"
+				  android:layout_height="fill_parent"
+				  android:orientation="vertical"
+				  android:visibility="gone">
+			<TextView android:text="Feltöltendő kép:"
+					  style="@style/TopLabel" >
+			</TextView>
+			<ImageView android:id="@+newmessage/imageView"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:scaleType="fitStart"
+			    android:layout_gravity="center_horizontal">
+			</ImageView>
+		</LinearLayout>
+	
+	</LinearLayout>
+	
+	</ScrollView>
+	<LinearLayout style="@style/BottomLayout">
+    			  
+		<Button android:id="@+newmessage/backbutton"
+			android:text="@string/backbutton"
+			style="@style/BottomButton">
+		</Button>
+		
+		<Button android:id="@+newmessage/imagebutton"
+			android:text="Kép csatolása"
+			style="@style/BottomButton">
+		</Button>
+		
+		<Button android:id="@+newmessage/sendbutton"
+			android:text="Küldés"
+			style="@style/BottomButton">
+		</Button>
+        
+    </LinearLayout>
+</LinearLayout>

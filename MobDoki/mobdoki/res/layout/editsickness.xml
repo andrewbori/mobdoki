@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent" android:orientation="vertical">
+    <ScrollView android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent"
+  			android:layout_weight="1">
+	<TabHost android:id="@+id/tabhost"
+    		 android:layout_width="fill_parent"
+    	     android:layout_height="fill_parent"
+    	     android:layout_weight="50">
+
+	    <TabWidget android:id="@android:id/tabs"
+		      	   android:layout_width="fill_parent"
+		      	   android:layout_height="wrap_content"
+		/>
+		<FrameLayout android:id="@android:id/tabcontent"
+	      			 android:layout_width="fill_parent"
+	      			 android:layout_height="fill_parent"
+	      			 android:paddingTop="35px">
+	      			 
+			<!-- ***************************************** -->
+			<!-- BETEGSÉGEK FELVÉTELE/SZERKESZTÉSE/TÖRLÉSE -->
+			<!-- ***************************************** --> 
+	      	<LinearLayout android:id="@+editsickness/sicknessTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Betegség felvétele/szerkesztése/törlése:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Betegség neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+editsickness/sickness1"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50" 
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+editsickness/buttonSickness1"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+			    
+			    <TextView android:text="Súlyosság:"
+			    		  style="@style/TopLabel">
+			   	</TextView>
+			    <RatingBar android:id="@+editsickness/sicknessRating"
+			    		   android:layout_width="wrap_content"
+			    		   android:layout_height="wrap_content">
+			    </RatingBar>
+			    
+			    <TextView android:text="Információ (URL):"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:id="@+editsickness/sicknessURL"
+			    		  android:layout_height="wrap_content"
+			    		  android:layout_width="match_parent" >
+			    </EditText>
+			</LinearLayout>
+			<!-- ***************************************** -->
+			<!-- 		TÜNETEK MEGADÁSA/TÖRLÉSE 		   -->
+			<!-- ***************************************** -->	
+			<LinearLayout android:id="@+editsickness/symptomTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Tünet hozzárendelése betegséghez:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Betegség neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+editsickness/sickness2"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+editsickness/buttonSickness2"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+			
+			    <TextView android:text="Tünet neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+editsickness/symptom2"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+editsickness/buttonSymptom2"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+		    </LinearLayout>
+	    	<!-- ***************************************** -->
+			<!-- 		TÜNETHEZ KÉP HOZZÁRENDELÉSE 	   -->
+			<!-- ***************************************** -->	
+			<LinearLayout android:id="@+editsickness/pictureTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Kép hozzárendelése tünethez:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Tünet neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+editsickness/symptom3"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+editsickness/buttonSymptom3"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+				
+			    <TextView android:text="Feltöltendő kép:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <ImageView android:id="@+editsickness/image"
+			    			android:src="@drawable/clickhere"
+			    			android:scaleType="fitStart"
+			    			android:layout_gravity="center_horizontal"
+			    			android:layout_width="fill_parent"
+			    			android:layout_height="wrap_content">
+			    </ImageView>
+			 
+		    </LinearLayout>
+		    <!-- ***************************************** -->	
+	    </FrameLayout>
+    </TabHost>
+    </ScrollView>
+    
+    <LinearLayout style="@style/BottomLayout">
+        
+        <Button android:text="Vissza"
+        		android:id="@+editsickness/back"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Mentés"
+        		android:id="@+editsickness/saveSickness"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Törlés"
+        		android:id="@+editsickness/deleteSickness"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Hozzáadás"
+        		android:id="@+editsickness/addSymptom"
+        		style="@style/BottomButton" android:visibility="gone">
+        </Button>
+        
+        <Button android:text="Törlés"
+        		android:id="@+editsickness/deleteSymptom"
+        		style="@style/BottomButton" android:visibility="gone">
+        </Button>
+        
+        <Button android:text="Hozzáadás"
+        		android:id="@+editsickness/addPicture"
+        		style="@style/BottomButton" android:visibility="gone">
+        </Button>
+        
+    </LinearLayout>
+    
+</LinearLayout>

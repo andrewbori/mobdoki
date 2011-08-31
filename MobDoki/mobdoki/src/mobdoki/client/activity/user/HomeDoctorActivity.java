@@ -3,19 +3,19 @@ package mobdoki.client.activity.user;
 import mobdoki.client.IconListArrayAdapter;
 import mobdoki.client.R;
 import mobdoki.client.activity.StatisticsActivity;
-import mobdoki.client.activity.medicalinfo.AddHospitalActivity;
-import mobdoki.client.activity.medicalinfo.AddPicToSymptomActivity;
-import mobdoki.client.activity.medicalinfo.AddSymptomActivity;
+import mobdoki.client.activity.medicalinfo.EditHospitalActivity;
+import mobdoki.client.activity.medicalinfo.EditSicknessActivity;
 import mobdoki.client.activity.medicalinfo.NearestHospitalsActivity;
-import mobdoki.client.activity.medicalinfo.NewHospitalActivity;
-import mobdoki.client.activity.medicalinfo.NewSicknessActivity;
 import mobdoki.client.activity.medicalinfo.SearchSicknessActivity;
 import mobdoki.client.activity.medicalinfo.SicknessListActivity;
 import mobdoki.client.activity.user.health.DoctorGraphActivity;
-import mobdoki.client.activity.user.symptom.PictureCheckActivity;
+import mobdoki.client.activity.user.message.MessagesActivity;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,31 +25,25 @@ import android.widget.ListView;
 public class HomeDoctorActivity extends Activity {
 	  String[] menuElements =  
 	  {  
-	    "Betegség felvétele",
-	    "Tünet megadása",
-	    "Kép rendelése tünethez",
-	    "Kórház felvétele",
-	    "Kórház hozzárendelése betegséghez",
+	    "Betegségek adminisztrációja",
+	    "Kórházak adminisztrációja",
 	    "Betegségek listája",
 	    "Betegségek keresése", 
 	    "Közeli kórházak",
-	    "Tünet képek elbírálása",
+	    "Üzenetek",
 	    "Páciensek egészségügyi grafikonjai",
 	    "Statisztika",
 	    "Felhasználói profil",
-	    "Kilépés"
+	    "Kijelentkezés"
 	  };
 	  int[] icons =  
 	  {  
 	    android.R.drawable.ic_menu_upload,
-	    android.R.drawable.ic_menu_set_as,
-	    android.R.drawable.ic_menu_set_as,
 	    android.R.drawable.ic_menu_add,
-	    android.R.drawable.ic_menu_directions,
 	    android.R.drawable.ic_menu_slideshow,
 	    android.R.drawable.ic_menu_search,
 	    android.R.drawable.ic_menu_compass,
-	    android.R.drawable.ic_menu_view,
+	    android.R.drawable.ic_menu_send,
 	    android.R.drawable.ic_menu_gallery,
 	    android.R.drawable.ic_menu_info_details,
 	    android.R.drawable.ic_menu_myplaces,
@@ -62,9 +56,11 @@ public class HomeDoctorActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
+        setTitle("MobDoki: " + UserInfo.getString("username"));
         
-        Bundle extras = getIntent().getExtras();
-		username = extras.getString("username");
+		username = UserInfo.getString("username");
+		
+		UserInfo.putBoolean("isLoggedIn", true);
         
         ListView listview=(ListView) findViewById(R.home.menu);
         ArrayAdapter<String> adapter = new IconListArrayAdapter<String>(this,  
@@ -84,60 +80,69 @@ public class HomeDoctorActivity extends Activity {
         		
                 switch(position) {
                 	case 0:
-                		myIntent.setClass(view.getContext(), NewSicknessActivity.class);
+                		myIntent.setClass(view.getContext(), EditSicknessActivity.class);
                         startActivity(myIntent);
                 		break;
                 	case 1: 
-                		myIntent.setClass(view.getContext(), AddSymptomActivity.class);
+                		myIntent.setClass(view.getContext(), EditHospitalActivity.class);
                         startActivity(myIntent);
                 		break;
                 	case 2:
-                		myIntent.setClass(view.getContext(), AddPicToSymptomActivity.class);
-                		startActivity(myIntent);
-                		break;
-                	case 3: 
-                		myIntent.setClass(view.getContext(), NewHospitalActivity.class);
-                        startActivity(myIntent);
-                		break;
-                	case 4: 
-                		myIntent.setClass(view.getContext(), AddHospitalActivity.class);
-                        startActivity(myIntent);
-                		break;
-                	case 5:
                 		myIntent.setClass(view.getContext(), SicknessListActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 6:
+                	case 3:
                 		myIntent.setClass(view.getContext(), SearchSicknessActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 7: 
+                	case 4: 
                 		myIntent.setClass(view.getContext(), NearestHospitalsActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 8:
-                		myIntent.setClass(view.getContext(), PictureCheckActivity.class);
+                	case 5:
+                		myIntent.setClass(view.getContext(), MessagesActivity.class);
+                		myIntent.putExtra("inbox", true);
                 		startActivity(myIntent);
                 		break;
-                	case 9:
+                	case 6:
                 		myIntent.setClass(view.getContext(),DoctorGraphActivity.class);
                 		startActivity(myIntent);
                 		break;
-                 	case 10: 
+                 	case 7: 
                 		myIntent.setClass(view.getContext(), StatisticsActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 11: 
+                	case 8: 
                 		myIntent.setClass(view.getContext(), UserProfileActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 12: 
-                        finish();
+                	case 9:
+                		HttpGetJSONConnection logout = new HttpGetJSONConnection("Logout?ssid=" + UserInfo.getSSID(), new Handler());
+                		logout.start();
+                		
+                		UserInfo.putBoolean("isLoggedIn", false);
+                		if (!UserInfo.getBoolean("isSaved")) {
+                			UserInfo.remove("username");
+                			UserInfo.remove("password");
+                			UserInfo.remove("usertype");
+                		}
+                		UserInfo.remove("ssid");
+
+                		Intent intent = new Intent();				// exit
+                		setResult(RESULT_OK,intent);
+                		finish();
                 		break;
                 }
                 Log.v("MenuDoctorActivity",menuElements[position]);
         	}
         });
     }
+	
+	@Override
+	public void onBackPressed(){
+		Intent intent = new Intent();				// exit
+		setResult(RESULT_CANCELED,intent);
+		finish();
+	}
 
 }
