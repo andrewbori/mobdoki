@@ -2,8 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.medicalinfo;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,16 +14,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class PictureInfo extends HttpServlet {
-   
+public class DeleteHospital extends HttpServlet {
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -32,46 +31,56 @@ public class PictureInfo extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         
         JSONObj json = new JSONObj();
-        
-        String username = request.getParameter("username");
+               
+        String name = request.getParameter("name");
+        String SSID = request.getParameter("ssid");
         
         try {
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+        
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT imgname,answered FROM \"Picture\" " +
-                                 "WHERE username LIKE ? " +
-                                 "ORDER BY imgname";
+                String sqlText = "SELECT id FROM \"Hospital\" WHERE name LIKE ?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1, username);
-                ResultSet results = ps.executeQuery();
+                ps.setString(1,name);
+                ResultSet results = ps.executeQuery();                  // Mar van ilyen nevu korhaz?
                 if (results != null) {
-                    
-                    JSONArray imagename = new JSONArray();
-                    JSONArray answered = new JSONArray();
-                    while (results.next()) {
-                        imagename.put(results.getString(1));
-                        answered.put(results.getBoolean(2));
+                    if (results.next()) {                                  // Ha van, akkor hibauzenet.     
+                        int hospitalID=results.getInt(1);
+                        
+                        sqlText = "DELETE FROM \"Curing\" WHERE \"hospitalID\"=?";             // Kuralas torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,hospitalID);
+                        ps.executeUpdate();
+                        
+                        sqlText = "DELETE FROM \"Hospital\" WHERE id=?";             // Korhaz torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,hospitalID);
+                        ps.executeUpdate();
+                        
+                        json.setOKMessage("Sikeres törlés!");
+                    } else {                                                // Ha nincs, hibauzenet...
+                        json.setErrorMessage("A megadott kórház nem található.");
                     }
-                    json.put("imagename", imagename);
-                    json.put("answered", answered);
-                    json.setOK();                   // Sikeres lekerdezes
-                    
                     results.close();
-                } else throw new Exception();
+                }  else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
+            
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
-        }
-        finally {
+        } finally {
             json.write(out);
             out.close();
         }
@@ -87,9 +96,9 @@ public class PictureInfo extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -100,7 +109,7 @@ public class PictureInfo extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -112,5 +121,4 @@ public class PictureInfo extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 }

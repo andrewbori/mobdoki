@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
 import mobdoki.server.Sessions;
@@ -24,9 +23,9 @@ import mobdoki.server.Sessions;
  *
  * @author Andreas
  */
-public class GetAll extends HttpServlet {
-
-    /**
+public class SetCuring extends HttpServlet {
+   
+    /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -39,49 +38,71 @@ public class GetAll extends HttpServlet {
         PrintWriter out = response.getWriter();
         JSONObj json = new JSONObj();
         
+        String sickness = request.getParameter("sickness");
+        String hospital = request.getParameter("hospital");
         String SSID = request.getParameter("ssid");
-        String table = request.getParameter("table");
         
         try {
-            if (!Sessions.MySessions().isValid(SSID)) {
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
                 json.setUnauthorizedError();
                 return;
             }
             
-            if (table==null || (!table.equals("Sickness") && !table.equals("Symptom") && !table.equals("Hospital"))) {   // hibas parameter eseten kivetel dobasa
-                throw new Exception();
-            }
-
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "select name from \"" + table + "\" order by name";
+                String sqlText = "SELECT id FROM \"Sickness\" WHERE name LIKE ?"; // Betegseg letezik?
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ResultSet results = ps.executeQuery();          // A megadott tabla osszes soranak a "name" attributuma
-                
-                JSONArray names = new JSONArray();              // JSON tomb a lekerdezett neveknek
-                if (results != null) {
-                    while (results.next()) {
-                        names.put(results.getString(1));            // nev hozzaadasa a tombhoz
+                ps.setString(1,sickness);
+                ResultSet results = ps.executeQuery();
+                if (results != null && results.next()) {                            // Ha igen akkor tovabb
+                    int sicknessID=results.getInt(1);
+                    
+                    sqlText = "SELECT id FROM \"Hospital\" WHERE name LIKE ?";    // Korhaz letezik?
+                    ps = db.prepareStatement(sqlText);
+                    ps.setString(1,hospital);
+                    results = ps.executeQuery();
+
+                    if (results != null && results.next()) {                      // Ha igen tovabb
+                        int hospitalID=results.getInt(1);
+                        
+                        sqlText = "SELECT id " +
+                                  "FROM \"Curing\" " +
+                                  "WHERE \"sicknessID\"=? AND \"hospitalID\"=?";    // Kezeles letezik?
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,sicknessID);
+                        ps.setInt(2,hospitalID);
+                        results = ps.executeQuery();
+
+                        if (!(results != null) || !(results.next())) {
+                            sqlText = "INSERT INTO \"Curing\" (\"sicknessID\", \"hospitalID\") VALUES (?,?)";       // Ha nem kezeles felvetel
+                            ps = db.prepareStatement(sqlText);
+                            ps.setInt(1,sicknessID);
+                            ps.setInt(2,hospitalID);
+                            ps.executeUpdate();
+                            json.setOKMessage("Sikeres hozzáadás!");
+                        } else json.setErrorMessage("A kezelés már megtalálható!");
+                    } else {
+                        json.setErrorMessage("A megadott kórház nem található.");
                     }
-                    results.close();
-                    json.put("names", names);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
-                    json.setOK();
-                } else json.setDBError();
+                } else {
+                     json.setErrorMessage("A megadott betegség nem található.");
+                }
+                results.close();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
-        }
-        finally {
+            json.setErrorMessage(e.getMessage());
+        } finally {
             json.write(out);
             out.close();
         }
-    }
+    } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
+    /** 
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -92,9 +113,9 @@ public class GetAll extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         processRequest(request, response);
-    }
+    } 
 
-    /**
+    /** 
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -107,13 +128,13 @@ public class GetAll extends HttpServlet {
         processRequest(request, response);
     }
 
-    /**
+    /** 
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
-        return "Gets every row's name from a given database table";
+        return "Adds a Hospital to a Sickness";
     }// </editor-fold>
 
 }

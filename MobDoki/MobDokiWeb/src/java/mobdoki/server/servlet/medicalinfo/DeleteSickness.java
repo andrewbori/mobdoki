@@ -2,9 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.medicalinfo;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -17,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class AnswerUpload extends HttpServlet {
+public class DeleteSickness extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,50 +38,50 @@ public class AnswerUpload extends HttpServlet {
         
         JSONObj json = new JSONObj();
         
-        String PictureName = request.getParameter("picturename");       // panaszkep neve
-
-        BufferedReader reader = request.getReader();                    // bejovo adatok
-        String line = null;
-        StringBuilder builder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {                    // Valasz beolvasasa
-            builder.append(line);
-        }
-        String upload = builder.toString();                            // Komment String-gé alakitasa
-
-        reader.close();
-
+        String sickness = request.getParameter("sickness");
+        String SSID = request.getParameter("ssid");
+        
         try {
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
-            if (db != null) {
-                PreparedStatement ps = db.prepareStatement("SELECT imgname FROM \"PictureComment\" WHERE imgname LIKE ?");
-                ps.setString(1, PictureName);
-                ResultSet results = ps.executeQuery();
-                if (results != null) {                                                  // Ha letezik a megadott nevu komment
-                    if (results.next()) {
-                        ps = db.prepareStatement("UPDATE \"PictureComment\" SET answer = ? WHERE imgname LIKE ?");
-                        ps.setString(1, upload);
-                        ps.setString(2, PictureName);
 
-                        if (ps.executeUpdate() > 0) {                                       // valasz feltoltese
-                            json.setOKMessage("Sikeres feltöltés.");
-                        } else throw new Exception();
-
-                        ps = db.prepareStatement("UPDATE \"Picture\" SET answered = ? WHERE imgname LIKE ?");
-                        ps.setBoolean(1, true);
-                        ps.setString(2, PictureName);
-
-                        ps.executeUpdate();                                                 // megvalaszolva
-
+            if (db!=null) {
+                String sqlText = "SELECT id FROM \"Sickness\" WHERE name LIKE ?";
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1,sickness);
+                ResultSet results = ps.executeQuery();              // megadott nevu betegseg mar van?
+                if (results != null) {
+                    if (results.next()) {                               // Ha igen: torles: diagnozis es betegseg
+                        int sicknessID=results.getInt(1);
+                        
+                        sqlText = "DELETE FROM \"Diagnosis\" WHERE \"sicknessID\"=?";             // Diagnozis torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,sicknessID);
+                        ps.executeUpdate();
+                        
+                        sqlText = "DELETE FROM \"Curing\" WHERE \"sicknessID\"=?";               // Kuralas torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,sicknessID);
+                        ps.executeUpdate();
+                        
+                        sqlText = "DELETE FROM \"Sickness\" WHERE id=?";                // Betegseg torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,sicknessID);
+                        ps.executeUpdate();
+                        
+                        json.setOKMessage("Sikeres törlés!");
                     } else {
-                        json.setErrorMessage("A megadott kép nem található.");
+                        json.setErrorMessage("A megadott betegség nem található.");
                     }
-                }
-
-                ps.close();
+                    results.close();
+                } else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
-            
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
         } finally {

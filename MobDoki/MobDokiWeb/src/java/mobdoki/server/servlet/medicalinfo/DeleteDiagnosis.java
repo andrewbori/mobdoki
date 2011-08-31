@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package mobdoki.server.servlet.medicalinfo;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
 import mobdoki.server.Sessions;
@@ -24,9 +22,9 @@ import mobdoki.server.Sessions;
  *
  * @author Andreas
  */
-public class GetAll extends HttpServlet {
+public class DeleteDiagnosis extends HttpServlet {
 
-    /**
+    /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -39,49 +37,70 @@ public class GetAll extends HttpServlet {
         PrintWriter out = response.getWriter();
         JSONObj json = new JSONObj();
         
+        String sickness = request.getParameter("sickness");
+        String symptom = request.getParameter("symptom");
         String SSID = request.getParameter("ssid");
-        String table = request.getParameter("table");
         
         try {
-            if (!Sessions.MySessions().isValid(SSID)) {
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
                 json.setUnauthorizedError();
                 return;
-            }
-            
-            if (table==null || (!table.equals("Sickness") && !table.equals("Symptom") && !table.equals("Hospital"))) {   // hibas parameter eseten kivetel dobasa
-                throw new Exception();
             }
 
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "select name from \"" + table + "\" order by name";
-                PreparedStatement ps = db.prepareStatement(sqlText);
-                ResultSet results = ps.executeQuery();          // A megadott tabla osszes soranak a "name" attributuma
+                int sicknessID;
+                int symptomID;
                 
-                JSONArray names = new JSONArray();              // JSON tomb a lekerdezett neveknek
+                String sqlText = "SELECT id FROM \"Sickness\" WHERE name LIKE ?"; // Betegseg letezik?
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1,sickness);
+                ResultSet results = ps.executeQuery();
                 if (results != null) {
-                    while (results.next()) {
-                        names.put(results.getString(1));            // nev hozzaadasa a tombhoz
-                    }
+                    if (results.next()) {                                               // Ha igen akkor tovabb
+                        sicknessID=results.getInt(1);
+                        
+                        sqlText = "SELECT id FROM \"Symptom\" WHERE name LIKE ?";     // Tunet letezik?
+                        ps = db.prepareStatement(sqlText);
+                        ps.setString(1,symptom);
+                        results = ps.executeQuery();
+
+                        if (results != null && results.next()) {                      // Ha igen, akkor tovabb
+                            symptomID=results.getInt(1);
+                            
+                            sqlText = "SELECT id FROM \"Diagnosis\" WHERE \"sicknessID\"=? AND \"symptomID\"=?";     // Diagnozis letezik?
+                            ps = db.prepareStatement(sqlText);
+                            ps.setInt(1,sicknessID);
+                            ps.setInt(2,symptomID);
+                            results = ps.executeQuery();
+
+                            if (results != null && results.next()) {
+                                sqlText = "DELETE FROM \"Diagnosis\" WHERE \"sicknessID\"=? AND \"symptomID\"=?";             // Diagnozis torles
+                                ps = db.prepareStatement(sqlText);
+                                ps.setInt(1,sicknessID);
+                                ps.setInt(2,symptomID);
+                                ps.executeUpdate();
+                                json.setOKMessage("Sikeres törlés!");
+                            } else json.setErrorMessage("A megadott diagnózis nem található.");
+                        } else json.setErrorMessage("A megadott tünet nem található.");
+                    } else json.setErrorMessage("A megadott betegség nem található.");
+
                     results.close();
-                    json.put("names", names);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
-                    json.setOK();
                 } else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
-        }
-        finally {
+        } finally {
             json.write(out);
             out.close();
         }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
+    /** 
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -90,11 +109,11 @@ public class GetAll extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
+    /** 
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -103,17 +122,16 @@ public class GetAll extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
+    /** 
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
-        return "Gets every row's name from a given database table";
+        return "Short description";
     }// </editor-fold>
-
 }

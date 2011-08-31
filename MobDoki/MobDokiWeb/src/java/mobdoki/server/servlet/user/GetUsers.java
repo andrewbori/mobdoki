@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -39,29 +40,39 @@ public class GetUsers extends HttpServlet {
         
         JSONObj json = new JSONObj();
         String usertype = request.getParameter("usertype");
-
+        String SSID = request.getParameter("ssid");
+        
         try {
-            if (usertype.equals("patient") || usertype.equals("doctor")) {                          // letezo tipusu felhasznalok eseten:
-                Class.forName(Connect.driver); //load the driver
-                Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            Class.forName(Connect.driver); //load the driver
+            Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
-                if (db!=null) {
-                    String sqlText = "SELECT username FROM \"User\" WHERE usertype = ?";
-                    PreparedStatement ps = db.prepareStatement(sqlText);
-                    ps.setString(1, usertype);
-                    ResultSet results = ps.executeQuery();
-                    if (results != null) {
-                        JSONArray usernames = new JSONArray();          // felhasznalonevek tombje
-                        while (results.next()) {
-                            usernames.put(results.getString(1));            // felhasznalonev a tombbe
-                        }
-                        json.put("usernames", usernames);               // felhasznalonevek tombje a kimenetre
-                        json.setOK();                                   // Sikeres vegrehajtas
-                        results.close();
-                    } else json.setDBError();
-                    
-                    db.close();
-                } else json.setServerError();        // adatbazis nem erheto el
+            if (db!=null) {
+                String sqlText = "SELECT u.id,u.username " +
+                                 "FROM \"User\" u,\"UserType\" ut " +
+                                 "WHERE ut.name=? AND u.\"usertypeID\"=ut.id";
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1, usertype);
+                ResultSet results = ps.executeQuery();
+                if (results != null) {
+                    JSONArray usernames = new JSONArray();          // felhasznalonevek tombje
+                    JSONArray ids = new JSONArray();                // felhasznaloazonositok tombje
+                    while (results.next()) {
+                        ids.put(results.getInt(1));                     // felhasznaloazonosito a tombbe
+                        usernames.put(results.getString(2));            // felhasznalonev a tombbe
+                    }
+                    json.put("ids", ids);                           // felhasznaloazonositok tombje a kimenetre
+                    json.put("usernames", usernames);               // felhasznalonevek tombje a kimenetre
+                    json.setOK();                                   // Sikeres vegrehajtas
+                    results.close();
+                } else json.setDBError();
+                
+                ps.close();
+                db.close();
                 
             } else json.setErrorMessage("Nem létezik ilyen tipusú felhasználó.");
         } catch (Exception e) {

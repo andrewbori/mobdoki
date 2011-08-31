@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package mobdoki.server.servlet.medicalinfo;
 
 import java.io.IOException;
@@ -17,13 +16,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
+import org.json.JSONArray;
 
 /**
  *
  * @author Andreas
  */
-public class AddSymptom extends HttpServlet {
-   
+public class GetAllSicknessHospital extends HttpServlet {
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -37,60 +38,58 @@ public class AddSymptom extends HttpServlet {
         PrintWriter out = response.getWriter();
         JSONObj json = new JSONObj();
         
-        String sickness = request.getParameter("sickness");
-        String symptom = request.getParameter("symptom");
-
+        String SSID = request.getParameter("ssid");
+        
         try {
-          Class.forName(Connect.driver); //load the driver
+            if (!Sessions.MySessions().isValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT name FROM \"Sickness\" WHERE name LIKE ?"; // Betegseg letezik?
+                String sqlText = "SELECT name FROM \"Sickness\" ORDER BY name";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,sickness);
-                ResultSet results = ps.executeQuery();
+                ResultSet results = ps.executeQuery();          // A Sickness tabla osszes soranak a "name" attributuma
+                
+                JSONArray sickness = new JSONArray();              // JSON tomb a lekerdezett neveknek
                 if (results != null) {
-                    if (results.next()) {                                               // Ha igen akkor tovabb
-                        sqlText = "SELECT name FROM \"Symptom\" WHERE name LIKE ?";     // Tunet letezik?
-                        ps = db.prepareStatement(sqlText);
-                        ps.setString(1,symptom);
-                        results = ps.executeQuery();
-
-                        if (!(results != null) || !(results.next())) {                      // Ha nem, akkor felvetel
-                            sqlText = "INSERT INTO \"Symptom\"(name) VALUES (?)";
-                            ps = db.prepareStatement(sqlText);
-                            ps.setString(1,symptom);
-                            ps.executeUpdate();
-                        }
-
-                        sqlText = "SELECT sickness FROM \"Diagnosis\" WHERE sickness LIKE ? AND symptom LIKE ?";     // Diagnozis letezik?
-                        ps = db.prepareStatement(sqlText);
-                        ps.setString(1,sickness);
-                        ps.setString(2,symptom);
-                        results = ps.executeQuery();
-                        
-                        if (!(results != null) || !(results.next())) {
-                            sqlText = "INSERT INTO \"Diagnosis\" (sickness, symptom) VALUES (?,?)";              // Diagnozis felvetel
-                            ps = db.prepareStatement(sqlText);
-                            ps.setString(1,sickness);
-                            ps.setString(2,symptom);
-                            ps.executeUpdate();
-                            json.setOKMessage("Sikeres hozzáadás!");
-                        } else json.setErrorMessage("A diagnózis már megtalálható.");
-                    } else {
-                        json.setErrorMessage("A megadott betegség nem található.");
+                    while (results.next()) {
+                        sickness.put(results.getString(1));            // nev hozzaadasa a tombhoz
                     }
                     results.close();
-                } else json.setDBError();
+                    json.put("sickness", sickness);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
+                    json.setOK();
+                } else json.setDBError();                  // adatbazis hiba
+                
+                sqlText = "SELECT name,address FROM \"Hospital\" ORDER BY name";
+                ps = db.prepareStatement(sqlText);                 // A Hospital tabla osszes soranak a name es address attributuma
+                results = ps.executeQuery();
+                
+                JSONArray hospital = new JSONArray();              // JSON tomb a lekerdezett neveknek
+                JSONArray address = new JSONArray();
+                if (results != null) {
+                    while (results.next()) {
+                        hospital.put(results.getString(1));            // nev hozzaadasa a tombhoz
+                        address.put(results.getString(2));
+                    }
+                    results.close();
+                    json.put("hospital", hospital);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
+                    json.put("address", address);
+                    json.setOK();
+                } else json.setDBError();                  // adatbazis hiba
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
-        } finally {
+        }
+        finally {
             json.write(out);
             out.close();
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
@@ -102,9 +101,9 @@ public class AddSymptom extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -115,7 +114,7 @@ public class AddSymptom extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -125,7 +124,6 @@ public class AddSymptom extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Adds a symptom to the given sickness";
+        return "Short description";
     }// </editor-fold>
-
 }

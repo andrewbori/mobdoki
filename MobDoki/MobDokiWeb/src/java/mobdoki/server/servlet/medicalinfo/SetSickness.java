@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
 import mobdoki.server.Sessions;
@@ -24,9 +23,9 @@ import mobdoki.server.Sessions;
  *
  * @author Andreas
  */
-public class GetAll extends HttpServlet {
-
-    /**
+public class SetSickness extends HttpServlet {
+   
+    /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -37,51 +36,61 @@ public class GetAll extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
+        
         JSONObj json = new JSONObj();
         
+        String sickness = request.getParameter("sickness");
+        double seriousness = Double.parseDouble(request.getParameter("seriousness"));
+        String url = request.getParameter("url");
         String SSID = request.getParameter("ssid");
-        String table = request.getParameter("table");
         
         try {
-            if (!Sessions.MySessions().isValid(SSID)) {
-                json.setUnauthorizedError();
-                return;
-            }
-            
-            if (table==null || (!table.equals("Sickness") && !table.equals("Symptom") && !table.equals("Hospital"))) {   // hibas parameter eseten kivetel dobasa
-                throw new Exception();
-            }
+           if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+               json.setUnauthorizedError();
+               return;
+           }
 
-            Class.forName(Connect.driver); //load the driver
-            Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
+           Class.forName(Connect.driver); //load the driver
+           Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "select name from \"" + table + "\" order by name";
+                String sqlText = "SELECT name FROM \"Sickness\" WHERE name LIKE ?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ResultSet results = ps.executeQuery();          // A megadott tabla osszes soranak a "name" attributuma
-                
-                JSONArray names = new JSONArray();              // JSON tomb a lekerdezett neveknek
+                ps.setString(1,sickness);
+                ResultSet results = ps.executeQuery();              // megadott nevu betegseg mar van?
                 if (results != null) {
-                    while (results.next()) {
-                        names.put(results.getString(1));            // nev hozzaadasa a tombhoz
+                    if (results.next()) {                               // Ha igen: módosít
+                        sqlText = "UPDATE \"Sickness\" SET seriousness=?, url=? WHERE name LIKE ?";
+                        ps = db.prepareStatement(sqlText);
+                        ps.setDouble(1,seriousness);
+                        ps.setString(2,url);
+                        ps.setString(3,sickness);
+                        ps.executeUpdate();                             // Ha nem: módosítás
+                        json.setOKMessage("Sikeres módosítás.");
+                    } else {
+                        sqlText = "INSERT INTO \"Sickness\"(name,seriousness,url) VALUES (?,?,?)";
+                        ps = db.prepareStatement(sqlText);
+                        ps.setString(1,sickness);
+                        ps.setDouble(2,seriousness);
+                        ps.setString(3,url);
+                        ps.executeUpdate();                             // Ha nem: felvetel
+                        json.setOKMessage("Sikeres felvétel!");
                     }
                     results.close();
-                    json.put("names", names);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
-                    json.setOK();
                 } else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
-        }
-        finally {
+            //json.setDBError();                  // adatbazis hiba
+            json.setErrorMessage(e.getMessage());
+        } finally {
             json.write(out);
             out.close();
         }
-    }
+    } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
+    /** 
      * Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -92,9 +101,9 @@ public class GetAll extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         processRequest(request, response);
-    }
+    } 
 
-    /**
+    /** 
      * Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -107,13 +116,13 @@ public class GetAll extends HttpServlet {
         processRequest(request, response);
     }
 
-    /**
+    /** 
      * Returns a short description of the servlet.
      * @return a String containing servlet description
      */
     @Override
     public String getServletInfo() {
-        return "Gets every row's name from a given database table";
+        return "NewSickness";
     }// </editor-fold>
 
 }

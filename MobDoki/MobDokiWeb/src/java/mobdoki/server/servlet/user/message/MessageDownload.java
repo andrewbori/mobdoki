@@ -2,15 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.medicalinfo;
+package mobdoki.server.servlet.user.message;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class AddPictureToSymptom extends HttpServlet {
+public class MessageDownload extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -40,59 +35,65 @@ public class AddPictureToSymptom extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
         JSONObj json = new JSONObj();
         
-        String symptom = request.getParameter("symptom");           // A tunet neve
-        InputStream fi = request.getInputStream();                  // bejovo adatok
+        int id = Integer.parseInt(request.getParameter("id"));
+        boolean inbox = Boolean.parseBoolean(request.getParameter("inbox"));
+        String SSID = request.getParameter("ssid");
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int ch;
-        while ((ch = fi.read()) != -1) {                            // bejovo adatok beolvasasa
-            baos.write(ch);
-        }
-        byte[] map = baos.toByteArray();
-
-        File picture = new File("myfile.jpg");
-        OutputStream output = new FileOutputStream(picture);    // letoltott bajtok fajlba irasa
-        output.write(map);
-        output.close();
-        FileInputStream input = new FileInputStream(picture);   // a fajl egy inputstream (az adatbazisba)
-
         try {
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }      
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db != null) {
-                String sqlText = "SELECT name FROM \"Symptom\" WHERE name LIKE ?";          // Megadott tunet keresese
+                String sqlText = "SELECT m.sender,u1.username,m.recipient,m.date,m.subject,m.text " +
+                                 "FROM \"Message\" m, \"User\" u1 " +
+                                 "WHERE m.id=? AND m.sender=u1.id";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1, symptom);
-                ResultSet results = ps.executeQuery();
-                if (results != null) {
-                    if (results.next()) {                                                   // Ha a tunet letezik, akkor:
-                        sqlText = "UPDATE \"Symptom\" SET img = ?  WHERE name LIKE ?";          // Kep feltoltese az adatbazisba
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                
+                if (rs!=null && rs.next()) {
+                    int senderID = rs.getInt(1);
+                    String sender = rs.getString(2);    // talalt uzenet
+                    String recipient = rs.getString(3);
+                    String dateString = rs.getTimestamp(4).toString();
+                    String subject = rs.getString(5);
+                    String text = rs.getString(6);
+                             
+                    json.put("sender", sender);         // valasz a kimenetre
+                    json.put("senderID", senderID);
+                    json.put("recipient", recipient);
+                    json.put("date", dateString);
+                    json.put("subject", subject);
+                    json.put("text", text);
+                    json.put("id", id);
+                    json.setOK();                   // Sikeres lekerdezes
+                    
+                    if (inbox) {
+                        sqlText = "UPDATE \"Message\" SET viewed=true " +
+                                  "WHERE id=?";
                         ps = db.prepareStatement(sqlText);
-                        ps.setBinaryStream(1, input, (int) picture.length());
-                        ps.setString(2, symptom);
-
-                        if (ps.executeUpdate() > 0) {
-                            json.setOKMessage("Sikeres feltöltés.");
-                        } else json.setErrorMessage("Sikertelen feltöltés.");
-
-                        ps.close();
-                        input.close();
-                    } else {
-                        json.setErrorMessage("A megadott tünet nem található.");
+                        ps.setInt(1, id);
+                        ps.executeUpdate();
                     }
-                    results.close();
-                } else json.setDBError();
+                } else json.setErrorMessage("Az üzenet nem található.");        // az uzenet nem talalhato
+
+                rs.close();
+                ps.close();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
+            
+
         } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
+            json.setDBError();              // adatbazis hiba
         } finally {
-            json.write(out);
-            picture.delete();
+            json.write(out);     // Osszeallitott JSON kiirasa az outputra
             out.close();
         }
     }

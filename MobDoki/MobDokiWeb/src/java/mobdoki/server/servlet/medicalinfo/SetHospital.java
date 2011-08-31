@@ -15,14 +15,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.postgresql.geometric.PGpoint;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
  * @author Andreas
  */
-public class AddHospital extends HttpServlet {
+public class SetHospital extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -35,50 +37,56 @@ public class AddHospital extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        JSONObj json = new JSONObj();
         
-        String sickness = request.getParameter("sickness");
-        String hospital = request.getParameter("hospital");
+        JSONObj json = new JSONObj();
+               
 
+        String name = request.getParameter("name");
+        String address = request.getParameter("address");
+        String SSID = request.getParameter("ssid");
+        
         try {
-           Class.forName(Connect.driver); //load the driver
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            double x = Double.parseDouble(request.getParameter("x"));
+            double y = Double.parseDouble(request.getParameter("y"));
+            
+            Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT name FROM \"Sickness\" WHERE name LIKE ?"; // Betegseg letezik?
+                String sqlText = "SELECT id FROM \"Hospital\" WHERE name LIKE ?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,sickness);
-                ResultSet results = ps.executeQuery();
-                if (results != null && results.next()) {                            // Ha igen akkor tovabb
-                    sqlText = "SELECT name FROM \"Hospital\" WHERE name LIKE ?";    // Korhaz letezik?
-                    ps = db.prepareStatement(sqlText);
-                    ps.setString(1,hospital);
-                    results = ps.executeQuery();
-
-                    if (results != null && results.next()) {                      // Ha igen tovabb
-                        sqlText = "SELECT sickness FROM \"Curing\" WHERE sickness LIKE ? AND hospital LIKE ?";     // Kezeles letezik?
+                ps.setString(1,name);
+                ResultSet results = ps.executeQuery();                  // Mar van ilyen nevu korhaz?
+                if (results != null) {
+                    if (results.next()) {                                  // Ha van, akkor modositas
+                        int hospitalID=results.getInt(1);
+                        
+                        sqlText = "UPDATE \"Hospital\" SET address=?, coordinates=? WHERE id=?";
                         ps = db.prepareStatement(sqlText);
-                        ps.setString(1,sickness);
-                        ps.setString(2,hospital);
-                        results = ps.executeQuery();
-
-                        if (!(results != null) || !(results.next())) {
-                            sqlText = "INSERT INTO \"Curing\" (sickness, hospital) VALUES (?,?)";              // Ha nem kezeles felvetel
-                            ps = db.prepareStatement(sqlText);
-                            ps.setString(1,sickness);
-                            ps.setString(2,hospital);
-                            ps.executeUpdate();
-                            json.setOKMessage("Sikeres hozzáadas!");
-                        } else json.setErrorMessage("A kezelés már megtalálható!");
-                    } else {
-                        json.setErrorMessage("A megadott kórház nem található.");
+                        ps.setString(1,address);
+                        ps.setObject(2, new PGpoint(x,y));
+                        ps.setInt(3,hospitalID);
+                        ps.executeUpdate();
+                        json.setOKMessage("Sikeres módosítás.");
+                    } else {                                                // Ha nincs, akkor felvetel...
+                        sqlText = "INSERT INTO \"Hospital\"(name,address,coordinates) VALUES (?,?,?)";
+                        ps = db.prepareStatement(sqlText);
+                        ps.setString(1,name);
+                        ps.setString(2,address);
+                        ps.setObject(3, new PGpoint(x,y));
+                        ps.executeUpdate();
+                        json.setOKMessage("Sikeres felvétel.");
                     }
-                } else {
-                     json.setErrorMessage("A megadott betegség nem található.");
-                }
-                results.close();
+                    results.close();
+                }  else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
+            
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
         } finally {
@@ -120,7 +128,7 @@ public class AddHospital extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Adds a Hospital to a Sickness";
+        return "NewHospital";
     }// </editor-fold>
 
 }

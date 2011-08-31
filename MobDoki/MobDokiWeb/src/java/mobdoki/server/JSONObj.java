@@ -15,12 +15,14 @@ public class JSONObj extends JSONObject {
     // status codes
     final public static int OK = 200;               // Toast message - successful
     final public static int ERROR = 400;            // Toast message - client error
+    final public static int UNAUTHOIZED = 401;
     final public static int SERVER_ERROR = 500;     // Dialog message - server error
     
     // messages
     final public static String DB_ERR = "Adatbázis hiba.";
     final public static String DB_FERR = "Az adatbázis nem érhető el.";
     final public static String PAR_ERR = "Paraméterezési hiba.";
+    final public static String UNAUTHOR = "A művelethez nincs jogosultsága.";
     
     // Sets the status and the message parameter of the given JSON Object
     public void setStatus (int status, String message) {
@@ -38,6 +40,10 @@ public class JSONObj extends JSONObject {
     
     public void setParameterError() {
         setStatus (ERROR, PAR_ERR);
+    }
+    
+    public void setUnauthorizedError() {
+        setStatus (UNAUTHOIZED, UNAUTHOR);
     }
     
     public void setServerError() {

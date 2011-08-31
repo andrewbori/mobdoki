@@ -2,26 +2,21 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.user;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import mobdoki.server.Connect;
-import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class CommentUpload extends HttpServlet {
+public class Logout extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -35,41 +30,10 @@ public class CommentUpload extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         
-        JSONObj json = new JSONObj();
-        
-        String PictureName = request.getParameter("picturename") + ".jpg";  // kep neve
-
-        BufferedReader reader = request.getReader();                    // bejovo adatok
-        String line = null;
-        StringBuilder builder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {                    // Komment beolvasasa
-            builder.append(line);
-        }
-        String upload =  builder.toString();                            // Komment String-gé alakitasa
-
-        reader.close();
-
         try {
-            Class.forName(Connect.driver); //load the driver
-            Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
-            if (db != null) {
-
-                PreparedStatement ps = db.prepareStatement("INSERT INTO \"PictureComment\" (imgname,comment) VALUES (?, ?)");
-                ps.setString(1, PictureName);
-                ps.setString(2, upload);
-
-                if (ps.executeUpdate() > 0) {
-                    json.setOKMessage("Sikeres feltöltés.");
-                } else json.setErrorMessage("Sikertelen feltöltés.");
-                ps.close();
-
-                db.close();
-            } else json.setServerError();        // adatbazis nem erheto el
-            
-        } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
-        } finally {
-            json.write(out);
+            String SSID = request.getParameter("ssid");
+            Sessions.MySessions().removeSession(SSID);
+        } finally {            
             out.close();
         }
     }
