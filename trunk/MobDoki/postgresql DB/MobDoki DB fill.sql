@@ -29,7 +29,6 @@ INSERT INTO "Symptom"(name) VALUES ('orrfolyás');
 INSERT INTO "Symptom"(name) VALUES ('száraz köhögés');
 INSERT INTO "Symptom"(name) VALUES ('erős köhögés');
 INSERT INTO "Symptom"(name) VALUES ('felületes légzés');
-INSERT INTO "Symptom"(name) VALUES ('szapora légzés légzés');
 INSERT INTO "Symptom"(name) VALUES ('szürkés-sápadt bőr');
 INSERT INTO "Symptom"(name) VALUES ('hányinger');
 INSERT INTO "Symptom"(name) VALUES ('nyelési fájdalom');
@@ -102,144 +101,144 @@ INSERT INTO "Symptom"(name) VALUES ('izületi fájdalom');
 INSERT INTO "Symptom"(name) VALUES ('szapora légzés');
 INSERT INTO "Symptom"(name) VALUES ('fáradékonyság');
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'hidegrázás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'láz');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'torokfájás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'gyengeségérzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'orrfolyás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('megfázás', 'száraz köhögés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 1);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 2);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 3);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 4);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 5);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (1, 6);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'láz');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'erős köhögés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'felületes légzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'szapora légzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'szürkés-sápadt bőr');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('tüdőgyulladás', 'hányinger');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 2);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 7);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 8);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 78);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 9);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (3, 10);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'láz');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'nyelési fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'megduzzadt nyaki nyirokcsomók');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'vörös garat');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('torokgyulladás', 'orrdugulás');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 2);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 11);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 12);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 13);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (2, 14);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('asztma', 'nehéz légzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('asztma', 'légszomj');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('asztma', 'száraz köhögés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (4, 15);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (4, 16);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (4, 6);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'sok vizelet');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'fogyás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'homályos látás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'fáradtság');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('cukorbetegség', 'acetonszagú lehelet');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 17);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 18);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 19);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 20);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (6, 21);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('gyomorfekély', 'gyomortáji fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('gyomorfekély', 'éhségérzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('gyomorfekély', 'gyomorégés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('gyomorfekély', 'emésztési zavar');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (7, 22);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (7, 23);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (7, 24);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (7, 25);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'étvágytalanság');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'székrekedés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'hasi puffadás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'hőemelkedés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'hasi fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vakbélgyulladás', 'fájdalom jobb oldalon');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 26);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 28);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 27);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 29);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 30);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (8, 32);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'fájdalmas terület nyomásra érzékeny');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'gyomortáji fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'deréktáji fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'fájdalom bal oldalon');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'hasi puffadás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'emésztési zavar');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'székrekedés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'fogyás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'sárgaság');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('hasnyálmirigy-gyulladás', 'láz');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 33);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 22);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 36);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 31);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 27);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 25);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 28);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 18);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 34);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (9, 2);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'deréktáji fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'görcsös fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'véres vizelet');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'vizelési képtelenség');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'hidegrázás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('vesekő', 'láz');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 36);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 35);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 37);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 38);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 1);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (10, 2);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('középfül-gyulladás', 'fülfájás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('középfül-gyulladás', 'csökkent hallás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('középfül-gyulladás', 'láz');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('középfül-gyulladás', 'hányinger');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('középfül-gyulladás', 'hasmenés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (5, 40);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (5, 41);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (5, 2);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (5, 10);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (5, 39);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('ekcéma', 'bőrpír');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('ekcéma', 'viszketés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('ekcéma', 'gyulladt bőr');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('ekcéma', 'duzzanat');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('ekcéma', 'hámlás');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (11, 42);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (11, 43);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (11, 44);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (11, 45);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (11, 46);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőrrák', 'megszaporodott anyajegyek');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőrrák', 'szabálytalan alakú anyajegy');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőrrák', 'növekvő átmérőjű anyajegy');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőrrák', 'lapos anyajegy dudorrá válik');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőrrák', 'viszketés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (12, 47);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (12, 48);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (12, 49);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (12, 50);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (12, 43);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőr gombás fertőzése', 'viszketés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőr gombás fertőzése', 'hámlás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőr gombás fertőzése', 'gyulladt bőr');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('bőr gombás fertőzése', 'repedezett bőr');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (13, 43);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (13, 46);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (13, 44);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (13, 51);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('pikkelysömör', 'vörös foltok');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('pikkelysömör', 'kiemelkedő bőr');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('pikkelysömör', 'hámlás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('pikkelysömör', 'viszketés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (14, 52);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (14, 53);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (14, 46);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (14, 43);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('kötőhártya-gyulladás', 'vörös szem');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('kötőhártya-gyulladás', 'fényérzékenység');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('kötőhártya-gyulladás', 'szemfájás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('kötőhártya-gyulladás', 'szúró fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('kötőhártya-gyulladás', 'szem váladékozása');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (15, 54);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (15, 55);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (15, 56);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (15, 57);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (15, 58);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szürkehályog', 'homályos látás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szürkehályog', 'fényérzékenység');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szürkehályog', 'látásban megjelenő foltok');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szürkehályog', 'kettős látás');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (16, 19);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (16, 55);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (16, 59);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (16, 60);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('zöldhályog', 'vörös szem');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('zöldhályog', 'szemfájás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('zöldhályog', 'látásromlás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('zöldhályog', 'hányinger');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (17, 54);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (17, 56);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (17, 61);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (17, 10);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('Alzheimer-kór', 'feledékenység');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('Alzheimer-kór', 'mermóriacsökkenés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('Alzheimer-kór', 'szellemi képességek csökkenése');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('Alzheimer-kór', 'hangulatváltozások');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (18, 62);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (18, 63);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (18, 64);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (18, 65);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('lúdtalp', 'láb belső íve lesüllyed');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('lúdtalp', 'nehéz járás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('lúdtalp', 'gerincpanaszok');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('lúdtalp', 'térdpanaszok');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('lúdtalp', 'csípőpanaszok');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (19, 66);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (19, 67);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (19, 68);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (19, 69);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (19, 70);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'nehéz légzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'fáradékonyság');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'mellkasi fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'szorító fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'verejtékezés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('szívinfarktus', 'hányinger');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 15);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 79);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 71);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 72);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 73);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (20, 10);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('érelmeszesedés', 'mellkasi fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('érelmeszesedés', 'szédülés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('érelmeszesedés', 'egyensúlyzavar');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (21, 71);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (21, 74);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (21, 75);
 
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'láz');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'torokfájás');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'izületi fájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'izomfájdalom');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'fáradékonyság');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'gyengeségérzés');
-INSERT INTO "Diagnosis"(sickness, symptom)VALUES ('influenza', 'száraz köhögés');
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 2);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 3);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 77);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 76);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 79);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 4);
+INSERT INTO "Diagnosis"(sickness, symptom)VALUES (22, 6);
 
 INSERT INTO "Hospital"(name, address, coordinates) VALUES ('Bajcsy-Zsilinszky Kórház', '1106 Budapest, Maglódi út 89-91.', '47.4795544,19.1628195');
 INSERT INTO "Hospital"(name, address, coordinates) VALUES ('BM Központi Kórház', '1071 Budapest, Városligeti fasor 11.', '47.5084611,19.0750144');
@@ -318,69 +317,69 @@ INSERT INTO "Hospital"(name, address, coordinates) VALUES ('Kaposi Mór Oktató 
 INSERT INTO "Hospital"(name, address, coordinates) VALUES ('Dr. Diósszilágyi Sámuel Kórház', '6000 Makó, Kórház u. 2.', '46.2169820,20.4658040');
 INSERT INTO "Hospital"(name, address, coordinates) VALUES ('Bugát Pál Kórház', '3200 Gyöngyös, Dózsa György út 20-22.', '47.7881065,19.9299631');
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('megfázás', 'Bajcsy-Zsilinszky Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('megfázás', 'Dr. Kenessey Albert Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('megfázás', 'Országos Fül-Orr-Gégészeti Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('megfázás', 'Madarász utcai Gyermekkórház');
+INSERT INTO "Curing"(sickness, hospital) VALUES (1, 1);
+INSERT INTO "Curing"(sickness, hospital) VALUES (1, 49);
+INSERT INTO "Curing"(sickness, hospital) VALUES (1, 21);
+INSERT INTO "Curing"(sickness, hospital) VALUES (1, 13);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('torokgyulladás', 'Bugát Pál Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('torokgyulladás', 'Dr. Diósszilágyi Sámuel Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('torokgyulladás', 'Erzsébet Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('torokgyulladás', 'MÁV Kórház és Központi Rendelőintézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (2, 76);
+INSERT INTO "Curing"(sickness, hospital) VALUES (2, 75);
+INSERT INTO "Curing"(sickness, hospital) VALUES (2, 64);
+INSERT INTO "Curing"(sickness, hospital) VALUES (2, 15);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('tüdőgyulladás', 'Szent Imre Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('tüdőgyulladás', 'Szent László Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('tüdőgyulladás', 'Erzsébet Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('tüdőgyulladás', 'Gróf Tisza István Kórház');
+INSERT INTO "Curing"(sickness, hospital) VALUES (3, 42);
+INSERT INTO "Curing"(sickness, hospital) VALUES (3, 44);
+INSERT INTO "Curing"(sickness, hospital) VALUES (3, 64);
+INSERT INTO "Curing"(sickness, hospital) VALUES (3, 52);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('asztma', 'Jahn Ferenc Délpesti Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('asztma', 'Heim Pál Gyermekkórház');
+INSERT INTO "Curing"(sickness, hospital) VALUES (4, 9);
+INSERT INTO "Curing"(sickness, hospital) VALUES (4, 8);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('középfül-gyulladás', 'Jósa András Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('cukorbetegség', 'Szent Ferenc Kórház');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('cukorbetegség', 'Szent Pantaleon Kórház');
+INSERT INTO "Curing"(sickness, hospital) VALUES (5, 62);
+INSERT INTO "Curing"(sickness, hospital) VALUES (6, 41);
+INSERT INTO "Curing"(sickness, hospital) VALUES (6, 56);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('gyomorfekély', 'Országos Belgyógyászati Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('gyomorfekély', 'Szent Rókus Kórház és Intézményei');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('vakbélgyulladás', 'Országos Belgyógyászati Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('vakbélgyulladás', 'Szent Rókus Kórház és Intézményei');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('hasnyálmirigy-gyulladás', 'Országos Belgyógyászati Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('hasnyálmirigy-gyulladás', 'Szent Rókus Kórház és Intézményei');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('vesekő', 'Országos Belgyógyászati Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('vesekő', 'Szent Rókus Kórház és Intézményei');
+INSERT INTO "Curing"(sickness, hospital) VALUES (7, 17);
+INSERT INTO "Curing"(sickness, hospital) VALUES (7, 46);
+INSERT INTO "Curing"(sickness, hospital) VALUES (8, 17);
+INSERT INTO "Curing"(sickness, hospital) VALUES (8, 46);
+INSERT INTO "Curing"(sickness, hospital) VALUES (9, 17);
+INSERT INTO "Curing"(sickness, hospital) VALUES (9, 46);
+INSERT INTO "Curing"(sickness, hospital) VALUES (10, 17);
+INSERT INTO "Curing"(sickness, hospital) VALUES (10, 46);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('ekcéma', 'Országos Bőrgyógyászati és Nemikórtani Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('ekcéma', 'Országos Sebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (11, 18);
+INSERT INTO "Curing"(sickness, hospital) VALUES (11, 33);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('bőrrák', 'Országos Bőrgyógyászati és Nemikórtani Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('bőrrák', 'Országos Sebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (12, 18);
+INSERT INTO "Curing"(sickness, hospital) VALUES (12, 33);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('bőr gombás fertőzése', 'Országos Bőrgyógyászati és Nemikórtani Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('bőr gombás fertőzése', 'Országos Sebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (13, 18);
+INSERT INTO "Curing"(sickness, hospital) VALUES (13, 33);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('pikkelysömör', 'Országos Bőrgyógyászati és Nemikórtani Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('pikkelysömör', 'Országos Sebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (14, 18);
+INSERT INTO "Curing"(sickness, hospital) VALUES (14, 33);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('Alzheimer-kór', 'Országos Idegsebészeti Tudományos Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('Alzheimer-kór', 'Országos Pszihiátriai és Neurológiai Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('Alzheimer-kór', 'Országos Orvosi Rehabilitációs Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('Alzheimer-kór', 'Országos Rheumatológiai és Fizioterápiás Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (18, 24);
+INSERT INTO "Curing"(sickness, hospital) VALUES (18, 31);
+INSERT INTO "Curing"(sickness, hospital) VALUES (18, 30);
+INSERT INTO "Curing"(sickness, hospital) VALUES (18, 32);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('kötőhártya-gyulladás', 'Országos Idegsebészeti Tudományos Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('kötőhártya-gyulladás', 'Országos Háziorvosi Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (15, 24);
+INSERT INTO "Curing"(sickness, hospital) VALUES (15, 23);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('szürkehályog', 'Országos Idegsebészeti Tudományos Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('szürkehályog', 'Országos Háziorvosi Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('zöldhályog', 'Országos Idegsebészeti Tudományos Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('zöldhályog', 'Országos Háziorvosi Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (16, 24);
+INSERT INTO "Curing"(sickness, hospital) VALUES (16, 23);
+INSERT INTO "Curing"(sickness, hospital) VALUES (17, 24);
+INSERT INTO "Curing"(sickness, hospital) VALUES (17, 23);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('lúdtalp', 'Országos Ortopédiai Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('lúdtalp', 'Országos Sportegészségügyi Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (19, 29);
+INSERT INTO "Curing"(sickness, hospital) VALUES (19, 34);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('szívinfarktus', 'Országos Kardiológiai Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('szívinfarktus', 'Országos Érsebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (20, 25);
+INSERT INTO "Curing"(sickness, hospital) VALUES (20, 20);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('érelmeszesedés', 'Országos Kardiológiai Intézet');
-INSERT INTO "Curing"(sickness, hospital) VALUES ('érelmeszesedés', 'Országos Érsebészeti Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (21, 25);
+INSERT INTO "Curing"(sickness, hospital) VALUES (21, 20);
 
-INSERT INTO "Curing"(sickness, hospital) VALUES ('influenza', 'Országos Háziorvosi Intézet');
+INSERT INTO "Curing"(sickness, hospital) VALUES (22, 23);
