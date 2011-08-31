@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -40,16 +41,30 @@ public class PatientGraph extends HttpServlet {
         JSONObj json = new JSONObj();
         
         String username = request.getParameter("username");
+        String SSID = request.getParameter("ssid");
+        
         try {
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            if (Sessions.MySessions().isPatient(SSID)) {                    // Paciens?
+                if (!Sessions.MySessions().isUserName(SSID, username)) {            // jogosult paciens?
+                    json.setUnauthorizedError();
+                    return;
+                }
+            } 
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
                 JSONArray elements = new JSONArray();
                 
-                String sqlText = "SELECT bloodpressure1,bloodpressure2,pulse,weight,temperature,mood,date "+
-                                 "FROM \"PatientHealth\" " +
-                                 "WHERE username LIKE ? " +
+                String sqlText = "SELECT ph.bloodpressure1,ph.bloodpressure2,ph.pulse,ph.weight,ph.temperature,ph.mood,ph.date "+
+                                 "FROM \"PatientHealth\" ph, \"User\" u " +
+                                 "WHERE u.username=? AND u.id=ph.\"userID\" " +
                                  "ORDER BY date";
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ps.setString(1, username);

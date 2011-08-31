@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -34,20 +35,22 @@ public class PatientHealth extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-
         JSONObj json = new JSONObj();
         
+        String SSID = request.getParameter("ssid");
+        
         try {
-            String username = request.getParameter("username");                             // Felhasznalonev
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }
+            
             int bp1 = (int)Double.parseDouble(request.getParameter("bp1"));                 // Vernyomas: systoles nyomas (felso)
             int bp2 = (int)Double.parseDouble(request.getParameter("bp2"));                 // Vernyomas: diastoles nyomas (also)
             int pulse = (int)Double.parseDouble(request.getParameter("pulse"));             // Vernyomas: diastoles nyomas (also)
             double temperature = Double.parseDouble(request.getParameter("temperature"));   // Testhomerseklet
             double weight = Double.parseDouble(request.getParameter("weight"));             // Testtomeg
             int mood = Integer.parseInt(request.getParameter("mood"));                      // Kozerzet
-
-            java.util.Date today = new java.util.Date();                                    // idobelyeg: pillanatnyi ido
-            java.sql.Timestamp sqlToday = new java.sql.Timestamp(today.getTime());
             
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
@@ -55,23 +58,21 @@ public class PatientHealth extends HttpServlet {
             if (db != null) {
 
                 PreparedStatement ps = db.prepareStatement("INSERT INTO \"PatientHealth\" " + 
-                                                           "(username,date,bloodpressure1,bloodpressure2,pulse,weight,temperature,mood) " +
-                                                           "VALUES (?,?,?,?,?,?,?,?)");
-                ps.setString(1, username);
-                ps.setTimestamp(2, sqlToday);
-                ps.setInt(3, bp1);
-                ps.setInt(4, bp2);
-                ps.setInt(5, pulse);
-                ps.setDouble(6, weight);
-                ps.setDouble(7, temperature);
-                ps.setInt(8, mood);
+                                                           "(\"userID\",bloodpressure1,bloodpressure2,pulse,weight,temperature,mood) " +
+                                                           "VALUES (?,?,?,?,?,?,?)");
+                ps.setInt(1, Sessions.MySessions().getUserID(SSID));
+                ps.setInt(2, bp1);
+                ps.setInt(3, bp2);
+                ps.setInt(4, pulse);
+                ps.setDouble(5, weight);
+                ps.setDouble(6, temperature);
+                ps.setInt(7, mood);
 
                 if (ps.executeUpdate() > 0) {
                     json.setOKMessage("Sikeres feltöltés.");
                 } else json.setDBError();
 
                 ps.close();
-
                 db.close();
             } else json.setServerError();   // adatbazis nem erheto el
             

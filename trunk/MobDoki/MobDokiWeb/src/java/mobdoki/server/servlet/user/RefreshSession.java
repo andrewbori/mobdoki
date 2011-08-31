@@ -2,8 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.user;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,19 +10,22 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Calendar;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class AnswerDownload extends HttpServlet {
-   
+public class RefreshSession extends HttpServlet {
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -35,35 +37,45 @@ public class AnswerDownload extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
         JSONObj json = new JSONObj();
 
-        String PictureName = request.getParameter("picturename");   // panaszkep neve
-
+        String username = request.getParameter("username");
+        int password = Integer.parseInt(request.getParameter("password"));
+        String ssid = request.getParameter("ssid");
+        
         try {
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
             
-            if (db != null) {
-
-                PreparedStatement ps = db.prepareStatement("SELECT answer FROM \"PictureComment\" WHERE imgname = ?");
-                ps.setString(1, PictureName);
-                ResultSet rs = ps.executeQuery();
-
-                String answer = "";
-                if (rs.next()) {
-                    answer = answer + rs.getString("answer");    // Talalt valasz
-                }
-                json.put("answer", answer);     // valasz a kimenetre
-                json.setOK();                   // Sikeres lekerdezes
-
-                rs.close();
-                ps.close();
+            if (db!=null) {
+                String sqlText = "SELECT u.id,  ut.name " +
+                                 "FROM \"User\" u INNER JOIN \"UserType\" ut ON (u.\"usertypeID\"=ut.id)" + 
+                                 "WHERE u.username=? AND u.password=?";
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1,username);
+                ps.setInt(2,password);
+                ResultSet results = ps.executeQuery();
+                if (results != null && results.next()) {            // felhasznalo tipusa es ID-ja
+                    int userid = results.getInt(1);
+                    String usertype = results.getString(2); 
+                    
+                    int id = Sessions.MySessions().getUserID(ssid);
+                    json.setOKMessage("Sikeres meghosszabítás.");
+                    if (id==userid) Sessions.MySessions().makeItValid(ssid);
+                    else if (id==0) {
+                        Calendar calendar = Calendar.getInstance();     // 30 perces munkamenet
+                        calendar.add(Calendar.MINUTE, 30);
+                        Date validTime = calendar.getTime();
+                        Sessions.MySessions().addSession(ssid, userid, username, usertype, validTime);
+                    }
+                    else json.setErrorMessage("Nem megfelelő adatok.");
+                } else throw new Exception();
+                
+                results.close();
                 db.close();
-            } else json.setServerError();        // adatbazis nem erheto el
-            
+            } else throw new Exception();
         } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
+            json.setDBError();
         } finally {
             json.write(out);
             out.close();
@@ -80,9 +92,9 @@ public class AnswerDownload extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -93,7 +105,7 @@ public class AnswerDownload extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -105,5 +117,4 @@ public class AnswerDownload extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 }

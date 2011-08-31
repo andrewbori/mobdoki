@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -37,14 +38,20 @@ public class Statistics extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         JSONObj json = new JSONObj();
+        String SSID = request.getParameter("ssid");
         
         try {
-           Class.forName(Connect.driver); //load the driver
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
 
-                String sqlText = "SELECT COUNT(name) AS db FROM \"Sickness\"";  // Betegsegek szama
+                String sqlText = "SELECT COUNT(id) AS db FROM \"Sickness\"";  // Betegsegek szama
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ResultSet results = ps.executeQuery();
                 if (results != null && results.next()) {                            // van talalat? akkor kiir
@@ -52,7 +59,7 @@ public class Statistics extends HttpServlet {
                     results.close();
                 } else json.put("sickness","?");
 
-                sqlText = "SELECT COUNT(name) AS db FROM \"Symptom\"";          // Tunetek szama
+                sqlText = "SELECT COUNT(id) AS db FROM \"Symptom\"";          // Tunetek szama
                 ps = db.prepareStatement(sqlText);
                 results = ps.executeQuery();
                 if (results != null && results.next()) {                            // van talalat? akkor kiir
@@ -60,7 +67,7 @@ public class Statistics extends HttpServlet {
                     results.close();
                 } else json.put("symptom","?");
                 
-                sqlText = "SELECT COUNT(name) AS db FROM \"Hospital\"";          // Korhazak szama
+                sqlText = "SELECT COUNT(id) AS db FROM \"Hospital\"";          // Korhazak szama
                 ps = db.prepareStatement(sqlText);
                 results = ps.executeQuery();
                 if (results != null && results.next()) {                            // van talalat? akkor kiir
@@ -68,8 +75,8 @@ public class Statistics extends HttpServlet {
                     results.close();
                 } else json.put("hopsital","?");
                 
-                sqlText = "SELECT COUNT(username) AS db FROM \"User\" " +       // Paciensek szama
-                          "WHERE usertype='patient'";
+                sqlText = "SELECT COUNT(u.id) AS db FROM \"User\" u, \"UserType\" ut " +       // Paciensek szama
+                          "WHERE ut.name='patient' AND ut.id=u.\"usertypeID\"";
                 ps = db.prepareStatement(sqlText);
                 results = ps.executeQuery();
                 if (results != null && results.next()) {                            // van talalat? akkor kiir
@@ -77,8 +84,8 @@ public class Statistics extends HttpServlet {
                     results.close();
                 } else json.put("patient","?");
 
-                sqlText = "SELECT COUNT(sickness)/sicknessCnt as symptomAvg " +
-                          "FROM \"Diagnosis\", (SELECT COUNT(name) as sicknessCnt FROM \"Sickness\") SicknessCnt " +
+                sqlText = "SELECT COUNT(id)/sicknessCnt as symptomAvg " +
+                          "FROM \"Diagnosis\", (SELECT COUNT(id) as sicknessCnt FROM \"Sickness\") SicknessCnt " +
                           "GROUP BY sicknessCnt";                               // tunetek atlagos szama betegsegenkent
                 ps = db.prepareStatement(sqlText);
                 results = ps.executeQuery();
@@ -92,6 +99,7 @@ public class Statistics extends HttpServlet {
             
         } catch (Exception e) {
             json.setDBError();              // adatbazis hiba
+            json.setErrorMessage(e.getMessage());
         } finally {
             json.write(out);    // Osszeallitott JSON kiirasa az outputra
             out.close();

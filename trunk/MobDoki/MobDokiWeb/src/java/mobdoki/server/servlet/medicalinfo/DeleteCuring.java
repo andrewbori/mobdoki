@@ -2,15 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.medicalinfo;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,12 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class PictureUpload extends HttpServlet {
+public class DeleteCuring extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -37,61 +32,66 @@ public class PictureUpload extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-  
         JSONObj json = new JSONObj();
         
-        String PictureName = request.getParameter("picturename") + ".jpg";  // kep neve
-        String UserName = request.getParameter("username");             // paciens felhasznaloneve
-        InputStream fi = request.getInputStream();                      // bejovo adatok
+        String hospital = request.getParameter("hospital");
+        String sickness = request.getParameter("sickness");
+        String SSID = request.getParameter("ssid");
         
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int ch;
-        while ((ch = fi.read()) != -1) {                        // bejovo adatok beolvasasa
-            bos.write(ch);
-        }
-        byte[] map = bos.toByteArray();
-
-        File picture = new File("temp_"+PictureName);
-        OutputStream output = new FileOutputStream(picture);    // letoltott bajtok fajlba irasa
-        output.write(map);
-        output.close();
-        FileInputStream input = new FileInputStream(picture);   // a fajl egy inputstream (az adatbazisba)
-
         try {
+            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
-            if (db != null) {
-                
-                PreparedStatement ps = db.prepareStatement("SELECT imgname FROM \"Picture\" WHERE imgname = ?");
-                ps.setString(1, PictureName);
-                ResultSet results = ps.executeQuery();              // van mar ilyen nevu kep?
-                
-                if (results==null || (results != null && !results.next())) {
 
-                    ps = db.prepareStatement("INSERT INTO \"Picture\" (imgname,img,answered,username) VALUES (?,?,?,?)");    // Kep feltoltese az adatbazisba
-                    ps.setString(1, PictureName);     
-                    ps.setBinaryStream(2, input, (int) picture.length());
-                    ps.setBoolean(3, false);
-                    ps.setString(4, UserName);
+            if (db!=null) {
+                String sqlText = "SELECT id FROM \"Hospital\" WHERE name LIKE ?"; // Korhaz letezik?
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1,hospital);
+                ResultSet results = ps.executeQuery();
+                if (results != null) {
+                    if (results.next()) {                                               // Ha igen akkor tovabb
+                        int hospitalID=results.getInt(1);
+                        
+                        sqlText = "SELECT id FROM \"Sickness\" WHERE name LIKE ?";     // Betegseg letezik?
+                        ps = db.prepareStatement(sqlText);
+                        ps.setString(1,sickness);
+                        results = ps.executeQuery();
 
-                    if (ps.executeUpdate() > 0) {
-                        json.setOKMessage("Sikeres feltöltés.");
-                    } else json.setErrorMessage("Sikertelen feltöltés.");
-                } else json.setErrorMessage("Már van ilyen nevű kép!");
+                        if (results != null && results.next()) {                      // Ha igen, akkor tovabb
+                            int sicknessID=results.getInt(1);
+                            
+                            sqlText = "SELECT id FROM \"Curing\" WHERE \"hospitalID\"=? AND \"sicknessID\"=?";     // Curing letezik?
+                            ps = db.prepareStatement(sqlText);
+                            ps.setInt(1,hospitalID);
+                            ps.setInt(2,sicknessID);
+                            results = ps.executeQuery();
 
-                ps.close();
-                input.close();
+                            if (results != null && results.next()) {
+                                sqlText = "DELETE FROM \"Curing\" WHERE \"hospitalID\"=? AND \"sicknessID\"=?";             // Curing torles
+                                ps = db.prepareStatement(sqlText);
+                                ps.setInt(1,hospitalID);
+                                ps.setInt(2,sicknessID);
+                                ps.executeUpdate();
+                                json.setOKMessage("Sikeres törlés!");
+                            } else json.setErrorMessage("A megadott kezelés nem található.");
+                        } else json.setErrorMessage("A megadott betegség nem található.");
+                    } else json.setErrorMessage("A megadott kórház nem található.");
+
+                    results.close();
+                } else json.setDBError();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
-            
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
         } finally {
             json.write(out);
-            picture.delete();
             out.close();
         }
     }

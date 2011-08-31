@@ -9,12 +9,12 @@
         <servlet-class>mobdoki.server.servlet.user.Register</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>NewSickness</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.NewSickness</servlet-class>
+        <servlet-name>SetSickness</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.SetSickness</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AddSymptom</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.AddSymptom</servlet-class>
+        <servlet-name>SetDiagnosis</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.SetDiagnosis</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Statistics</servlet-name>
@@ -29,12 +29,12 @@
         <servlet-class>mobdoki.server.servlet.medicalinfo.GetAll</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>NewHospital</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.NewHospital</servlet-class>
+        <servlet-name>SetHospital</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.SetHospital</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AddHospital</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.AddHospital</servlet-class>
+        <servlet-name>SetCuring</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.SetCuring</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>SearchSickness</servlet-name>
@@ -61,20 +61,12 @@
         <servlet-class>mobdoki.server.servlet.user.symptom.PictureUpload</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>GetPictureOfSymptom</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.GetPictureOfSymptom</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>CommentUpload</servlet-name>
         <servlet-class>mobdoki.server.servlet.user.symptom.CommentUpload</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CommentDownload</servlet-name>
         <servlet-class>mobdoki.server.servlet.user.symptom.CommentDownload</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddPictureToSymptom</servlet-name>
-        <servlet-class>mobdoki.server.servlet.medicalinfo.AddPictureToSymptom</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AnswerUpload</servlet-name>
@@ -108,6 +100,66 @@
         <servlet-name>GetUsers</servlet-name>
         <servlet-class>mobdoki.server.servlet.user.GetUsers</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DeleteDiagnosis</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.DeleteDiagnosis</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteSickness</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.DeleteSickness</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteHospital</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.DeleteHospital</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteCuring</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.DeleteCuring</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetAllSicknessHospital</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.GetAllSicknessHospital</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetAllSicknessSymptom</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.GetAllSicknessSymptom</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Logout</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.Logout</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangePassword</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.ChangePassword</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MessageUpload</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.message.MessageUpload</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MessageDownload</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.message.MessageDownload</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetMessages</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.message.GetMessages</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ImageUpload</servlet-name>
+        <servlet-class>mobdoki.server.servlet.ImageUpload</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ImageDownload</servlet-name>
+        <servlet-class>mobdoki.server.servlet.ImageDownload</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MessageDelete</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.message.MessageDelete</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RefreshSession</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.RefreshSession</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -115,14 +167,6 @@
     <servlet-mapping>
         <servlet-name>Register</servlet-name>
         <url-pattern>/Register</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>NewSickness</servlet-name>
-        <url-pattern>/NewSickness</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddSymptom</servlet-name>
-        <url-pattern>/AddSymptom</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Statistics</servlet-name>
@@ -135,14 +179,6 @@
     <servlet-mapping>
         <servlet-name>GetAll</servlet-name>
         <url-pattern>/GetAll</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>NewHospital</servlet-name>
-        <url-pattern>/NewHospital</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddHospital</servlet-name>
-        <url-pattern>/AddHospital</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SearchSickness</servlet-name>
@@ -201,20 +237,88 @@
         <url-pattern>/GetUsers</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>GetPictureOfSymptom</servlet-name>
-        <url-pattern>/GetPictureOfSymptom</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>PictureDownload</servlet-name>
         <url-pattern>/PictureDownload</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AddPictureToSymptom</servlet-name>
-        <url-pattern>/AddPictureToSymptom</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>PictureInfo</servlet-name>
         <url-pattern>/PictureInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteSickness</servlet-name>
+        <url-pattern>/DeleteSickness</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteHospital</servlet-name>
+        <url-pattern>/DeleteHospital</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteCuring</servlet-name>
+        <url-pattern>/DeleteCuring</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetAllSicknessHospital</servlet-name>
+        <url-pattern>/GetAllSicknessHospital</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetAllSicknessSymptom</servlet-name>
+        <url-pattern>/GetAllSicknessSymptom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SetSickness</servlet-name>
+        <url-pattern>/SetSickness</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SetDiagnosis</servlet-name>
+        <url-pattern>/SetDiagnosis</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SetHospital</servlet-name>
+        <url-pattern>/SetHospital</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SetCuring</servlet-name>
+        <url-pattern>/SetCuring</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteDiagnosis</servlet-name>
+        <url-pattern>/DeleteDiagnosis</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Logout</servlet-name>
+        <url-pattern>/Logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangePassword</servlet-name>
+        <url-pattern>/ChangePassword</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MessageUpload</servlet-name>
+        <url-pattern>/MessageUpload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MessageDownload</servlet-name>
+        <url-pattern>/MessageDownload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetMessages</servlet-name>
+        <url-pattern>/GetMessages</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImageUpload</servlet-name>
+        <url-pattern>/ImageUpload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImageDownload</servlet-name>
+        <url-pattern>/ImageDownload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MessageDelete</servlet-name>
+        <url-pattern>/MessageDelete</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RefreshSession</servlet-name>
+        <url-pattern>/RefreshSession</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

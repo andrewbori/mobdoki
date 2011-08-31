@@ -2,8 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package mobdoki.server.servlet.medicalinfo;
+package mobdoki.server.servlet.user;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,13 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
  * @author Andreas
  */
-public class NewSickness extends HttpServlet {
-   
+public class ChangePassword extends HttpServlet {
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -38,39 +38,55 @@ public class NewSickness extends HttpServlet {
         
         JSONObj json = new JSONObj();
         
-        String sickness = request.getParameter("sickness");
-
-
+        String oldpassword = request.getParameter("oldpassword");
+        String newpassword = request.getParameter("newpassword");
+        String SSID = request.getParameter("ssid");
+        
         try {
-           Class.forName(Connect.driver); //load the driver
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }
+            
+            Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT name FROM \"Sickness\" WHERE name LIKE ?";
+                int id = Sessions.MySessions().getUserID(SSID);
+                
+                String sqlText = "SELECT username FROM \"User\" " +
+                                 "WHERE id=? AND password=?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,sickness);
-                ResultSet results = ps.executeQuery();              // megadott nevu betegseg mar van?
-                if (results != null) {
-                    if (results.next()) {                               // Ha igen: hibauzenet
-                        json.setErrorMessage("A megadott betegség már megtalálható.");
-                    } else {
-                        sqlText = "INSERT INTO \"Sickness\"(name) VALUES (?)";
-                        ps = db.prepareStatement(sqlText);
-                        ps.setString(1,sickness);
-                        ps.executeUpdate();                             // Ha nem: felvetel
-                        json.setOKMessage("Sikeres felvétel!");
-                    }
-                    results.close();
-                } else json.setDBError();
+                ps.setInt(1,id);
+                ps.setInt(2,Integer.parseInt(oldpassword));
+                ResultSet results = ps.executeQuery();                  // A megadott jelszo helyes?
+                if (results != null && results.next()) {                // Ha helyes, akkor megvaltoztat
+                    sqlText = "UPDATE \"User\" SET password=? WHERE id=?";
+                    ps = db.prepareStatement(sqlText);
+                    ps.setInt(1,Integer.parseInt(newpassword));
+                    ps.setInt(2,id);
+                    ps.executeUpdate();
+                } else {                                                // egyebkent hibauzenet es visszater
+                    json.setErrorMessage("A régi jelszó helytelen!");
+                    json.write(out);     // Osszeallitott JSON kiirasa az outputra
+                    out.close();
+                    db.close();
+                    return;
+                }
+
+                json.setOKMessage("Sikeres módosítás!");
+                
                 db.close();
-            } else json.setServerError();        // adatbazis nem erheto el
+            } else json.setServerError();   // adatbazis nem erheto el
+            
+
         } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
+            json.setDBError();              // adatbazis hiba
         } finally {
-            json.write(out);
+            json.write(out);     // Osszeallitott JSON kiirasa az outputra
             out.close();
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
@@ -82,9 +98,9 @@ public class NewSickness extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -95,7 +111,7 @@ public class NewSickness extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -105,7 +121,6 @@ public class NewSickness extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "NewSickness";
+        return "Short description";
     }// </editor-fold>
-
 }

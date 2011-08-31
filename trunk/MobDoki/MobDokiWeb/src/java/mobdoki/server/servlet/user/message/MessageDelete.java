@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.user.symptom;
+package mobdoki.server.servlet.user.message;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,15 +14,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
+import org.apache.catalina.Session;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class GetPictureNames extends HttpServlet {
+public class MessageDelete extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -35,39 +36,69 @@ public class GetPictureNames extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
         JSONObj json = new JSONObj();
         
+        int id = Integer.parseInt(request.getParameter("id"));
+        int imageID = Integer.parseInt(request.getParameter("imageID"));
+        String SSID = request.getParameter("ssid");
+        
         try {
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
-            if (db != null) {
+            if (db!=null) {
                 
-                PreparedStatement ps = db.prepareStatement("SELECT imgname FROM \"Picture\" " + 
-                                                           "WHERE answered = ? " +
-                                                           "ORDER BY imgname");
-                ps.setBoolean(1, false);
-                ResultSet results = ps.executeQuery();              // megvaloszalatlan panaszkepek lekerdezese
-                
-                if (results != null) {
-    
-                    JSONArray picNames = new JSONArray();
-                    while (results.next()) {
-                        picNames.put(results.getString(1));         // panaszkep nevenek eltarolasa
-                    }
-                    json.put("picNames", picNames);         // panaszkeptomb a kimenetre
-                    json.setOK();                           // sikeres lekerdezes
+                // ----- Jogosult a felhasznalo a torlesre? ------
+                String sqlText = "SELECT sender, coalesce(recipient,0) " +
+                                 "FROM \"Message\" " + 
+                                 "WHERE id=?";
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setInt(1, id);
+                ResultSet results = ps.executeQuery();
+                if (results!=null && results.next()) {
+                    int senderID = results.getInt(1);
+                    int recipientID = results.getInt(2);
+                    int userID = Sessions.MySessions().getUserID(SSID);
                     
-                } else throw new Exception();
-                        
+                    if(Sessions.MySessions().isDoctor(SSID)) {
+                        if (userID!=senderID && userID!=recipientID && recipientID!=0) {
+                            json.setUnauthorizedError();
+                            return;
+                        }
+                    } else {
+                        if (userID!=senderID && userID!=recipientID)  {
+                            json.setUnauthorizedError();
+                            return;
+                        }
+                    }
+                }
+                
+                // ----- Uzenet torlese ------
+                sqlText = "DELETE FROM \"Message\" WHERE id=?";
+                ps = db.prepareStatement(sqlText);
+                ps.setInt(1, id);
+                ps.executeUpdate();
+
+                // ----- Csatolt kep torlese -----
+                sqlText = "DELETE FROM \"Image\" WHERE id=?";
+                ps = db.prepareStatement(sqlText);
+                ps.setInt(1, imageID);
+                ps.executeUpdate();
+                
+                json.setOKMessage("Sikeres törlés.");
+               
                 ps.close();
                 db.close();
-            } else json.setServerError();        // adatbazis nem erheto el
-            
+            } else json.setServerError();   // adatbazis nem erheto el
+
         } catch (Exception e) {
-            json.setDBError();                  // adatbazis hiba
+            json.setDBError();              // adatbazis hiba
         } finally {
-            json.write(out);
+            json.write(out);     // Osszeallitott JSON kiirasa az outputra
             out.close();
         }
     }

@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -39,10 +41,16 @@ public class SearchSickness extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         JSONObj json = new JSONObj();
+        
+        String SSID = request.getParameter("ssid");
         String symptoms = request.getParameter("symptoms");
+        
         try {
-
-
+            if (!Sessions.MySessions().isValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
             if (symptoms==null || symptoms.equals("")) {   //hibas parameter eseten kivetel dobasa
                 throw new Exception();
             }
@@ -57,30 +65,58 @@ public class SearchSickness extends HttpServlet {
 
             if (db!=null) {
 
-                String sqlText = "SELECT sickness FROM \"Diagnosis\" WHERE symptom LIKE ?";     // Diagnozisok keresese
+                String sqlText = "SELECT si.name " +
+                                 "FROM \"Diagnosis\" d " +
+                                        "INNER JOIN \"Symptom\" sy ON (d.\"symptomID\"=sy.id) " +
+                                        "INNER JOIN \"Sickness\" si ON (d.\"sicknessID\"=si.id) " +
+                                 "WHERE sy.name LIKE ?";     // Diagnozisok keresese
                 PreparedStatement ps = db.prepareStatement(sqlText);
 
                 json.put("size", symptomlist.size());               // tunetek szama a kimenetbe
                 JSONArray sicknesses = new JSONArray();             // tomb a talalatoknak
+                JSONArray list = new JSONArray();                   // tomb a talalatoknak darabszammal
                 
+                TreeMap<String, Integer> sicknessMap = new TreeMap<String, Integer>();	// betegsegek + talalati darabszamuk
+                 
                 for(String symptom : symptomlist) {                 // kereses a megadott tunetekre egyenkent
-                    ps.setString(1,symptom);                            // parameter beallitasa az adott tunetre
+                    ps.setString(1, "%" + symptom + "%");                            // parameter beallitasa az adott tunetre
                     ResultSet results = ps.executeQuery();
 
                     if (results != null) {
                         while (results.next()) {                        // menjunk vegig a talalatokon
-                            sicknesses.put(results.getString(1));           // talalat hozzaadasa a betgsegtombhoz
+                            String sickness = results.getString(1);
+                            if (sicknessMap.containsKey(sickness)) {                        // Ha mar a listaban van a betegseg: darabszam novelese
+                                sicknessMap.put(sickness, sicknessMap.get(sickness)+1);
+                            } else {                                                        // Ha nincs, akkor felvetel, 1-es darabszammal (es a listahoz hozzaadas)
+                                    sicknessMap.put(sickness, 1);
+                            }
                         }
                         results.close();
                     } else json.setDBError();
                 }
                 
+                int MAX = 0;
+                for (String s : sicknessMap.keySet()) {
+                    int v = sicknessMap.get(s);
+                    if (v>MAX) MAX=v;
+                }
+                for (int i=MAX; i>0; i--) {
+                    for (String s : sicknessMap.keySet()) {
+                        if (sicknessMap.get(s)==i) {
+                            sicknesses.put(s);
+                            list.put(s + " (" + sicknessMap.get(s) + ") ");
+                        }
+                    }
+                }
+                
                 json.put("sicknesses", sicknesses);                 // Megtalalt betegsegek hozzadadasa a kimenethez
+                json.put("list", list);
                 json.setOK();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
+            json.setErrorMessage(e.getMessage());
         }
         finally {
             json.write(out);

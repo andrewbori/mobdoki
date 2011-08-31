@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mobdoki.server.servlet.medicalinfo;
+package mobdoki.server.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,12 +15,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
+import mobdoki.server.Sessions;
 
 /**
  *
- * @author mani
+ * @author Andreas
  */
-public class GetPictureOfSymptom extends HttpServlet {
+public class ImageDownload extends HttpServlet {
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,27 +34,59 @@ public class GetPictureOfSymptom extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("image");
         OutputStream output = response.getOutputStream();
-        
-        String symptom = request.getParameter("symptom");       // A lekerdezendo tunet neve
-        
+        String SSID = request.getParameter("ssid");             // felhasznalo SSID-ja
+        String username = request.getParameter("username");
+        String symptom = request.getParameter("symptom");
+        String idString = request.getParameter("id");
+        boolean large = Boolean.parseBoolean(request.getParameter("large"));
+        int id=0;// = Integer.parseInt(request.getParameter("id"));
+
         try {
+            if (!Sessions.MySessions().isValid(SSID)) {         // Ervenyes a munkamenet?
+                return;
+            }
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
             if (db != null) {
-                PreparedStatement ps = db.prepareStatement("SELECT img FROM \"Symptom\" WHERE name = ?");
-                ps.setString(1, symptom);
-                ResultSet rs = ps.executeQuery();               // Kep lekerese a tunethez
+                if (username!=null) {
+                    PreparedStatement ps = db.prepareStatement("SELECT i.id " +
+                                                               "FROM \"User\" u INNER JOIN \"Image\" i ON (u.\"imageID\"=i.id) " +
+                                                               "WHERE u.username LIKE ?");
+                    ps.setString(1, username);
+                    ResultSet rs = ps.executeQuery();
+                    if (rs!=null && rs.next()) id = rs.getInt(1);               
+                }
+                else if (symptom!=null) {
+                    PreparedStatement ps = db.prepareStatement("SELECT i.id " +
+                                                               "FROM \"Symptom\" s INNER JOIN \"Image\" i ON (s.\"imageID\"=i.id) " +
+                                                               "WHERE s.name LIKE ?");
+                    ps.setString(1, symptom);
+                    ResultSet rs = ps.executeQuery();
+                    if (rs!=null && rs.next()) id = rs.getInt(1);  
+                }
+                else id = Integer.parseInt(idString);
+                
+                String sqlText;
+                if (large) sqlText = "SELECT medium FROM \"Image\" WHERE id=?";
+                else sqlText = "SELECT small FROM \"Image\" WHERE id=?";
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    byte[] imgBytes = rs.getBytes(1);           // Kep byte tombbe helyezese
-                    output.write(imgBytes);                     // Adatok kiirasa a kimenetre
-                    
+                    byte[] imgBytes = rs.getBytes(1);
+
+                    output.write(imgBytes);
                     output.close();
                 }
                 rs.close();
                 ps.close();
-            } else throw new Exception();
-        } catch (Exception e) {}
-        finally {
+            } else {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+
+        } finally {
             output.close();
         }
     }

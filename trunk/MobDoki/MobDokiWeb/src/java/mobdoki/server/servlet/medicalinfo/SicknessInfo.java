@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import org.postgresql.geometric.PGpoint;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -40,26 +41,44 @@ public class SicknessInfo extends HttpServlet {
         PrintWriter out = response.getWriter();
         JSONObj json = new JSONObj();
         
+        String SSID = request.getParameter("ssid");
         String sickness = request.getParameter("sickness");
+        
         try {
-
-            if (sickness==null || sickness.equals("")) {            // hibas parameter eseten kivetel dobasa
-                throw new Exception();
+            if (!Sessions.MySessions().isValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
             }
-
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
 
+                String sqlText = "SELECT seriousness,coalesce(url,''),id FROM \"Sickness\" WHERE name LIKE ?";     // Betegseg adatainak lekerese
+                PreparedStatement ps = db.prepareStatement(sqlText);
+                ps.setString(1,sickness);                           // parameter beallitasa az adott tunetre
+                ResultSet results = ps.executeQuery();
+                
+                int sicknessID=0;
+                if (results != null && results.next()) {            // Ha van talalat
+                    json.put("seriousness",results.getDouble(1));          // irjuk ki a megtalalalt tunetet   
+                    json.put("url",results.getString(2));
+                    sicknessID=results.getInt(3);
+                    results.close();
+                }
+                
                 JSONArray symptom = new JSONArray();
                 JSONArray hospital = new JSONArray();
                 JSONArray coordinates = new JSONArray();
                 
-                String sqlText = "SELECT symptom FROM \"Diagnosis\" WHERE sickness LIKE ? ORDER BY symptom";     // Tunetek keresese
-                PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,sickness);                           // parameter beallitasa az adott tunetre
-                ResultSet results = ps.executeQuery();
+                sqlText = "SELECT s.name " +
+                          "FROM \"Diagnosis\" d INNER JOIN \"Symptom\" s ON (d.\"symptomID\"=s.id) " +
+                          "WHERE d.\"sicknessID\"=? " +
+                          "ORDER BY s.name";                       // Tunetek keresese
+                ps = db.prepareStatement(sqlText);
+                ps.setInt(1,sicknessID);                            // parameter beallitasa az adott tunetre
+                results = ps.executeQuery();
 
                 if (results != null) {
                     while (results.next()) {                        // menjunk vegig a talalatokon
@@ -69,12 +88,12 @@ public class SicknessInfo extends HttpServlet {
                     results.close();
                 }
 
-                sqlText = "SELECT hospital, coordinates " +
-                          "FROM \"Curing\",\"Hospital\" " +
-                          "WHERE sickness LIKE ? AND hospital=name " +
-                          "ORDER BY hospital";     // Kezelo korhazak keresese
+                sqlText = "SELECT h.name, h.coordinates " +
+                          "FROM \"Curing\" c INNER JOIN \"Hospital\" h ON (c.\"hospitalID\"=h.id) " +
+                          "WHERE c.\"sicknessID\"=? " +
+                          "ORDER BY h.name";     // Kezelo korhazak keresese
                 ps = db.prepareStatement(sqlText);
-                ps.setString(1,sickness);                           // parameter beallitasa az adott tunetre
+                ps.setInt(1,sicknessID);                             // parameter beallitasa az adott tunetre
                 results = ps.executeQuery();
 
                 if (results != null) {

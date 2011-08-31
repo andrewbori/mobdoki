@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.postgresql.geometric.PGpoint;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -34,21 +35,26 @@ public class NearestHospitals extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
         JSONObj json = new JSONObj();
         
+        String SSID = request.getParameter("ssid");
+        
         try {
-
+            if (!Sessions.MySessions().isValid(SSID)) {
+                json.setUnauthorizedError();
+                return;
+            }
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
                 String sqlText = "SELECT name, coordinates " +
-                          "FROM \"Hospital\" " +
-                          "ORDER BY name";     // Kezelo korhazak keresese
+                                 "FROM \"Hospital\" " +
+                                 "ORDER BY name";     // Kezelo korhazak keresese
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ResultSet results = ps.executeQuery();
 

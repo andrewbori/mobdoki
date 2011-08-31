@@ -51,19 +51,24 @@ public class Register extends HttpServlet {
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ps.setString(1,username);
                 ResultSet results = ps.executeQuery();  // A megadott felhasznalonev keresese:
-                if (results != null) {
-                    if (results.next()) {                   // Foglalt?
-                        json.setErrorMessage("A megadott felhasználónév már foglalt.");
-                    } else {                                // Szabad? Akkor felvetel az adatbazisba!
-                        sqlText = "INSERT INTO \"User\"(username, password, usertype) VALUES (?, ?, ?)";
+                if (results != null && results.next()) {    // Foglalt?
+                    json.setErrorMessage("A megadott felhasználónév már foglalt.");
+                } else {                                    // Szabad? Akkor felvetel az adatbazisba!
+                        sqlText = "SELECT id FROM \"UserType\" WHERE name=?";
                         ps = db.prepareStatement(sqlText);
-                        ps.setString(1,username);
-                        ps.setInt(2,password);
-                        ps.setString(3,usertype);
-                        ps.executeUpdate();
-                        json.setOKMessage("Sikeres regisztráció!");
-                    }
-                } else throw new Exception();
+                        ps.setString(1,usertype);
+                        results = ps.executeQuery();
+                        if (results != null && results.next()) {
+                        
+                            sqlText = "INSERT INTO \"User\" (username, password, \"usertypeID\") VALUES (?, ?, ?)";
+                            ps = db.prepareStatement(sqlText);
+                            ps.setString(1,username);
+                            ps.setInt(2,password);
+                            ps.setInt(3,results.getInt(1));
+                            ps.executeUpdate();
+                            json.setOKMessage("Sikeres regisztráció!");
+                        } else json.setErrorMessage("Ismeretlen felhasználói típus.");
+                }
                 results.close();
                 db.close();
             } else json.setServerError();   // adatbazis nem erheto el

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
+import mobdoki.server.Sessions;
 
 /**
  *
@@ -38,24 +39,30 @@ public class GetUserData extends HttpServlet {
         
         JSONObj json = new JSONObj();
         
-        String username = request.getParameter("username");
-
+        String SSID = request.getParameter("ssid");
+        
         try {
+            if (!Sessions.MySessions().isValid(SSID)) {                     // Ervenyes a munkamenet?
+                json.setUnauthorizedError();
+                return;
+            }
+            
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT coalesce(name,''), coalesce(address,''), coalesce(email,'') " +
+                String sqlText = "SELECT coalesce(name,''), coalesce(address,''), coalesce(email,''), coalesce(\"imageID\",0) " +
                                  "FROM \"User\" " +
-                                 "WHERE username=?";
+                                 "WHERE id=?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,username);
+                ps.setInt(1,Sessions.MySessions().getUserID(SSID));
                 ResultSet results = ps.executeQuery();      // adott nevu felhasznalo osszes adata
                 if (results != null) {
                     while (results.next()) {                        
                         json.put("name", results.getString(1));     // adatok beolvasasa
                         json.put("address", results.getString(2));
                         json.put("email", results.getString(3));
+                        json.put("imageID", results.getString(4));
                         json.setOK();
                     }
                     results.close();
