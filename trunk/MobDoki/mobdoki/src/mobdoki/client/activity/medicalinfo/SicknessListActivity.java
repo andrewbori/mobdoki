@@ -3,7 +3,8 @@ package mobdoki.client.activity.medicalinfo;
 import java.util.ArrayList;
 
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,32 +12,26 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class SicknessListActivity extends Activity {
-	HttpGetConnection download = null;				// szal a webszerverhez csatlakozashoz
+	HttpGetJSONConnection download = null;				// szal a webszerverhez csatlakozashoz
 	private Activity activity=this;
-	private ArrayList<String> listElements = null;	// betegsegek listaja
+	private ArrayList<String> listElements = null;		// betegsegek listaja
 	
 	private ListView listview;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.exploresickness);
-      
-		// Frissites gomb esemenykezeloje
-		Button refreshButton = (Button) findViewById(R.exploresickness.refresh);
-		refreshButton.setOnClickListener(new View.OnClickListener() {
-	      	public void onClick(View view) {
-	      		if (download==null || (download!=null && !download.isAlive())) refreshRequest();
-	      	}
-		});
+		setTitle("MobDoki: Betegségek listája");
       
 		// Vissza gomb esemenykezeloje
 		Button backButton = (Button) findViewById(R.exploresickness.back);
@@ -71,9 +66,9 @@ public class SicknessListActivity extends Activity {
     @Override
     public void onPause() {
     	super.onPause();
-    	if (download!=null && download.isAlive()) {
-    		download.stop(); download=null;
-    		((ProgressBar)findViewById(R.addsymptom.progress)).setVisibility(ProgressBar.INVISIBLE);
+    	if (download!=null && download.isUsed()) {
+    		download.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
     	}
     }
 
@@ -81,7 +76,6 @@ public class SicknessListActivity extends Activity {
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.exploresickness.progress)).setVisibility(ProgressBar.INVISIBLE);
 			switch(msg.arg1){
 				case 0:
 					Log.v("SicknessListActivity","Sikertelen lekeres.");
@@ -90,8 +84,7 @@ public class SicknessListActivity extends Activity {
 				case 1:
 					if(download.isOK()) {					// ha sikeres lekerdezes: lista feltotlese
 						Log.v("SicknessListActivity","Sikeres keresés");
-						listElements = download.getJSONStringArray("names");
-						listview = (ListView) findViewById(R.exploresickness.sicknesslist);
+						listElements = download.getStringArrayList("names");
 						ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
 																				R.layout.listview_item,  
 																				listElements);  
@@ -102,15 +95,17 @@ public class SicknessListActivity extends Activity {
 					}
 					break;
 			}
+			setProgressBarIndeterminateVisibility(false);
+			download.setNotUsed();
 		}
 	};
 	
 	// Lista lekeresenek/frissitesenek kezdemenyezese
     private void refreshRequest(){    	
-    	((ProgressBar)findViewById(R.exploresickness.progress)).setVisibility(ProgressBar.VISIBLE);
+    	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "GetAll?table=Sickness";
-	    download = new HttpGetConnection(url, mHandler);
+	    String url = "GetAll?table=Sickness" + "&ssid=" + UserInfo.getSSID();
+	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
     }
 }

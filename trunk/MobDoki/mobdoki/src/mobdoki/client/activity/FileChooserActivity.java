@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Stack;
 
 import mobdoki.client.FileArrayAdapter;
-import mobdoki.client.Option;
+import mobdoki.client.FileOption;
 import mobdoki.client.R;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -43,14 +43,23 @@ public class FileChooserActivity extends ListActivity {
 
 		File[] dirs = f.listFiles();					// a megnyitott mappaban talalhato fajlok/mappak
 		this.setTitle("Current Dir: " + f.getName());
-		List<Option> dir = new ArrayList<Option>();
-		List<Option> fls = new ArrayList<Option>();
+		List<FileOption> dir = new ArrayList<FileOption>();
+		List<FileOption> fls = new ArrayList<FileOption>();
 		try {
 			for (File ff : dirs) {						// fajlok es mappak kulon listakba valogatasa
 				if (ff.isDirectory())
-					dir.add(new Option(ff.getName(), "Folder", ff.getAbsolutePath()));
+					dir.add(new FileOption(ff.getName(), "Folder", ff.getAbsolutePath()));
 				else {
-					fls.add(new Option(ff.getName(), "File Size: " + ff.length(), ff.getAbsolutePath()));
+					String filename = ff.getName();								// Fajl tipusanak lekerdezese
+					int indexOfPoint = filename.lastIndexOf('.');
+			        String fileformat = "";
+			        if (indexOfPoint != -1) {
+			            fileformat = filename.substring(indexOfPoint + 1);
+			        }
+			        
+			        if (fileformat.equals("jpg") || fileformat.equals("png") || fileformat.equals("bmp") || fileformat.equals("jpeg")) {
+			        	fls.add(new FileOption(ff.getName(), "File Size: " + ff.length(), ff.getAbsolutePath()));
+			        }
 				}
 			}
 		} catch (Exception e) {
@@ -61,7 +70,7 @@ public class FileChooserActivity extends ListActivity {
 		dir.addAll(fls);								// a mappak listajahoz hozzafuzzuk a fajlok listajat
 		
 		if (!f.getName().equalsIgnoreCase("sdcard")) {							//Ha nem a gyokerkonyvtarban vagyunk, akkor:
-			dir.add(0, new Option("..", "Parent Directory", f.getParent()));		// szulokonyvtar a lista elejere
+			dir.add(0, new FileOption("..", "Parent Directory", f.getParent()));		// szulokonyvtar a lista elejere
 		}
 		
 		adapter = new FileArrayAdapter(FileChooserActivity.this, R.layout.file_view, dir);
@@ -73,7 +82,7 @@ public class FileChooserActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		// TODO Auto-generated method stub
 		super.onListItemClick(l, v, position, id);
-		Option o = adapter.getItem(position);
+		FileOption o = adapter.getItem(position);
 		if (o.getData().equalsIgnoreCase("folder")) {							// Ha a kivalaszott elem egy mappa
 			dirStack.push(currentDir);
 			currentDir = new File(o.getPath());
@@ -100,8 +109,9 @@ public class FileChooserActivity extends ListActivity {
 	}
 
 	// Fajlra kattintas: visszateres az eleresi utvonnallal
-	private void onFileClick(Option o) {
+	private void onFileClick(FileOption o) {
 		Intent intent = new Intent();
+		intent.putExtra("source", "filechooser");
 		intent.putExtra("filepath",o.getPath());
 		setResult(RESULT_OK,intent);
 		finish();

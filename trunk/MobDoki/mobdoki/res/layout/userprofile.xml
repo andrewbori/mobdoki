@@ -1,115 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			android:orientation="vertical"
-  			android:layout_width="fill_parent"
-  			android:layout_height="fill_parent">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:orientation="vertical"
   			  android:layout_width="fill_parent"
   			  android:layout_height="fill_parent">
-  			  
-    <TextView android:text="Felhasználói profil"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:paddingBottom="10sp"
-    		  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold">
-    </TextView>
+	<ScrollView android:orientation="vertical"
+	  			android:layout_width="fill_parent"
+	  			android:layout_height="fill_parent"
+	  			android:layout_weight="1" >
+	<TabHost android:id="@+id/tabhost"
+    		 android:layout_width="fill_parent"
+    	     android:layout_height="fill_parent"
+    	     android:layout_weight="50">
 
-    <TextView android:text="Felhasználónév:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:id="@+userprofile/username"
-    		  android:layout_width="fill_parent"
-    		  android:layout_height="wrap_content"
-    		  android:editable="false" android:hint="&lt;felhasználónév&gt;">
-    </EditText>
-
-    <TextView android:text="Név:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:id="@+userprofile/name"
-    		  android:layout_width="fill_parent"
-    		  android:layout_height="wrap_content" android:hint="&lt;név&gt;">
-    </EditText>
-    
-    <TextView android:text="Cím:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:id="@+userprofile/address"
-    		  android:layout_width="fill_parent"
-    		  android:layout_height="wrap_content" android:hint="&lt;cím&gt;">
-    </EditText>
-    
-    <TextView android:text="E-mail cím:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:id="@+userprofile/email"
-    		  android:layout_width="fill_parent"
-    		  android:layout_height="wrap_content" android:hint="&lt;e-mail cím&gt;">
-    </EditText>
-    
-    <TextView android:text="Régi jelszó:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:layout_width="fill_parent"
-    		  android:id="@+userprofile/oldpassword"
-    		  android:layout_height="wrap_content"
-    		  android:password="true" android:hint="&lt;régi jelszó&gt;">
-    </EditText>
-    
-    <TextView android:text="Új jelszó:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
-    </TextView>
-    <EditText android:layout_width="fill_parent"
-    		  android:id="@+userprofile/password1"
-    		  android:layout_height="wrap_content"
-    		  android:password="true" android:hint="&lt;új jelszó&gt;">
-    </EditText>
-    <EditText android:layout_width="fill_parent"
-    		  android:id="@+userprofile/password2"
-    		  android:layout_height="wrap_content"
-    		  android:password="true" android:hint="&lt;új jelszó megerősítése&gt;">
-    </EditText>
-    
-    <LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
-        <Button android:text="Mentés"
-        		android:id="@+userprofile/save"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
-        </Button>
+	    <TabWidget android:id="@android:id/tabs"
+		      	   android:layout_width="fill_parent"
+		      	   android:layout_height="wrap_content"
+		/>
+		
+		<FrameLayout android:id="@android:id/tabcontent"
+	      			 android:layout_width="fill_parent"
+	      			 android:layout_height="fill_parent"
+	      			 android:paddingTop="35px">
+	      	<!-- ***************************************** -->
+			<!-- 			ADATLAP SZERKESZTÉSE 		   -->
+			<!-- ***************************************** --> 
+			<LinearLayout android:id="@+userprofile/userTab"
+						  android:orientation="vertical"
+			  			  android:layout_width="fill_parent"
+			  			  android:layout_height="fill_parent">
+			 	<TextView android:text="Felhasználó adatlapja:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			
+			    <TextView android:text="Felhasználónév:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:id="@+userprofile/username"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="wrap_content"
+			    		  android:hint="Felhasználónév" android:inputType="none" android:focusable="false">
+			    </EditText>
+			
+			    <TextView android:text="Név:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:id="@+userprofile/name"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="wrap_content" android:hint="Név" android:inputType="textPersonName">
+			    </EditText>
+			    
+			    <TextView android:text="Cím:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:id="@+userprofile/address"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="wrap_content" android:hint="Lakcím" android:inputType="textPostalAddress">
+			    </EditText>
+			    
+			    <TextView android:text="E-mail cím:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:id="@+userprofile/email"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="wrap_content" android:hint="E-mail cím" android:inputType="textEmailAddress">
+			    </EditText>
+			</LinearLayout>
+	      	<!-- ***************************************** -->
+			<!-- 				  PROFILKÉP 			   -->
+			<!-- ***************************************** --> 
+			<LinearLayout android:id="@+userprofile/imageTab"
+						  android:orientation="vertical"
+			  			  android:layout_width="fill_parent"
+			  			  android:layout_height="fill_parent">
+			 	<TextView android:text="Profilkép:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			
+			    <ImageView android:id="@+userprofile/image"
+			    			android:src="@drawable/clickhere"
+			    			android:scaleType="fitCenter"
+			    			android:layout_width="fill_parent"
+			    			android:layout_height="wrap_content"
+			    			android:paddingTop="10sp">
+			    </ImageView>
+			    
+			    <ProgressBar android:id="@+userprofile/progress"
+					 style="?android:attr/progressBarStyleSmall"
+					 android:visibility="gone"
+					 android:layout_width="wrap_content"
+					 android:layout_height="wrap_content"
+					 android:layout_gravity="center_horizontal">
+				</ProgressBar>
+			</LinearLayout>
+			<!-- ***************************************** -->
+			<!-- 			JELSZÓ MEGVÁLTOZTATÁSA 		   -->
+			<!-- ***************************************** --> 
+			<LinearLayout android:id="@+userprofile/passwordTab"
+						  android:orientation="vertical"
+			  			  android:layout_width="fill_parent"
+			  			  android:layout_height="fill_parent">
+  			 	<TextView android:text="Jelszó megváltoztatása:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Régi jelszó:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+userprofile/oldpassword"
+			    		  android:layout_height="wrap_content"
+			    		  android:inputType="textPassword" android:hint="Régi jelszó">
+			    </EditText>
+			    
+			    <TextView android:text="Új jelszó:"
+			    		  style="@style/TopLabel" >
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+userprofile/password1"
+			    		  android:layout_height="wrap_content"
+			    		  android:inputType="textPassword" android:hint="Új jelszó">
+			    </EditText>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+userprofile/password2"
+			    		  android:layout_height="wrap_content"
+			    		  android:inputType="textPassword" android:hint="Új jelszó megerősítése">
+			    </EditText>
+			
+			</LinearLayout>
+	</FrameLayout>
+	</TabHost>
+	</ScrollView>
+	
+    <LinearLayout style="@style/BottomLayout">
         
         <Button android:text="Vissza"
         		android:id="@+userprofile/back"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
+        		style="@style/BottomButton">
         </Button>
         
-        <LinearLayout android:layout_height="fill_parent"
-        		 	  android:layout_width="fill_parent"
-        		 	  android:orientation="vertical">
-            <ProgressBar android:id="@+userprofile/progress"
-            			 android:layout_width="wrap_content"
-            			 android:layout_height="wrap_content"
-            			 android:layout_gravity="right"
-            			 android:visibility="invisible">
-            </ProgressBar>
-        </LinearLayout>
+        <Button android:text="Mentés"
+        		android:id="@+userprofile/save"
+        		style="@style/BottomButton">
+        </Button>
+        
     </LinearLayout>
-
 </LinearLayout>
-</ScrollView>

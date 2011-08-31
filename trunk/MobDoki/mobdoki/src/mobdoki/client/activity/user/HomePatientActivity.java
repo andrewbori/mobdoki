@@ -7,11 +7,13 @@ import mobdoki.client.activity.medicalinfo.SearchSicknessActivity;
 import mobdoki.client.activity.medicalinfo.SicknessListActivity;
 import mobdoki.client.activity.user.health.PatientGraphActivity;
 import mobdoki.client.activity.user.health.PatientHealthActivity;
-import mobdoki.client.activity.user.symptom.CameraActivity;
-import mobdoki.client.activity.user.symptom.PictureInfoActivity;
+import mobdoki.client.activity.user.message.MessagesActivity;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,20 +26,18 @@ public class HomePatientActivity extends Activity {
 		"Betegségek listája",
 	    "Betegségek keresése",
 	    "Közeli kórházak",
-	    "Kép készítése tünetrõl",
-	    "Tünetképre kapott válasz",
+	    "Üzenetek",
 	    "Egészségügyi állapot megadása",
 	    "Egészségügyi grafikonok",
 	    "Felhasználói profil",
-	    "Kilépés"
+	    "Kijelentkezés"
 	  };
 	  int[] icons =  
 	  {   
 		android.R.drawable.ic_menu_slideshow,
 	    android.R.drawable.ic_menu_search,
 	    android.R.drawable.ic_menu_compass,
-	    android.R.drawable.ic_menu_camera,
-	    android.R.drawable.ic_menu_info_details,
+	    android.R.drawable.ic_menu_send,
 	    android.R.drawable.ic_menu_add,
 	    android.R.drawable.ic_menu_gallery,
 	    android.R.drawable.ic_menu_myplaces,
@@ -50,9 +50,11 @@ public class HomePatientActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
+        setTitle("MobDoki: " + UserInfo.getString("username"));
         
-        Bundle extras = getIntent().getExtras();
-		username = extras.getString("username");
+		username = UserInfo.getString("username");
+		
+		UserInfo.putBoolean("isLoggedIn", true);
         
 		ListView listview=(ListView) findViewById(R.home.menu);
         ArrayAdapter<String> adapter = new IconListArrayAdapter<String>(this,  
@@ -63,7 +65,6 @@ public class HomePatientActivity extends Activity {
                 this.menuElements);
           
         listview.setAdapter(adapter);
-        
         
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         	public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
@@ -84,27 +85,37 @@ public class HomePatientActivity extends Activity {
                         startActivity(myIntent);
                 		break;
                 	case 3:
-                		myIntent.setClass(view.getContext(), CameraActivity.class);
+                		myIntent.setClass(view.getContext(), MessagesActivity.class);
+                		myIntent.putExtra("inbox", true);
                 		startActivity(myIntent);
                 		break;
                 	case 4:
-                		myIntent.setClass(view.getContext(), PictureInfoActivity.class);
-                		startActivity(myIntent);
-                		break;
-                	case 5:
                 		myIntent.setClass(view.getContext(), PatientHealthActivity.class);
                 		startActivity(myIntent);
                 		break;
-                	case 6:
+                	case 5:
                 		myIntent.setClass(view.getContext(),PatientGraphActivity.class);
                 		startActivity(myIntent);
                 		break;
-                	case 7:
+                	case 6:
                 		myIntent.setClass(view.getContext(), UserProfileActivity.class);
                         startActivity(myIntent);
                         break;
-                	case 8:
-                        finish();
+                	case 7:
+                		HttpGetJSONConnection logout = new HttpGetJSONConnection("Logout?ssid=" + UserInfo.getSSID(), new Handler());
+                		logout.start();
+                		
+                		UserInfo.putBoolean("isLoggedIn", false);
+                		if (!UserInfo.getBoolean("isSaved")) {
+                			UserInfo.remove("username");
+                			UserInfo.remove("password");
+                			UserInfo.remove("usertype");
+                		}
+                		UserInfo.remove("ssid");
+
+                		Intent intent = new Intent();				// exit
+                		setResult(RESULT_OK,intent);
+                		finish();
                 		break;
                 }
                 Log.v("MenuPatientActivity",menuElements[position]);
@@ -112,4 +123,11 @@ public class HomePatientActivity extends Activity {
         	}
         });
     }
+	
+	@Override
+	public void onBackPressed(){
+		Intent intent = new Intent();				// exit
+		setResult(RESULT_CANCELED,intent);
+		finish();
+	}
 }

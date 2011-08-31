@@ -9,20 +9,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class FileArrayAdapter extends ArrayAdapter<Option>{
+public class FileArrayAdapter extends ArrayAdapter<FileOption>{
 
 	private Context c;
 	private int id;
-	private List<Option>items;
+	private List<FileOption>items;
 	
 	public FileArrayAdapter(Context context, int textViewResourceId,
-			List<Option> objects) {
+			List<FileOption> objects) {
 		super(context, textViewResourceId, objects);
 		c = context;
 		id = textViewResourceId;
 		items = objects;
 	}
-	public Option getItem(int i)
+	public FileOption getItem(int i)
 	 {
 		 return items.get(i);
 	 }
@@ -33,7 +33,7 @@ public class FileArrayAdapter extends ArrayAdapter<Option>{
                    LayoutInflater vi = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                    v = vi.inflate(id, null);
                }
-               final Option o = items.get(position);
+               final FileOption o = items.get(position);
                if (o != null) {
                        TextView t1 = (TextView) v.findViewById(R.file_view.filename);
                        TextView t2 = (TextView) v.findViewById(R.file_view.fileinfo);

@@ -1,46 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			android:orientation="vertical"
-  			android:layout_width="fill_parent"
-  			android:layout_height="fill_parent">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:orientation="vertical"
-  			  android:layout_width="fill_parent"
-  			  android:layout_height="fill_parent">
-  			  
-    <TextView android:text="Regisztráció"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:paddingBottom="10sp"
-    		  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold">
-    </TextView>
+    		  android:orientation="vertical"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent">
+<ScrollView android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent"
+  			android:layout_weight="1">
+<LinearLayout android:orientation="vertical"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent">
 
     <TextView android:text="Felhasználónév:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
+    		  style="@style/TopLabel">
     </TextView>
     <EditText android:layout_width="fill_parent"
     		  android:id="@+register/username"
-    		  android:layout_height="wrap_content" android:hint="&lt;felhasználónév&gt;">
+    		  android:layout_height="wrap_content" android:hint="Felhasználónév">
     </EditText>
     
     <TextView android:text="Jelszó:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
+    		  style="@style/TopLabel">
     </TextView>
     <EditText android:layout_width="fill_parent"
     		  android:id="@+register/password1"
     		  android:layout_height="wrap_content"
-    		  android:password="true" android:hint="&lt;jelszó&gt;">
+    		  android:password="true" android:hint="Jelszó">
     </EditText>
     <EditText android:layout_width="fill_parent"
     		  android:id="@+register/password2"
     		  android:layout_height="wrap_content"
-    		  android:password="true" android:hint="&lt;jelszó megerősítése&gt;">
+    		  android:password="true" android:hint="Jelszó megerősítése">
     </EditText>
     
     <RadioGroup android:id="@+register/userType"
@@ -58,32 +48,20 @@
         			 android:id="@+register/patientUser">
         </RadioButton>
     </RadioGroup>
-    
-    <LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
-        <Button android:text="Rendben"
-        		android:id="@+register/okay"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
-        </Button>
-        
-        <Button android:text="Vissza"
-        		android:id="@+register/back"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
-        </Button>
-        
-        <LinearLayout android:layout_height="fill_parent"
-        		 	  android:layout_width="fill_parent"
-        		 	  android:orientation="vertical">
-            <ProgressBar android:id="@+register/progress"
-            			 android:layout_width="wrap_content"
-            			 android:layout_height="wrap_content"
-            			 android:layout_gravity="right"
-            			 android:visibility="invisible">
-            </ProgressBar>
-        </LinearLayout>
-    </LinearLayout>
 
 </LinearLayout>
 </ScrollView>
+    <LinearLayout style="@style/BottomLayout">
+        
+        <Button android:text="Vissza"
+        		android:id="@+register/back"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="OK"
+        		android:id="@+register/okay"
+        		style="@style/BottomButton">
+        </Button>
+        
+    </LinearLayout>
+</LinearLayout>

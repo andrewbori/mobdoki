@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    		  android:orientation="vertical"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent">
+    <ScrollView android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent"
+  			android:layout_weight="1">
+	<TabHost android:id="@+id/tabhost"
+    		 android:layout_width="fill_parent"
+    	     android:layout_height="fill_parent"
+    	     android:layout_weight="50">
+
+	    <TabWidget android:id="@android:id/tabs"
+		      	   android:layout_width="fill_parent"
+		      	   android:layout_height="wrap_content"
+		/>
+		
+		<FrameLayout android:id="@android:id/tabcontent"
+	      			 android:layout_width="fill_parent"
+	      			 android:layout_height="fill_parent"
+	      			 android:paddingTop="35px">
+			<!-- ***************************************** -->
+			<!-- 	KÓRHÁZ FELVÉTELE/SZERKESZTÉSE/TÖRLÉSE  -->
+			<!-- ***************************************** --> 
+	      	<LinearLayout android:id="@+edithospital/hospitalTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Kórház felvétele/szerkesztése/törlése:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Kórház neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+edithospital/hospital1"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+edithospital/buttonHospital1"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+			    
+				<TextView android:text="Kórház címe:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+edithospital/address"
+			    		  android:layout_height="wrap_content">
+			    </EditText>
+			    
+			    
+			</LinearLayout>
+			<!-- ***************************************** -->
+			<!-- 		BETEGSÉG MEGADÁSA/TÖRLÉSE 		   -->
+			<!-- ***************************************** -->	
+			<LinearLayout android:id="@+edithospital/sicknessTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+			    <TextView android:text="Kórházban kezelt betegség megadása:"
+			    		  style="@style/TabTitle">
+			    </TextView>
+			    
+			    <TextView android:text="Kórház neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+edithospital/hospital2"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+edithospital/buttonHospital2"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+			    
+			    <TextView android:text="Betegség neve:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <LinearLayout android:layout_width="fill_parent"
+			    			  android:layout_height="wrap_content">
+				    <AutoCompleteTextView android:id="@+edithospital/sickness2"
+				    					  android:layout_width="fill_parent"
+				    		  			  android:layout_height="wrap_content"
+				    		  			  android:layout_weight="50"
+				    		  			  android:completionThreshold="1">
+				    </AutoCompleteTextView>
+				    <ImageButton android:id="@+edithospital/buttonSickness2"
+					 			 style="@style/ButtonChooser">		 
+					</ImageButton>
+				</LinearLayout>
+			   
+		    </LinearLayout>
+		    <!-- ***************************************** -->	
+	    </FrameLayout>
+    </TabHost>
+    </ScrollView>
+    
+    <LinearLayout style="@style/BottomLayout">
+        
+        <Button android:text="Vissza"
+        		android:id="@+edithospital/back"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Mentés"
+        		android:id="@+edithospital/saveHospital"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Törlés"
+        		android:id="@+edithospital/deleteHospital"
+        		style="@style/BottomButton">
+        </Button>
+        
+        <Button android:text="Hozzáadás"
+        		android:id="@+edithospital/addSickness"
+        		style="@style/BottomButton" android:visibility="gone">
+        </Button>
+        
+        <Button android:text="Törlés"
+        		android:id="@+edithospital/deleteSickness"
+        		style="@style/BottomButton" android:visibility="gone">
+        </Button>
+        
+    </LinearLayout>
+    
+</LinearLayout>

@@ -5,9 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import mobdoki.client.PatientHealthChart;
+import mobdoki.client.HealthChart;
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,20 +20,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class PatientGraphActivity extends Activity {
-	private Activity activity = this;
-	HttpGetConnection download = null;				// szal a serverhez csatlakozashoz
-	private String[] list = null;					// grafikonok listaja
-	private ListView listview;
+public class PatientGraphActivity extends Activity implements OnClickListener, OnItemClickListener {
+	private HttpGetJSONConnection download = null;				// szal a serverhez csatlakozashoz
+	
 	private String username = null;					// paciens felhasznaloneve
-	private PatientHealthChart diagram = null;		// Megjelenitendo diagram
+	private HealthChart diagram = null;				// Megjelenitendo diagram
 	private ArrayList<Date> dateList;					// idobelyeg lista
 	private ArrayList<Double> weightList;				// testomeg (kg) lista
 	private ArrayList<Integer> bp1List;					// vernyomas: systoles ertek lista (felso)
@@ -40,76 +41,78 @@ public class PatientGraphActivity extends Activity {
 	private ArrayList<Integer> pulseList;				// pultus lista
 	private ArrayList<Double> temperatureList;			// testhomerseklet (°C) lista
 	private ArrayList<Integer> moodList;				// kozerzet (1-10) lista
+	
+	private Activity activity = this;
+	private ListView listview;
+	
+	private String[] list = { "Vérnyomás", "Pulzus", "Testtömeg",
+							  "Testhõmérséklet", "Közérzet", "Összes egyben" };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		this.setContentView(R.layout.patientgraph);
+		setTitle("Egészségügyi grafikonok");
 
-		Bundle extras = getIntent().getExtras();
-		username = extras.getString("username");
+		username = UserInfo.getString("username");
 
-		list = new String[] { "Vérnyomás grafikon", "Pulzus grafikon", "Testtömeg grafikon", 
-				"Testhõmérséklet grafikon", "Közérzet grafikon", "Összes egyben" };
+		((Button) findViewById(R.patientgraph.backbutton)).setOnClickListener(this);
 
-		// Vissza gomb esemenykezeloje
-		Button backButton = (Button) findViewById(R.patientgraph.backbutton);
-		backButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				finish();
-			}
-		});
-
-		// A grafikonok listajanak esemenykezeloje
 		listview = (ListView) findViewById(R.patientgraph.list1);
-		listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
-				
-				Log.v("PatientGraphActivity", list[position]);
-				// Ha mindegyik listanak van legalabb egy eleme
-				if (bp1List!=null && bp2List!=null && pulseList!=null && weightList!=null &&
-					temperatureList!=null && moodList!=null && dateList!=null &&
-					bp1List.size()>0 && bp2List.size()>0 && pulseList.size()>0 && weightList.size()>0 &&
-					temperatureList.size()>0 && moodList.size()>0 && dateList.size()>0) {
-						
-					diagram = new PatientHealthChart();
-					Intent intent;
-					switch (position) {
-						case 0:
-							intent = diagram.executeBP(activity, bp1List, bp2List, dateList);
-							startActivity(intent);
-							break;
-						case 1:
-							intent = diagram.executePulse(activity, pulseList, dateList);
-							startActivity(intent);
-							break;
-						case 2:
-							intent = diagram.executeWeight(activity, weightList, dateList);							
-							startActivity(intent);
-							break;
-						case 3:
-							intent = diagram.executeTemperature(activity, temperatureList, dateList);
-							startActivity(intent);
-							break;
-						case 4:
-							intent = diagram.executeMood(activity, moodList, dateList);			
-							startActivity(intent);
-							break;
-						case 5:
-							intent = diagram.executeAll(activity, bp1List, bp2List, pulseList, weightList, temperatureList, moodList, dateList);
-							startActivity(intent);
-							break;
-					}
-				} else {
-					Toast.makeText(activity, "Nincs megjeleníthetõ adat.", Toast.LENGTH_LONG).show();
-				}
-			}
-		});
-
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
-																R.layout.listview_item, list);
+		listview.setOnItemClickListener(this);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.listview_item, list);
 		listview.setAdapter(adapter);
+	}
+	
+	// Kattintas esemenykezeloje
+	@Override
+	public void onClick(View view) {
+		finish();
+	}
+	
+	// Lista esemenykezeloje
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
+		
+		Log.v("PatientGraphActivity", list[position]);
+		// Ha mindegyik listanak van legalabb egy eleme
+		if (bp1List!=null && bp2List!=null && pulseList!=null && weightList!=null &&
+			temperatureList!=null && moodList!=null && dateList!=null &&
+			bp1List.size()>0 && bp2List.size()>0 && pulseList.size()>0 && weightList.size()>0 &&
+			temperatureList.size()>0 && moodList.size()>0 && dateList.size()>0) {
+				
+			diagram = new HealthChart();
+			Intent intent;
+			switch (position) {
+				case 0:
+					intent = diagram.executeBP(activity, bp1List, bp2List, dateList);
+					startActivity(intent);
+					break;
+				case 1:
+					intent = diagram.executePulse(activity, pulseList, dateList);
+					startActivity(intent);
+					break;
+				case 2:
+					intent = diagram.executeWeight(activity, weightList, dateList);							
+					startActivity(intent);
+					break;
+				case 3:
+					intent = diagram.executeTemperature(activity, temperatureList, dateList);
+					startActivity(intent);
+					break;
+				case 4:
+					intent = diagram.executeMood(activity, moodList, dateList);			
+					startActivity(intent);
+					break;
+				case 5:
+					intent = diagram.executeAll(activity, bp1List, bp2List, pulseList, weightList, temperatureList, moodList, dateList);
+					startActivity(intent);
+					break;
+			}
+		} else {
+			Toast.makeText(activity, "Nincs megjeleníthetõ adat.", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	// Indulaskor a listak lekerdezese
@@ -123,10 +126,9 @@ public class PatientGraphActivity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (download != null && download.isAlive()) {
-			((ProgressBar)findViewById(R.patientgraph.progress)).setVisibility(ProgressBar.INVISIBLE);
-			download.stop();
-			download = null;
+		if (download != null && download.isUsed()) {
+			setProgressBarIndeterminateVisibility(false);
+			download.setNotUsed();
 		}
 	}
 
@@ -134,7 +136,6 @@ public class PatientGraphActivity extends Activity {
 	public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			((ProgressBar)findViewById(R.patientgraph.progress)).setVisibility(ProgressBar.INVISIBLE);
 			switch (msg.arg1) {
 				case 0:
 					Log.v("PatientGraphActivity", "Sikertelen lekeres.");
@@ -184,15 +185,17 @@ public class PatientGraphActivity extends Activity {
 					}
 					break;
 			}
+			setProgressBarIndeterminateVisibility(false);
+			download.setNotUsed();
 		}
 	};
 
 	// Listak lekeresenek kezdemenyezese
 	private void refreshRequest() {
-		((ProgressBar)findViewById(R.patientgraph.progress)).setVisibility(ProgressBar.VISIBLE);
+		setProgressBarIndeterminateVisibility(true);
 		
-		String url = "PatientGraph?username=" + URLEncoder.encode(username);
-		download = new HttpGetConnection(url, mHandler);
+		String url = "PatientGraph?username=" + URLEncoder.encode(username) + "&ssid=" + UserInfo.getSSID();
+		download = new HttpGetJSONConnection(url, mHandler);
 		download.start();
 	}
 

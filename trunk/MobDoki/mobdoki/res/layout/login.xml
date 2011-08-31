@@ -1,74 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			android:orientation="vertical"
-  			android:layout_width="fill_parent"
-  			android:layout_height="fill_parent">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     		  android:orientation="vertical"
     		  android:layout_width="fill_parent"
     		  android:layout_height="fill_parent">
-
-    <TextView android:text="Bejelentkezés"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold">
-    </TextView>
-    
-    <ImageView android:src="@drawable/mobdoki_logo"
-  			   android:layout_width="wrap_content"
-  			   android:layout_height="wrap_content"
-  			   android:layout_gravity="center"/>
-    
+<ScrollView android:orientation="vertical"
+  			android:layout_width="fill_parent"
+  			android:layout_height="fill_parent"
+  			android:layout_weight="1">
+<LinearLayout android:orientation="vertical"
+    		  android:layout_width="fill_parent"
+    		  android:layout_height="fill_parent">
+       
     <TextView android:text="Felhasználónév:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
+    		  style="@style/TopLabel">
     </TextView>
     <EditText android:layout_width="fill_parent"
     		  android:id="@+login/username"
-    		  android:layout_height="wrap_content">
+    		  android:layout_height="wrap_content" android:singleLine="true" android:inputType="text">
     </EditText>
     
     <TextView android:text="Jelszó:"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textStyle="bold">
+    		  style="@style/TopLabel">
     </TextView>
     <EditText android:layout_width="fill_parent"
     		  android:id="@+login/password"
     		  android:layout_height="wrap_content"
-    		  android:password="true">
+    		  android:inputType="textPassword">
     </EditText>
     
-    
-    <LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
+    <CheckBox android:text="Felhasználónév és jelszó megjegyzése"
+    		  android:id="@+login/checkBox1"
+    		  android:layout_width="wrap_content"
+    		  android:layout_height="wrap_content">
+    </CheckBox>
+  
+</LinearLayout>
+</ScrollView>
+    <LinearLayout style="@style/BottomLayout">
     			  
         <Button android:text="Bejelentkezés"
         		android:id="@+login/login"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
+        		style="@style/BottomButton">
         </Button>
         
         <Button android:text="Regisztráció"
         		android:id="@+login/register"
-        		android:layout_width="wrap_content"
-        		android:layout_height="wrap_content">
+        		style="@style/BottomButton">
         </Button>
         
-        <LinearLayout android:layout_height="fill_parent"
-        		 	  android:layout_width="fill_parent"
-        		 	  android:orientation="vertical">
-            <ProgressBar android:id="@+login/progress"
-            			 android:layout_width="wrap_content"
-            			 android:layout_height="wrap_content"
-            			 android:layout_gravity="right" android:visibility="invisible">
-            </ProgressBar>
-        </LinearLayout>
-        
     </LinearLayout>
-    
 </LinearLayout>
-</ScrollView>

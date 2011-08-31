@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BottomLayout">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#9C9A9C</item>
+        <item name="android:paddingTop">5sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    
+    <style name="BottomButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="TopLabel">
+    	<item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">5sp</item>
+    </style>
+    
+    <style name="TabTitle">
+    	<item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:background">#777777</item>
+    </style>
+    
+    <style name="ButtonChooser">
+    	<item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:src">@drawable/buton_dropdown</item>
+    </style>
+</resources>

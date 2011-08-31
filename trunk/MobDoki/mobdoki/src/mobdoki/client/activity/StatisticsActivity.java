@@ -1,7 +1,8 @@
 package mobdoki.client.activity;
 
 import mobdoki.client.R;
-import mobdoki.client.connection.HttpGetConnection;
+import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,28 +10,26 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class StatisticsActivity extends Activity implements OnClickListener {
-	HttpGetConnection download = null;		// szal a webszerverhez csatlakozashoz
+	private HttpGetJSONConnection download = null;		// szal a webszerverhez csatlakozashoz
 	private Activity activity = this;
-	
-	private ProgressBar progressbar;
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.statistics);
         
-        // Gombokra kattintas esemenykezeloje maga az osztaly
+        setTitle("MobDoki: Statisztika");
+        
         ((Button) findViewById(R.statistics.refresh)).setOnClickListener(this);
         ((Button) findViewById(R.statistics.back)).setOnClickListener(this);
-        
-        progressbar = (ProgressBar)findViewById(R.statistics.progress);
     }
     
     // Kattintas esemenykezelo
@@ -40,7 +39,7 @@ public class StatisticsActivity extends Activity implements OnClickListener {
 		
 			// Frissites gomb esemenykezeloje
 			case R.statistics.refresh:
-				if (download==null || (download!=null && !download.isAlive())) statisticsRequest();
+				if (download==null || download.isNotUsed()) statisticsRequest();
 				break;
 		    
 		    // Vissza gomb esemenykezeloje
@@ -61,9 +60,9 @@ public class StatisticsActivity extends Activity implements OnClickListener {
     @Override
     public void onPause() {
     	super.onPause();
-    	if (download!=null && download.isAlive()) {
-    		download.stop(); download=null;
-    		progressbar.setVisibility(View.INVISIBLE);
+    	if (download!=null && download.isUsed()) {
+    		download.setNotUsed();
+    		setProgressBarIndeterminateVisibility(false);
     	}
     }
     
@@ -71,7 +70,7 @@ public class StatisticsActivity extends Activity implements OnClickListener {
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			progressbar.setVisibility(View.INVISIBLE);
+			setProgressBarIndeterminateVisibility(false);
 			switch(msg.arg1){
 				case 0:
 					Log.v("StatisticsActivity","Sikertelen lekeres.");
@@ -79,27 +78,29 @@ public class StatisticsActivity extends Activity implements OnClickListener {
 					break;
 				case 1:
 					if (download.isOK()) {																		// Ha sikeres lekerdezes
-						((EditText)findViewById(R.statistics.sicknessCnt)).setText(download.getJSONString("sickness"));				// mutatok bellitasa
-						((EditText)findViewById(R.statistics.symptomCnt)).setText(download.getJSONString("symptom"));
-						((EditText)findViewById(R.statistics.symptomAvg)).setText(download.getJSONString("symptomAvarage"));
-						((EditText)findViewById(R.statistics.hospitalCnt)).setText(download.getJSONString("hospital"));
-						((EditText)findViewById(R.statistics.patientCnt)).setText(download.getJSONString("patient"));
+						((EditText)findViewById(R.statistics.sicknessCnt)).setText(download.getString("sickness"));				// mutatok bellitasa
+						((EditText)findViewById(R.statistics.symptomCnt)).setText(download.getString("symptom"));
+						((EditText)findViewById(R.statistics.symptomAvg)).setText(download.getString("symptomAvarage"));
+						((EditText)findViewById(R.statistics.hospitalCnt)).setText(download.getString("hospital"));
+						((EditText)findViewById(R.statistics.patientCnt)).setText(download.getString("patient"));
 					} else {
-						Log.v("StatisticsActivity",download.getMessage());
+						String message = download.getMessage();
+						Log.v("StatisticsActivity",message);
 						Toast.makeText(activity, download.getMessage(), Toast.LENGTH_LONG).show();
 					}
 					break;
 			}
+			download.setNotUsed();
 		}
 	};
     
 	// Statisztika lekerdezesenek kezdemenyezese
     private void statisticsRequest(){
     	
-    	progressbar.setVisibility(View.VISIBLE);
+    	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "Statistics";
-	    download = new HttpGetConnection(url, mHandler);
+	    String url = "Statistics?ssid=" + UserInfo.getSSID();
+	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
     }
 }

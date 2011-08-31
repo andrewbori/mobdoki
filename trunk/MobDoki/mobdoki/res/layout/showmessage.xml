@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:orientation="vertical"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+	<ScrollView android:orientation="vertical"
+	 			android:layout_width="match_parent"
+	 			android:layout_height="match_parent"
+	 			android:layout_weight="1">
+	<LinearLayout android:layout_height="match_parent"
+    			  android:layout_width="match_parent"
+    			  android:orientation="vertical">
+		    			  
+	    <LinearLayout android:layout_height="match_parent"
+    			  	  android:layout_width="match_parent"
+    			  	  android:orientation="horizontal"
+    			  	  android:background="#393939"
+    			      android:paddingBottom="3dip">
+    		<ImageView android:layout_height="wrap_content"
+    				   android:layout_width="wrap_content"
+    				   android:id="@+showmessage/userImage"
+    				   android:src="@drawable/mobdoki_icon"
+    				   android:adjustViewBounds="true"
+    				   android:maxWidth="64dip"
+    				   android:maxHeight="64dip"
+    				   android:paddingTop="3dip"
+    				   android:paddingLeft="3dip"
+    				   android:paddingRight="3dip"
+    				   android:layout_gravity="center">
+    	    </ImageView>
+  	        	
+  	        <LinearLayout android:layout_height="wrap_content" 
+    			  android:layout_width="match_parent"
+    			  android:orientation="vertical"
+    			  android:layout_weight="1" >
+		        <TextView android:id="@+showmessage/subject"
+		        		  android:text="Az üzenet tárgya"
+		        		  android:layout_height="wrap_content"
+		        		  android:layout_width="wrap_content"
+		        		  android:textAppearance="?android:attr/textAppearanceMedium"
+		        		  android:textStyle="bold">
+		        </TextView>
+		        <TextView android:id="@+showmessage/username"
+		        		  android:text="feladó/címzett"
+		        		  android:layout_height="wrap_content"
+		        		  android:layout_width="wrap_content"
+		        		  android:textAppearance="?android:attr/textAppearanceSmall"
+		        		  android:textStyle="bold">
+		        </TextView>
+		        <TextView android:id="@+showmessage/date"
+		        		  android:text="2010-01-01 00:00"
+		        		  android:layout_height="wrap_content"
+		        		  android:layout_width="wrap_content"
+		        		  android:textAppearance="?android:attr/textAppearanceSmall" >
+		        </TextView>
+			</LinearLayout>
+          			  
+    	</LinearLayout>
+	    
+	    <LinearLayout android:layout_height="wrap_content"
+	    			  android:layout_width="match_parent"
+	    			  android:orientation="vertical"
+	    			  android:padding="5dip">
+	    	
+	    	<TextView android:id="@+showmessage/text"
+	        		  android:layout_height="wrap_content"
+	        		  android:layout_width="wrap_content"
+	        		  android:textAppearance="?android:attr/textAppearanceSmall"
+	        		  android:textColor="#FFFFFF" >
+	        </TextView>
+	    			  
+		</LinearLayout>
+	    	
+    	<ImageView android:id="@+showmessage/imageView"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:scaleType="fitStart"
+		    android:layout_gravity="center_horizontal">
+		</ImageView>
+		
+		<ProgressBar android:id="@+showmessage/progress"
+					 style="?android:attr/progressBarStyleSmall"
+					 android:layout_width="wrap_content"
+					 android:layout_height="wrap_content"
+					 android:layout_gravity="center_horizontal">
+		</ProgressBar>
+	    			  
+	</LinearLayout>	
+    </ScrollView>
+    
+	<LinearLayout style="@style/BottomLayout">
+	    			 
+		<Button android:text="Vissza"
+	        	android:id="@+showmessage/back"
+	        	style="@style/BottomButton">
+		</Button>
+	    	 
+		<Button android:text="Törlés"
+	        	android:id="@+showmessage/delete"
+	        	style="@style/BottomButton">
+		</Button>
+		
+		<Button android:text="Válasz"
+	        	android:id="@+showmessage/answer"
+	        	style="@style/BottomButton">
+		</Button>
+	              
+	</LinearLayout>
+    
+</LinearLayout>

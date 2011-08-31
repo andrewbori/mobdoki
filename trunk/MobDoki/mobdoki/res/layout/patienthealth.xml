@@ -1,119 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-			android:orientation="vertical"
-  			android:layout_width="fill_parent"
-  			android:layout_height="fill_parent">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:orientation="vertical"
-			  android:layout_width="fill_parent"
-			  android:layout_height="fill_parent">
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Egészségügyi állapot"
-			  android:paddingBottom="10sp"
-			  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold"
-	/>
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Vérnyomás (Hgmm):"
-			  android:textStyle="bold"
-	/>
-			  
-	<LinearLayout android:layout_height="wrap_content"
-				  android:layout_width="match_parent">
+				  android:orientation="vertical"
+				  android:layout_width="fill_parent"
+				  android:layout_height="fill_parent">
+	<ScrollView android:orientation="vertical"
+	  			android:layout_width="fill_parent"
+	  			android:layout_height="fill_parent"
+	  			android:layout_weight="1">
+	<LinearLayout android:orientation="vertical"
+				  android:layout_width="fill_parent"
+				  android:layout_height="fill_parent">
+
+		<TextView android:text="Vérnyomás (Hgmm):"
+				  style="@style/TopLabel"
+		/>
 				  
+		<LinearLayout android:layout_height="wrap_content"
+					  android:layout_width="match_parent">
+					  
+			<EditText android:layout_height="wrap_content"
+					  android:layout_width="fill_parent"
+					  android:id="@+patienthealth/bloodpressure1"
+					  android:layout_weight="50"
+					  android:numeric="integer|decimal"
+					  android:hint="Vérnyomás 1"/>
+					  
+			<TextView android:text="/"
+					  style="@style/TopLabel"
+					  android:paddingTop="0sp"
+					  android:paddingLeft="5sp"
+					  android:paddingRight="5sp"/> 
+				  	  
+			<EditText android:layout_height="wrap_content"
+					  android:layout_width="fill_parent"
+					  android:id="@+patienthealth/bloodpressure2"
+					  android:layout_weight="50"
+					  android:numeric="integer|decimal"
+					  android:hint="Vérnyomás 2"/>
+		</LinearLayout>
+		
+		<TextView android:text="Pulzus (BPM):"
+				  style="@style/TopLabel"
+		/>
 		<EditText android:layout_height="wrap_content"
 				  android:layout_width="fill_parent"
-				  android:id="@+patienthealth/bloodpressure1"
+				  android:id="@+patienthealth/pulse"
 				  android:layout_weight="50"
 				  android:numeric="integer|decimal"
-				  android:hint="&lt;vérnyomás1&gt;"/>
-				  
-		<TextView android:text="/"
-				  android:layout_width="wrap_content"
-			  	  android:layout_height="wrap_content"
-			  	  android:textStyle="bold"
-				  android:paddingLeft="5sp"
-				  android:paddingRight="5sp"/> 
-			  	  
+				  android:hint="Pulzus"/>
+		
+		<TextView android:text="Testtömeg (kg):"
+				  style="@style/TopLabel" />
 		<EditText android:layout_height="wrap_content"
-				  android:layout_width="fill_parent"
-				  android:id="@+patienthealth/bloodpressure2"
-				  android:layout_weight="50"
-				  android:numeric="integer|decimal"
-				  android:hint="&lt;vérnyomás2&gt;"/>
+				  android:layout_width="match_parent"
+				  android:id="@+patienthealty/weight"
+				  android:numeric="decimal"
+				  android:hint="Testtömeg" />
+				  
+		<TextView android:text="Testhőmérséklet (°C):"
+				  style="@style/TopLabel" />
+		<EditText android:layout_height="wrap_content"
+				  android:layout_width="match_parent"
+				  android:id="@+patienthealth/temperature"
+				  android:numeric="decimal"
+				  android:hint="Testhőmérséklet" />
+				  
+		<TextView android:text="Közérzet:"
+				  style="@style/TopLabel" />
+		<LinearLayout android:orientation="horizontal"
+				  	  android:layout_width="fill_parent"
+				  	  android:layout_height="wrap_content">
+			<SeekBar android:id="@+patienthealth/moodBar"
+					 android:layout_height="wrap_content"
+					 android:layout_width="fill_parent"
+					 android:layout_weight="1"
+					 android:max="10">
+			</SeekBar>
+			<TextView android:id="@+patienthealth/moodText"
+					  android:layout_height="wrap_content"
+					  android:layout_width="wrap_content"
+					  android:text="0"
+					  android:layout_gravity="center_vertical"
+					  android:paddingLeft="7sp"
+					  android:paddingRight="7sp"
+					  android:textAppearance="?android:attr/textAppearanceMedium">
+			</TextView>
+		</LinearLayout>
+
 	</LinearLayout>
-	
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Pulzus (BPM):"
-			  android:textStyle="bold"
-	/>
-	<EditText android:layout_height="wrap_content"
-			  android:layout_width="fill_parent"
-			  android:id="@+patienthealth/pulse"
-			  android:layout_weight="50"
-			  android:numeric="integer|decimal"
-			  android:hint="&lt;pulzus&gt;"/>
-	
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Testtömeg (kg):"
-			  android:textStyle="bold" />
-	<EditText android:layout_height="wrap_content"
-			  android:layout_width="match_parent"
-			  android:id="@+patienthealty/weight"
-			  android:numeric="decimal"
-			  android:hint="&lt;testtömeg&gt;" />
-			  
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Testhőmérséklet (°C):"
-			  android:textStyle="bold"/>
-	<EditText android:layout_height="wrap_content"
-			  android:layout_width="match_parent"
-			  android:id="@+patienthealth/temperature"
-			  android:numeric="decimal"
-			  android:hint="&lt;testhőmérséklet&gt;" />
-	<TextView android:layout_width="wrap_content"
-			  android:layout_height="wrap_content"
-			  android:text="Közérzet:"
-			  android:textStyle="bold"/>
-			  
-	<Spinner android:layout_height="wrap_content"
-			 android:layout_width="wrap_content"
-			 android:id="@+patienthealth/spinner1"
-	/>
-	
-	
-	<LinearLayout android:layout_width="fill_parent"
-    			  android:layout_height="wrap_content">
-    			  
-		<Button android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/uploadbutton"
-				android:id="@+patienthealth/upload"
-		/>
-		<Button android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/backbutton"
+	</ScrollView>
+	<LinearLayout style="@style/BottomLayout">
+    		
+    	<Button android:text="@string/backbutton"
 				android:id="@+patienthealth/back"
+				style="@style/BottomButton"
+		/>	  
+		<Button android:text="@string/uploadbutton"
+				android:id="@+patienthealth/upload"
+				style="@style/BottomButton"
 		/>
-        
-		<LinearLayout android:layout_height="fill_parent"
-        		 	  android:layout_width="fill_parent"
-        		 	  android:orientation="vertical">
-            <ProgressBar android:id="@+patienthealth/progress"
-            			 android:layout_width="wrap_content"
-            			 android:layout_height="wrap_content"
-            			 android:layout_gravity="right"
-            			 android:visibility="invisible">
-            </ProgressBar>
-        </LinearLayout>
         
     </LinearLayout>
-	
-</LinearLayout>
-</ScrollView>
+ </LinearLayout>
