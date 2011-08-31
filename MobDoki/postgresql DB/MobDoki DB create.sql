@@ -1,22 +1,97 @@
+-- Table: "UserType"
+
+-- DROP TABLE "UserType";
+
+CREATE TABLE "UserType"
+(
+  id serial NOT NULL,
+  "name" text NOT NULL,
+  CONSTRAINT "UserType_PK" PRIMARY KEY (id),
+  CONSTRAINT "Name_Unique" UNIQUE (name)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "UserType" OWNER TO postgres;
+
+
+-- Table: "Image"
+
+-- DROP TABLE "Image";
+
+CREATE TABLE "Image"
+(
+  id serial NOT NULL,
+  image bytea NOT NULL,
+  medium bytea,
+  small bytea,
+  CONSTRAINT "Image_PK" PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Image" OWNER TO postgres;
+
+
 -- Table: "User"
 
 -- DROP TABLE "User";
 
 CREATE TABLE "User"
 (
+  id serial NOT NULL,
   username text NOT NULL,
   "password" integer NOT NULL,
-  usertype text NOT NULL,
+  "usertypeID" integer NOT NULL,
   address text,
   "name" text,
   email text,
-  CONSTRAINT "Users_pkey" PRIMARY KEY (username),
-  CONSTRAINT "usertypeCheck" CHECK (usertype = 'doctor'::text OR usertype = 'patient'::text)
+  "imageID" integer,
+  CONSTRAINT "User_PK" PRIMARY KEY (id),
+  CONSTRAINT "Image_FK" FOREIGN KEY ("imageID")
+      REFERENCES "Image" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UserType_FK" FOREIGN KEY ("usertypeID")
+      REFERENCES "UserType" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UserName_Unique" UNIQUE (username)
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE "User" OWNER TO postgres;
+
+
+-- Table: "Message"
+
+-- DROP TABLE "Message";
+
+CREATE TABLE "Message"
+(
+  id serial NOT NULL,
+  sender integer NOT NULL,
+  recipient integer,
+  date timestamp without time zone NOT NULL DEFAULT now(),
+  subject text NOT NULL,
+  "text" text NOT NULL,
+  answered boolean NOT NULL DEFAULT false,
+  viewed boolean NOT NULL DEFAULT false,
+  "imageID" integer,
+  CONSTRAINT "Message_PK" PRIMARY KEY (id),
+  CONSTRAINT "Image_FK" FOREIGN KEY ("imageID")
+      REFERENCES "Image" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Recipient_FK" FOREIGN KEY (recipient)
+      REFERENCES "User" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Sender_FK" FOREIGN KEY (sender)
+      REFERENCES "User" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Message" OWNER TO postgres;
 
 
 -- Table: "Sickness"
@@ -25,8 +100,13 @@ ALTER TABLE "User" OWNER TO postgres;
 
 CREATE TABLE "Sickness"
 (
+  id serial NOT NULL,
   "name" text NOT NULL,
-  CONSTRAINT "Sickness_pkey" PRIMARY KEY (name)
+  seriousness double precision NOT NULL DEFAULT 0.0,
+  url text,
+  CONSTRAINT "Sickness_PK" PRIMARY KEY (id),
+  CONSTRAINT "Sickness_Name_Unique" UNIQUE (name),
+  CONSTRAINT "Seriousness_Check" CHECK (seriousness >= 0.0::double precision AND seriousness <= 5.0::double precision)
 )
 WITH (
   OIDS=FALSE
@@ -40,9 +120,14 @@ ALTER TABLE "Sickness" OWNER TO postgres;
 
 CREATE TABLE "Symptom"
 (
+  id serial NOT NULL,
   "name" text NOT NULL,
-  img bytea,
-  CONSTRAINT "Symptom_pkey" PRIMARY KEY (name)
+  "imageID" integer,
+  CONSTRAINT "Symptom_PK" PRIMARY KEY (id),
+  CONSTRAINT "Image_FK" FOREIGN KEY ("imageID")
+      REFERENCES "Image" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Symptom_Name_Unique" UNIQUE (name)
 )
 WITH (
   OIDS=FALSE
@@ -56,10 +141,12 @@ ALTER TABLE "Symptom" OWNER TO postgres;
 
 CREATE TABLE "Hospital"
 (
+  id serial NOT NULL,
   "name" text NOT NULL,
   address text NOT NULL,
   coordinates point NOT NULL,
-  CONSTRAINT "Hospital_pkey" PRIMARY KEY (name)
+  CONSTRAINT "Hospital_PK" PRIMARY KEY (id),
+  CONSTRAINT "Hospital_Unique" UNIQUE (name, address)
 )
 WITH (
   OIDS=FALSE
@@ -73,15 +160,17 @@ ALTER TABLE "Hospital" OWNER TO postgres;
 
 CREATE TABLE "Diagnosis"
 (
-  sickness text NOT NULL,
-  symptom text NOT NULL,
-  CONSTRAINT "Diagnosis_pkey" PRIMARY KEY (sickness, symptom),
-  CONSTRAINT "SicknessFK" FOREIGN KEY (sickness)
-      REFERENCES "Sickness" ("name") MATCH FULL
+  id serial NOT NULL,
+  "sicknessID" integer NOT NULL,
+  "symptomID" integer NOT NULL,
+  CONSTRAINT "Diagnosis_PK" PRIMARY KEY (id),
+  CONSTRAINT "Sickness_FK" FOREIGN KEY ("sicknessID")
+      REFERENCES "Sickness" (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "SymptomFK" FOREIGN KEY (symptom)
-      REFERENCES "Symptom" ("name") MATCH FULL
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "Symptom_FK" FOREIGN KEY ("symptomID")
+      REFERENCES "Symptom" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Diagnosis_Unique" UNIQUE ("sicknessID", "symptomID")
 )
 WITH (
   OIDS=FALSE
@@ -95,15 +184,17 @@ ALTER TABLE "Diagnosis" OWNER TO postgres;
 
 CREATE TABLE "Curing"
 (
-  sickness text NOT NULL,
-  hospital text NOT NULL,
-  CONSTRAINT "Curing_pkey" PRIMARY KEY (sickness, hospital),
-  CONSTRAINT "HospitalFK" FOREIGN KEY (hospital)
-      REFERENCES "Hospital" ("name") MATCH FULL
+  id serial NOT NULL,
+  "hospitalID" integer NOT NULL,
+  "sicknessID" integer NOT NULL,
+  CONSTRAINT "Curing_PK" PRIMARY KEY (id),
+  CONSTRAINT "Hospital_FK" FOREIGN KEY ("hospitalID")
+      REFERENCES "Hospital" (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "SicknessFK" FOREIGN KEY (sickness)
-      REFERENCES "Sickness" ("name") MATCH FULL
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "Sickness_FK" FOREIGN KEY ("sicknessID")
+      REFERENCES "Sickness" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "Curing_Unique" UNIQUE ("hospitalID", "sicknessID")
 )
 WITH (
   OIDS=FALSE
@@ -117,17 +208,18 @@ ALTER TABLE "Curing" OWNER TO postgres;
 
 CREATE TABLE "PatientHealth"
 (
-  username text NOT NULL,
-  date timestamp without time zone NOT NULL,
+  id bigserial NOT NULL,
+  "userID" integer NOT NULL,
+  date timestamp without time zone NOT NULL DEFAULT now(),
   mood integer NOT NULL,
   weight double precision NOT NULL, -- Weight in kg
   temperature double precision NOT NULL, -- Body temperature in Celsius
   bloodpressure1 integer NOT NULL, -- Systoles pressure
   bloodpressure2 integer NOT NULL, -- Diastoles pressure
   pulse integer NOT NULL,
-  CONSTRAINT "PatientInfo_PK" PRIMARY KEY (username, date),
-  CONSTRAINT "User_FK" FOREIGN KEY (username)
-      REFERENCES "User" (username) MATCH FULL
+  CONSTRAINT "UserHealt_PK" PRIMARY KEY (id),
+  CONSTRAINT "UserName_FK" FOREIGN KEY ("userID")
+      REFERENCES "User" (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 WITH (
@@ -138,44 +230,3 @@ COMMENT ON COLUMN "PatientHealth".weight IS 'Weight in kg';
 COMMENT ON COLUMN "PatientHealth".temperature IS 'Body temperature in Celsius';
 COMMENT ON COLUMN "PatientHealth".bloodpressure1 IS 'Systoles pressure';
 COMMENT ON COLUMN "PatientHealth".bloodpressure2 IS 'Diastoles pressure';
-
-
--- Table: "Picture"
-
--- DROP TABLE "Picture";
-
-CREATE TABLE "Picture"
-(
-  imgname text NOT NULL,
-  username text NOT NULL,
-  img bytea,
-  answered boolean,
-  CONSTRAINT "Picture_pkey" PRIMARY KEY (imgname),
-  CONSTRAINT "Picture_username_fkey" FOREIGN KEY (username)
-      REFERENCES "User" (username) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE "Picture" OWNER TO postgres;
-
-
--- Table: "PictureComment"
-
--- DROP TABLE "PictureComment";
-
-CREATE TABLE "PictureComment"
-(
-  imgname text NOT NULL,
-  "comment" text,
-  answer text,
-  CONSTRAINT "PictureComment_pkey" PRIMARY KEY (imgname),
-  CONSTRAINT "PictureComment_imgname_fkey" FOREIGN KEY (imgname)
-      REFERENCES "Picture" (imgname) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE "PictureComment" OWNER TO postgres;
