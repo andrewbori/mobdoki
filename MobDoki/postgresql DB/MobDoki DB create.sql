@@ -14,6 +14,8 @@ WITH (
 );
 ALTER TABLE "UserType" OWNER TO postgres;
 
+INSERT INTO "UserType" (name) VALUES ('doctor');
+INSERT INTO "UserType" (name) VALUES ('patient');
 
 -- Table: "Image"
 
