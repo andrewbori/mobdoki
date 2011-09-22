@@ -3,14 +3,22 @@ package mobdoki.client.activity.user.message;
 import java.util.ArrayList;
 
 import mobdoki.client.MessageListArrayAdapter;
+import mobdoki.client.MessageService;
 import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,6 +46,8 @@ public class MessagesActivity extends Activity implements OnClickListener, OnIte
 	private Activity activity=this;
 	private ListView listview;
 	
+	private NotificationManager notificationManager;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,6 +68,7 @@ public class MessagesActivity extends Activity implements OnClickListener, OnIte
 		
 		if (inbox) {
 			setTitle("MobDoki: Beérkezõ üzenetek");
+			notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 			
 			backButton.setOnClickListener(this);
 			sentButton.setOnClickListener(this);
@@ -113,9 +124,14 @@ public class MessagesActivity extends Activity implements OnClickListener, OnIte
 	
 	// Indulaskor az uzenetek lekerdezese
     @Override
-    public void onStart() {
-    	super.onStart();
+    public void onResume() {
+    	super.onResume();
     	refreshRequest();
+		if (inbox) {
+			notificationManager.cancel(R.string.app_message_notification_id);	// notification eltuntetese
+			startService(new Intent(activity, MessageService.class));			// uzeneteket figyelo szerviz ujrainditasa
+			doBindService();				// feliratkozas az uj uzenetek beerkezeset figyelo szervizhez
+		}
     }
     
     // Megszakitaskor a futo szalak leallitasa
@@ -125,6 +141,10 @@ public class MessagesActivity extends Activity implements OnClickListener, OnIte
     	if (download!=null && download.isUsed()) {
     		download.isNotUsed();
     		setProgressBarIndeterminateVisibility(false);
+    	}
+    	if (inbox) {
+    		notificationManager.cancel(R.string.app_message_notification_id);
+    		doUnbindService();		// leiratkozas a beerkezo uzeneteket figyelo szerviz ertesitesi listajarol
     	}
     }
     
@@ -170,5 +190,64 @@ public class MessagesActivity extends Activity implements OnClickListener, OnIte
 	    String url = "GetMessages?inbox=" + str + "&ssid=" + UserInfo.getSSID();
 	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
+    }
+    
+    
+    
+    /***************************************************************************
+     * 		Uj beerkezo uzenet figyeleseert felelos szervizhez kapcsolodas
+     ***************************************************************************/
+    
+    // Szerviztol erkezo uzeenetet kezelo Handler
+    public class IncomingMessageHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			if (download==null || download.isNotUsed()) refreshRequest();		// uzenetek frissitese
+		}
+    }
+    final Messenger clientMessenger = new Messenger(new IncomingMessageHandler());
+
+    // A szervizhez kapcsolodas eredmenyet lekezelo osztaly
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+        	
+            serviceMessenger = new Messenger(service);
+            try {
+                Message msg = Message.obtain();
+                msg.what = MessageService.MSG_REGISTER_CLIENT;
+                msg.replyTo = clientMessenger;				// szerviznek atadjuk az activity handlerjet
+                serviceMessenger.send(msg);						// 		ennek szolhat a szerviz uj uzenet erkezesenel
+            } catch (RemoteException e) {}
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            serviceMessenger = null;
+        }
+    };
+
+    private Messenger serviceMessenger = null;		// A szerviz Messenger-e, amelynek uzenhetunk
+    private boolean isBound;						// Beregisztraltunk a szervizhez?
+
+    // Activity beregisztalasa az uj uzeneteket figyelo szervizhez
+    private void doBindService() {
+        bindService(new Intent(activity, MessageService.class), mConnection, Context.BIND_AUTO_CREATE);
+        isBound = true;
+    }
+
+    // Leiratkozas a szerviztol
+    private void doUnbindService() {
+        if (isBound) {
+            if (serviceMessenger != null) {
+                try {
+                    Message msg = Message.obtain();
+                    msg.what = MessageService.MSG_UNREGISTER_CLIENT;
+                    msg.replyTo = clientMessenger;
+                    serviceMessenger.send(msg);
+                } catch (RemoteException e) {}
+            }
+
+            unbindService(mConnection);
+            isBound = false;
+        }
     }
 }

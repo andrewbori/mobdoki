@@ -160,6 +160,10 @@
         <servlet-name>RefreshSession</servlet-name>
         <servlet-class>mobdoki.server.servlet.user.RefreshSession</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>HasNewMessage</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.message.HasNewMessage</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -319,6 +323,10 @@
     <servlet-mapping>
         <servlet-name>RefreshSession</servlet-name>
         <url-pattern>/RefreshSession</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HasNewMessage</servlet-name>
+        <url-pattern>/HasNewMessage</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
