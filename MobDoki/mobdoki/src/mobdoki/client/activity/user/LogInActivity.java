@@ -2,11 +2,13 @@ package mobdoki.client.activity.user;
 
 import java.net.URLEncoder;
 
+import mobdoki.client.MessageService;
 import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -117,6 +119,11 @@ public class LogInActivity extends Activity implements OnClickListener {
         	if (resultCode==RESULT_CANCELED) {					// ha nem jelentkezett ki, akkor a keszulek fomenujebe lep
         		finish();
         	}
+        	else {
+        		stopService(new Intent(LogInActivity.this, MessageService.class));
+        		NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        		notificationManager.cancel(R.string.app_message_notification_id);
+        	}
     }
     
     // Bejelentkezest kezelo Handler
@@ -135,8 +142,7 @@ public class LogInActivity extends Activity implements OnClickListener {
 						int userid = download.getInt("userid");
 						usertype = download.getString("usertype");
 						int usertypeid = download.getInt("usertypeid");
-						
-						
+						String lastmailcheck = download.getString("lastmailcheck");
 						
 						UserInfo.putString("ssid", SSID);
 						UserInfo.putInt("userid", userid);
@@ -144,12 +150,15 @@ public class LogInActivity extends Activity implements OnClickListener {
 						UserInfo.putInt("usertype", usertypeid);
 						UserInfo.putString("usertype", usertype);
 						UserInfo.putString("password", password);
+						UserInfo.putString("lastmailcheck", lastmailcheck);
 						
 						if (usertype.equals("doctor")) {										// ha a felhazsnalo orvos
+							startService(new Intent(activity, MessageService.class));
 							Intent myIntent = new Intent(activity,HomeDoctorActivity.class);		// orvos fomenujenek betoltese
 							startActivityForResult(myIntent,0);
 						}
 						else if (usertype.equals("patient")) {									// ha a felhasznalo paciens
+							startService(new Intent(activity, MessageService.class));
 							Intent myIntent = new Intent(activity,HomePatientActivity.class);		// paciens fomenujenek betoltese
 							startActivityForResult(myIntent,0);
 						} else {																// egyebkent: hibauzenet megjelenitese

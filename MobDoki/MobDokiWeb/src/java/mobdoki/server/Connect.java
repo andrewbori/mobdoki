@@ -15,5 +15,5 @@ public class Connect {
     public static String driver = "org.postgresql.Driver";
     public static String url = "jdbc:postgresql:postgres";
     public static String user = "postgres";
-    public static String pass = "pass";
+    public static String pass = "M08_doki";
 }

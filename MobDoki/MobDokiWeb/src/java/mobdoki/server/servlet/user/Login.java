@@ -45,7 +45,7 @@ public class Login extends HttpServlet {
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
             
             if (db!=null) {
-                String sqlText = "SELECT u.id, u.\"usertypeID\", ut.name " +
+                String sqlText = "SELECT u.id, u.\"usertypeID\", ut.name, u.lastmailcheck " +
                                  "FROM \"User\" u INNER JOIN \"UserType\" ut ON (u.\"usertypeID\"=ut.id)" + 
                                  "WHERE username=? AND password=?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
@@ -56,9 +56,11 @@ public class Login extends HttpServlet {
                     int userid = results.getInt(1);
                     int usertypeid = results.getInt(2);
                     String usertype = results.getString(3);
+                    String lastmailcheck = results.getTimestamp(4).toString();
                     json.put("userid", userid);
                     json.put("usertypeid", usertypeid);
                     json.put("usertype", usertype);
+                    json.put("lastmailcheck", lastmailcheck);
                     json.setOK();           // status: OK
                     
                     // Felhasznalo munkamenetenek letrehozasa

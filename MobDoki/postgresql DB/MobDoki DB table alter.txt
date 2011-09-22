@@ -1,0 +1,1 @@
+ALTER TABLE User ADD COLUMN lastmailcheck timestamp without time zone NOT NULL DEFAULT now();

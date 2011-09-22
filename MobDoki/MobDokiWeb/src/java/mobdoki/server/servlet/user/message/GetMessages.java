@@ -119,7 +119,16 @@ public class GetMessages extends HttpServlet {
                     json.put("image", images);
                     json.setOK();                   // Sikeres lekerdezes
                 } else json.setErrorMessage("Nincs üzenet.");        // az uzenet nem talalhato
-
+                
+                if (inbox) {
+                    sqlText = "UPDATE \"User\" " +                  // A beerkezo leveleket megtekintettuk
+                              "SET \"lastmailcheck\"=now() " +      // legutobbi check datum atallitasa
+                              "WHERE id=?";
+                    ps = db.prepareStatement(sqlText);
+                    ps.setInt(1, Sessions.MySessions().getUserID(SSID));
+                    ps.executeUpdate();
+                }
+                
                 rs.close();
                 ps.close();
                 db.close();

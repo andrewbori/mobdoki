@@ -40,6 +40,7 @@
 		<activity android:name=".activity.user.health.PatientGraphActivity"></activity>
 		<activity android:name=".activity.user.health.DoctorGraphActivity"></activity>
 		
+		<service android:name="MessageService"></service>
     </application>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  
