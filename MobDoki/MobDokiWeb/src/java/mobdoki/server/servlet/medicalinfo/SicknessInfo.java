@@ -55,7 +55,7 @@ public class SicknessInfo extends HttpServlet {
 
             if (db!=null) {
 
-                String sqlText = "SELECT seriousness,coalesce(url,''),id FROM \"Sickness\" WHERE name LIKE ?";     // Betegseg adatainak lekerese
+                String sqlText = "SELECT seriousness,coalesce(details,'-'),id FROM \"Sickness\" WHERE name LIKE ?";     // Betegseg adatainak lekerese
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ps.setString(1,sickness);                           // parameter beallitasa az adott tunetre
                 ResultSet results = ps.executeQuery();
@@ -63,14 +63,13 @@ public class SicknessInfo extends HttpServlet {
                 int sicknessID=0;
                 if (results != null && results.next()) {            // Ha van talalat
                     json.put("seriousness",results.getDouble(1));          // irjuk ki a megtalalalt tunetet   
-                    json.put("url",results.getString(2));
+                    json.put("details",results.getString(2));
                     sicknessID=results.getInt(3);
                     results.close();
                 }
                 
                 JSONArray symptom = new JSONArray();
                 JSONArray hospital = new JSONArray();
-                JSONArray coordinates = new JSONArray();
                 
                 sqlText = "SELECT s.name " +
                           "FROM \"Diagnosis\" d INNER JOIN \"Symptom\" s ON (d.\"symptomID\"=s.id) " +
@@ -99,11 +98,8 @@ public class SicknessInfo extends HttpServlet {
                 if (results != null) {
                     while (results.next()) {                        // menjunk vegig a talalatokon
                         hospital.put(results.getString(1));                 // irjuk ki a megtalalalt korhaz nevet
-                        PGpoint point = (PGpoint)results.getObject(2);      // irjuk ki a megtalalalt korhaz koordinatait
-                        coordinates.put((new JSONObject()).put("x", point.x).put("y", point.y));
                     }
                     json.put("hospital",hospital);                  // korhaznevek
-                    json.put("coordinates",coordinates);            //  es korhazkoordinatak tombje a kimenetbe
                     results.close();
                 }
                 json.setOK();

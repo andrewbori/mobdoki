@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -32,14 +31,6 @@ public class SicknessListActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.exploresickness);
 		setTitle("MobDoki: Betegségek listája");
-      
-		// Vissza gomb esemenykezeloje
-		Button backButton = (Button) findViewById(R.exploresickness.back);
-		backButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				finish();
-			}
-		});
 		
 		// A betegsegek listajanak esemenykezeloje
 		listview = (ListView) findViewById(R.exploresickness.sicknesslist);

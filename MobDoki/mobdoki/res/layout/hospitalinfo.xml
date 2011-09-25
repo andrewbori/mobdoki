@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="fill_parent"
+			  android:layout_height="fill_parent"
+   			  android:id="@+hospitalinfo/viewSwitcher">
+	<LinearLayout android:orientation="vertical"
+	    		  android:layout_width="fill_parent"
+	    		  android:layout_height="fill_parent">
+	    
+		<TabHost android:id="@+id/tabhost"
+	    		 android:layout_width="fill_parent"
+	    	     android:layout_height="fill_parent"
+	    	     android:layout_weight="50">
+	
+		    <TabWidget android:id="@android:id/tabs"
+			      	   android:layout_width="fill_parent"
+			      	   android:layout_height="wrap_content"
+			/>
+			<FrameLayout android:id="@android:id/tabcontent"
+		      			 android:layout_width="fill_parent"
+		      			 android:layout_height="fill_parent"
+		      			 android:paddingTop="45px">
+	      	    <ScrollView android:id="@+hospitalinfo/hospitalTab"
+	      	    			android:orientation="vertical"
+							android:layout_width="fill_parent"
+							android:layout_height="fill_parent"
+							android:layout_weight="1">
+		      	<LinearLayout android:orientation="vertical"
+				    		  android:layout_width="fill_parent"
+				    		  android:layout_height="fill_parent">
+				    
+				    <TextView android:text="-"
+			    		  	  android:id="@+hospitalinfo/hospitalname"
+			    		  	  style="@style/Title">
+			    	</TextView>
+				    
+				    <TextView android:text="Kórház címe:"
+				    		  style="@style/TopLabel">
+				    </TextView>
+					<TextView android:text="-"
+						  	  android:id="@+hospitalinfo/address"
+						  	  android:layout_width="wrap_content"
+						  	  android:layout_height="wrap_content"
+						  	  android:paddingLeft="10dp"
+						 	  android:paddingRight="10dp"
+						 	  android:paddingBottom="5dp" />
+						 	  
+					<TextView android:text="Kórház telefonszáma:"
+				    		  style="@style/TopLabel">
+				    </TextView>
+					<TextView android:text="-"
+						  	  android:id="@+hospitalinfo/phone"
+						  	  android:layout_width="wrap_content"
+						  	  android:layout_height="wrap_content"
+						  	  android:paddingLeft="10dp"
+						 	  android:paddingRight="10dp"
+						 	  android:paddingBottom="5dp" />
+						 	  
+					<TextView android:text="Kórház e-mail címe:"
+				    		  style="@style/TopLabel">
+				    </TextView>
+					<TextView android:text="-"
+						  	  android:id="@+hospitalinfo/email"
+						  	  android:layout_width="wrap_content"
+						  	  android:layout_height="wrap_content"
+						  	  android:paddingLeft="10dp"
+						 	  android:paddingRight="10dp"
+						 	  android:paddingBottom="5dp" />
+				    
+				    <LinearLayout android:layout_width="fill_parent"
+	    			  			  android:layout_height="wrap_content">
+				       
+				        <Button android:text="Térkép"
+				        		android:id="@+hospitalinfo/showmap"
+				        		android:layout_width="wrap_content"
+				        		android:layout_height="wrap_content">
+				        </Button>
+				         
+				        <Button android:text="Google"
+				        		android:id="@+hospitalinfo/google"
+				        		android:layout_width="wrap_content"
+				        		android:layout_height="wrap_content">
+				        </Button>
+	
+					</LinearLayout>	    
+				    
+				</LinearLayout>
+				</ScrollView>
+		      	
+		      	<LinearLayout android:id="@+hospitalinfo/sicknessTab"
+				    		  android:orientation="vertical"
+				    		  android:layout_width="fill_parent"
+				    		  android:layout_height="fill_parent">
+				    <TextView android:text="Kórházban kezelt betegségek:"
+				    		  style="@style/TabTitle">
+				    </TextView>
+				    <ListView android:id="@+hospitalinfo/sicknesslist"
+				    		  android:layout_height="fill_parent"
+				    		  android:layout_width="fill_parent">
+				    </ListView>
+				</LinearLayout>
+				
+				<LinearLayout android:id="@+hospitalinfo/commentTab"
+				    		  android:orientation="vertical"
+				    		  android:layout_width="fill_parent"
+				    		  android:layout_height="fill_parent">
+					<ListView android:id="@+hospitalinfo/commentlist"
+				    		  android:layout_height="fill_parent"
+				    		  android:layout_width="fill_parent"
+				    		  android:layout_weight="1">
+				    </ListView>
+				        <LinearLayout style="@style/BottomLayout">
+	    					<Button android:text="Új hozzászólás"
+									android:id="@+hospitalinfo/newcomment"
+									style="@style/BottomButton"/>
+	    				</LinearLayout>
+				</LinearLayout>
+		    
+		    </FrameLayout>
+	    </TabHost>
+	    
+	</LinearLayout>
+	
+	<LinearLayout android:layout_width="fill_parent"
+ 			  	  android:layout_height="fill_parent"
+ 			  	  android:orientation="vertical">
+		<com.google.android.maps.MapView android:id="@+googlemaps/mapview"
+										 android:layout_width="fill_parent"
+										 android:layout_height="fill_parent"
+										 android:clickable="true"
+										 android:apiKey="@string/apiKey" />
+	</LinearLayout>
+</ViewSwitcher>

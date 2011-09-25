@@ -44,10 +44,14 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 	
 	private ArrayList<String> listHospital;		// korhazak listaja
 	private ArrayList<String> listAddress;		// korhazak cimenek listaja
+	private ArrayList<String> listPhone;		// korhazak telefonszamanak listaja
+	private ArrayList<String> listEmail;		// korhazak e-mail cimenek listaja
 	private ArrayList<String> listSickness;		// betegsegek listaja
 	
 	private String name;		// megadott korhaz neve
 	private String address;		// megadott korhaz cime
+	private String phone;		// megadott korhaz telefonszama
+	private String email;		// megadott korhaz e-mail cime
 	
 	private Activity activity = this;
 	
@@ -63,6 +67,8 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 	
 	private AutoCompleteTextView hospitalText1;
 	private EditText addressText1;
+	private EditText phoneText1;
+	private EditText emailText1;
 	private AutoCompleteTextView hospitalText2;
 	private AutoCompleteTextView sicknessText2;
 	
@@ -92,7 +98,7 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
   		tabs.setCurrentTab(0);
   		
   		for (int i = 0; i < tabs.getTabWidget().getTabCount(); i++) {
-  		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 35;
+  		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 45;
   		}
   		
   		tabs.setOnTabChangedListener(new OnTabChangeListener() {
@@ -134,6 +140,8 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
  		hospitalText2 = (AutoCompleteTextView) findViewById(R.edithospital.hospital2);
  		sicknessText2 = (AutoCompleteTextView) findViewById(R.edithospital.sickness2);
  		addressText1 = (EditText) findViewById(R.edithospital.address);
+ 		phoneText1 = (EditText) findViewById(R.edithospital.phone);
+ 		emailText1 = (EditText) findViewById(R.edithospital.email);
  		
  		hospitalText1.addTextChangedListener(this);
  		hospitalText2.addTextChangedListener(this);     
@@ -144,10 +152,10 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 		switch (v.getId()) {
 		case R.edithospital.buttonHospital1:
 		case R.edithospital.buttonHospital2:
-			hospitalDialog.show();
+			if (hospitalDialog!=null) hospitalDialog.show();
 			break;
 		case R.edithospital.buttonSickness2:
-			sicknessDialog.show();
+			if (sicknessDialog!=null) sicknessDialog.show();
 			break;
 		case R.edithospital.saveHospital:
 			if (download1==null || (download1!=null && !download1.isAlive())) saveHospitalRequest(true);
@@ -186,9 +194,13 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 				if (listHospital.contains(str)) {									// ha a listan szerepel, akkor adatok frissitese
 					int position = listHospital.indexOf(str);
 	                addressText1.setText(listAddress.get(position));
+	                phoneText1.setText(listPhone.get(position));
+	                emailText1.setText(listEmail.get(position));
 				}
 				else {																// egyebkent torles
 					addressText1.setText("");
+					phoneText1.setText("");
+					emailText1.setText("");
 				}	
 			}
 			break;
@@ -248,12 +260,15 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 				        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, downloadData.getStringArrayList("hospital"));
 				        
 				        hospitalText1.setAdapter(adapter);																		// Autocomplete lista
-				        hospitalText1.setAdapter(adapter);
 				        
 				        listHospital = downloadData.getStringArrayList("hospital");												// Spinner lista
 				        listHospital.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
 				        listAddress = downloadData.getStringArrayList("address");
 				        listAddress.add(0, "");
+				        listPhone = downloadData.getStringArrayList("phone");
+				        listPhone.add(0, "");
+				        listEmail = downloadData.getStringArrayList("email");
+				        listEmail.add(0, "");
 				        
 				        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				        builder.setItems(downloadData.getStringArray("hospital", true), new DialogInterface.OnClickListener() {
@@ -261,6 +276,8 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 				            	hospitalText1.setText(listHospital.get(position));							// texview-ba  a kivalasztott
 				                hospitalText2.setText(listHospital.get(position));
 				                addressText1.setText(listAddress.get(position));
+				                phoneText1.setText(listPhone.get(position));
+				                emailText1.setText(listEmail.get(position));
 				            }
 				        });
 				        hospitalDialog = builder.create();
@@ -309,9 +326,11 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 	
 							setProgressBarIndeterminateVisibility(true);
 		    	            String url = "SetHospital?name=" + URLEncoder.encode(name) + "&address=" + URLEncoder.encode(address) + 
-		    	            																 "&x=" + latitude +
-		    	            																 "&y=" + longitude  + 
-		    	            																 "&ssid=" + UserInfo.getSSID();
+	    	            																 "&x=" + latitude +
+	    	            																 "&y=" + longitude  + 
+	    	            																 "&phone=" + URLEncoder.encode(phone) +
+	    	            																 "&email=" + URLEncoder.encode(email) +
+	    	            																 "&ssid=" + UserInfo.getSSID();
 		    	        	download1 = new HttpGetJSONConnection(url, mHandler, TASK_SETHOSPITAL);		// a megadott korhaz felvetele az adatbazisba
 		    	        	download1.start();   
 						} else {													// Ha a megadott cim ervenytelen
@@ -330,8 +349,10 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 	// Hozzaadas keres
     private void saveHospitalRequest(boolean isSave){
     	
-    	name = hospitalText1.getText().toString();	// a mezobe beirt korhaz neve
-    	address = addressText1.getText().toString();				// a mezobe beirt korhaz cime
+    	name = hospitalText1.getText().toString();		// a mezobe beirt korhaz neve
+    	address = addressText1.getText().toString();	// a mezobe beirt korhaz cime
+    	phone = phoneText1.getText().toString();		// a mezobe beirt korhaz telefonszama
+    	email = emailText1.getText().toString();		// a mezobe beirt korhaz telefonszama
     	
     	if (name.equals("")) {																		// ha nincs adat megadva: hibauzenet
     		Toast.makeText(activity, "Adja meg a kórház nevét!", Toast.LENGTH_SHORT).show();

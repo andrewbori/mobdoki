@@ -18,7 +18,7 @@
 		<FrameLayout android:id="@android:id/tabcontent"
 	      			 android:layout_width="fill_parent"
 	      			 android:layout_height="fill_parent"
-	      			 android:paddingTop="35px">
+	      			 android:paddingTop="45px">
 	      			 
 			<!-- ***************************************** -->
 			<!-- BETEGSÉGEK FELVÉTELE/SZERKESZTÉSE/TÖRLÉSE -->
@@ -55,10 +55,10 @@
 			    		   android:layout_height="wrap_content">
 			    </RatingBar>
 			    
-			    <TextView android:text="Információ (URL):"
+			    <TextView android:text="Leírás:"
 			    		  style="@style/TopLabel">
 			    </TextView>
-			    <EditText android:id="@+editsickness/sicknessURL"
+			    <EditText android:id="@+editsickness/sicknessDetails"
 			    		  android:layout_height="wrap_content"
 			    		  android:layout_width="match_parent" >
 			    </EditText>

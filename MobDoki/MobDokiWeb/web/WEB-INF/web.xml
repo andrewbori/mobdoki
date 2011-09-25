@@ -164,6 +164,18 @@
         <servlet-name>HasNewMessage</servlet-name>
         <servlet-class>mobdoki.server.servlet.user.message.HasNewMessage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>GetComments</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.comment.GetComments</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>NewComment</servlet-name>
+        <servlet-class>mobdoki.server.servlet.user.comment.NewComment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HospitalInfo</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.HospitalInfo</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -327,6 +339,18 @@
     <servlet-mapping>
         <servlet-name>HasNewMessage</servlet-name>
         <url-pattern>/HasNewMessage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetComments</servlet-name>
+        <url-pattern>/GetComments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>NewComment</servlet-name>
+        <url-pattern>/NewComment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HospitalInfo</servlet-name>
+        <url-pattern>/HospitalInfo</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

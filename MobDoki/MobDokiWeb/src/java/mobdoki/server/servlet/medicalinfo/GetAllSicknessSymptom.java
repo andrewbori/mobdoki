@@ -64,23 +64,23 @@ public class GetAllSicknessSymptom extends HttpServlet {
                     json.setOK();
                 } else json.setDBError();                  // adatbazis hiba
                 
-                sqlText = "SELECT name,seriousness,coalesce(url,'') FROM \"Sickness\" ORDER BY name";
+                sqlText = "SELECT name,seriousness,coalesce(details,'') FROM \"Sickness\" ORDER BY name";
                 ps = db.prepareStatement(sqlText);                 // A Sickness tabla osszes soranak attributuma
                 results = ps.executeQuery();
                 
                 JSONArray sickness = new JSONArray();              // JSON tomb a lekerdezett neveknek
                 JSONArray seriousness = new JSONArray();
-                JSONArray url = new JSONArray();
+                JSONArray details = new JSONArray();
                 if (results != null) {
                     while (results.next()) {
                         sickness.put(results.getString(1));            // nev hozzaadasa a tombhoz
                         seriousness.put(results.getDouble(2));
-                        url.put(results.getString(3));
+                        details.put(results.getString(3));
                     }
                     results.close();
                     json.put("sickness", sickness);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
                     json.put("seriousness", seriousness);
-                    json.put("url", url);
+                    json.put("details", details);
                     json.setOK();
                 } else json.setDBError();                  // adatbazis hiba
                 db.close();

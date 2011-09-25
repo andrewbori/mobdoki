@@ -20,7 +20,7 @@
 		<FrameLayout android:id="@android:id/tabcontent"
 	      			 android:layout_width="fill_parent"
 	      			 android:layout_height="fill_parent"
-	      			 android:paddingTop="35px">
+	      			 android:paddingTop="45px">
 			<!-- ***************************************** -->
 			<!-- 	KÓRHÁZ FELVÉTELE/SZERKESZTÉSE/TÖRLÉSE  -->
 			<!-- ***************************************** --> 
@@ -53,6 +53,22 @@
 			    </TextView>
 			    <EditText android:layout_width="fill_parent"
 			    		  android:id="@+edithospital/address"
+			    		  android:layout_height="wrap_content">
+			    </EditText>
+			    
+			    <TextView android:text="Kórház telefonszáma:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+edithospital/phone"
+			    		  android:layout_height="wrap_content">
+			    </EditText>
+			    
+			    <TextView android:text="Kórház e-mail címe:"
+			    		  style="@style/TopLabel">
+			    </TextView>
+			    <EditText android:layout_width="fill_parent"
+			    		  android:id="@+edithospital/email"
 			    		  android:layout_height="wrap_content">
 			    </EditText>
 			    

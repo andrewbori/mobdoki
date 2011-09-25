@@ -4,15 +4,6 @@
     		  android:layout_width="fill_parent"
     		  android:layout_height="fill_parent">
 
-    <TextView android:id="@+sicknessinfo/sickness"
-    		  android:layout_width="wrap_content"
-    		  android:layout_height="wrap_content"
-    		  android:textSize="20sp"
-    		  android:layout_gravity="center_horizontal"
-    		  android:textStyle="bold"
-    		  android:paddingBottom="5sp">
-    </TextView>
-    
 	<TabHost android:id="@+id/tabhost"
     		 android:layout_width="fill_parent"
     	     android:layout_height="fill_parent"
@@ -25,28 +16,20 @@
 		<FrameLayout android:id="@android:id/tabcontent"
 	      			 android:layout_width="fill_parent"
 	      			 android:layout_height="fill_parent"
-	      			 android:paddingTop="30px">
-	      
-	      	<LinearLayout android:id="@+sicknessinfo/sicknessTab"
-			    		  android:orientation="vertical"
+	      			 android:paddingTop="45px">
+      	    <ScrollView android:id="@+sicknessinfo/sicknessTab"
+      	    			android:orientation="vertical"
+						android:layout_width="fill_parent"
+						android:layout_height="fill_parent"
+						android:layout_weight="1">
+	      	<LinearLayout android:orientation="vertical"
 			    		  android:layout_width="fill_parent"
 			    		  android:layout_height="fill_parent">
-			    <TextView android:text="Betegség adatai:"
-			    		  android:layout_height="wrap_content"
-			    		  android:layout_width="fill_parent"
-			    		  android:textStyle="bold"
-			    		  android:textColor="#FFFFFF"
-			    		  android:background="#777777">
-			    </TextView>
 			    
-			    <TextView android:text="Betegség neve:"
-			    		  style="@style/TopLabel">
-			    </TextView>
-			    <EditText android:layout_width="fill_parent"
+			    <TextView android:text="-"
 			    		  android:id="@+sicknessinfo/sicknessname"
-			    		  android:layout_height="wrap_content"
-			    		  android:editable="false">
-			    </EditText>
+			    		  style="@style/Title">
+			    </TextView>
 			    
 			    <TextView android:text="Súlyosság:"
 			    		  style="@style/TopLabel">
@@ -60,20 +43,17 @@
 			    <TextView android:text="Információ a betegségről:"
 			    		  style="@style/TopLabel">
 			    </TextView>
-			    <EditText android:layout_width="fill_parent"
-			    		  android:id="@+sicknessinfo/sicknessURL"
-			    		  android:layout_height="wrap_content"
-			    		  android:editable="false">
-			    </EditText>
+			    
+				<TextView android:text="-"
+						  android:id="@+sicknessinfo/sicknessDetails"
+						  android:layout_width="wrap_content"
+						  android:layout_height="wrap_content"
+						  android:paddingLeft="10dp"
+						  android:paddingRight="10dp"
+						  android:paddingBottom="5dp" />
 			    
 			    <LinearLayout android:layout_width="fill_parent"
     			  			  android:layout_height="wrap_content">
-        
-			        <Button android:text="Mutasd!"
-			        		android:id="@+sicknessinfo/show"
-			        		android:layout_width="wrap_content"
-			        		android:layout_height="wrap_content">
-			        </Button>
 			        
 			        <Button android:text="Google"
 			        		android:id="@+sicknessinfo/google"
@@ -89,17 +69,14 @@
 				</LinearLayout>	    
 			    
 			</LinearLayout>
+			</ScrollView>
 	      	
 	      	<LinearLayout android:id="@+sicknessinfo/symptomTab"
 			    		  android:orientation="vertical"
 			    		  android:layout_width="fill_parent"
 			    		  android:layout_height="fill_parent">
 			    <TextView android:text="Betegség tünetei:"
-			    		  android:layout_height="wrap_content"
-			    		  android:layout_width="fill_parent"
-			    		  android:textStyle="bold"
-			    		  android:textColor="#FFFFFF"
-			    		  android:background="#777777">
+			    		  style="@style/TabTitle">
 			    </TextView>
 			    <ListView android:id="@+sicknessinfo/symptomlist"
 			    		  android:layout_height="fill_parent"
@@ -112,28 +89,31 @@
 			    		  android:layout_width="fill_parent"
 			    		  android:layout_height="fill_parent">
 			    <TextView android:text="Betegséget kezelő kórházak:"
-			    		  android:layout_height="wrap_content"
-			    		  android:layout_width="fill_parent"
-			    		  android:textStyle="bold"
-			    		  android:background="#777777"
-			    		  android:textColor="#FFFFFF">
+			    		  style="@style/TabTitle">
 			    </TextView>
 			    <ListView android:id="@+sicknessinfo/hospitallist"
 			    		  android:layout_height="fill_parent"
 			    		  android:layout_width="fill_parent">
 			    </ListView>
 		    </LinearLayout>
+		    
+			<LinearLayout android:id="@+sicknessinfo/commentTab"
+			    		  android:orientation="vertical"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_height="fill_parent">
+				<ListView android:id="@+sicknessinfo/commentlist"
+			    		  android:layout_height="fill_parent"
+			    		  android:layout_width="fill_parent"
+			    		  android:layout_weight="1">
+			    </ListView>
+			        <LinearLayout style="@style/BottomLayout">
+    					<Button android:text="Új hozzászólás"
+								android:id="@+sicknessinfo/newcomment"
+								style="@style/BottomButton"/>
+    				</LinearLayout>
+			</LinearLayout>
 	    
 	    </FrameLayout>
     </TabHost>
-    
-    <LinearLayout style="@style/BottomLayout">
-        
-        <Button android:text="Vissza"
-        		android:id="@+sicknessinfo/back"
-        		style="@style/BottomButton">
-        </Button>
-        
-    </LinearLayout>
     
 </LinearLayout>

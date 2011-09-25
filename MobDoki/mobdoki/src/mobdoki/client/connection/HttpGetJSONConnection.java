@@ -79,7 +79,16 @@ public class HttpGetJSONConnection extends HttpConnection {
 	public JSONObject getJSONObject () {
 		return responseJSON;
 	}
-		
+	
+	// JSON valasz name kulcsahoz tartozo JSONObject
+	public JSONObject getJSONObject (String name) {
+		try {
+			return responseJSON.getJSONObject(name);
+		} catch (Exception e) {
+			return new JSONObject();
+		}
+	}
+	
 	// JSON valasz name kulcsahoz tartozo JSONArray
 	public JSONArray getJSONArray (String name) {
 		try {

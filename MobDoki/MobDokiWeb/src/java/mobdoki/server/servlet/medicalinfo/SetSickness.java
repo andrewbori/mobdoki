@@ -5,6 +5,7 @@
 
 package mobdoki.server.servlet.medicalinfo;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -41,8 +42,16 @@ public class SetSickness extends HttpServlet {
         
         String sickness = request.getParameter("sickness");
         double seriousness = Double.parseDouble(request.getParameter("seriousness"));
-        String url = request.getParameter("url");
         String SSID = request.getParameter("ssid");
+        
+        BufferedReader reader = request.getReader();                // bejovo adatok
+        String line = null;
+        StringBuilder builder = new StringBuilder();
+        while ((line = reader.readLine()) != null) {                    // Uezenet beolvasasa
+            builder.append(line);
+        }
+        String details =  builder.toString();                              // Uzenet String-gé alakitasa
+        reader.close();
         
         try {
            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
@@ -60,19 +69,19 @@ public class SetSickness extends HttpServlet {
                 ResultSet results = ps.executeQuery();              // megadott nevu betegseg mar van?
                 if (results != null) {
                     if (results.next()) {                               // Ha igen: módosít
-                        sqlText = "UPDATE \"Sickness\" SET seriousness=?, url=? WHERE name LIKE ?";
+                        sqlText = "UPDATE \"Sickness\" SET seriousness=?, details=? WHERE name LIKE ?";
                         ps = db.prepareStatement(sqlText);
                         ps.setDouble(1,seriousness);
-                        ps.setString(2,url);
+                        ps.setString(2,details);
                         ps.setString(3,sickness);
                         ps.executeUpdate();                             // Ha nem: módosítás
                         json.setOKMessage("Sikeres módosítás.");
                     } else {
-                        sqlText = "INSERT INTO \"Sickness\"(name,seriousness,url) VALUES (?,?,?)";
+                        sqlText = "INSERT INTO \"Sickness\"(name,seriousness,details) VALUES (?,?,?)";
                         ps = db.prepareStatement(sqlText);
                         ps.setString(1,sickness);
                         ps.setDouble(2,seriousness);
-                        ps.setString(3,url);
+                        ps.setString(3,details);
                         ps.executeUpdate();                             // Ha nem: felvetel
                         json.setOKMessage("Sikeres felvétel!");
                     }
@@ -81,8 +90,7 @@ public class SetSickness extends HttpServlet {
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
         } catch (Exception e) {
-            //json.setDBError();                  // adatbazis hiba
-            json.setErrorMessage(e.getMessage());
+            json.setDBError();                  // adatbazis hiba
         } finally {
             json.write(out);
             out.close();
