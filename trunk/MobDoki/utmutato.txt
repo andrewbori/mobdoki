@@ -7,9 +7,11 @@ MobDoki - telepítési útmutató
 
 	- Adatbázis feltöltése adatokkkal:
 		.\postgresql\MobDoki DB fill.sql
+	- Utólagos módosítások az adatbázison:
+		MobDoki DB table alter.sql
 
 
-2. Webserver:
+2. Webszerver:
 	- Netbeans 7.0 + Apache Tomcat 7.0.11
 
 
@@ -17,7 +19,7 @@ MobDoki - telepítési útmutató
 	- Webserver IP címének beállítása
 		.\mobdoki\src\mobdoki\client\connection\Connection.java
 		
-	- A googlemaps mûködéséhez, az API Key beállítása
+	- A Google Maps mûködéséhez, az API Key beállítása
 		.\mobdoki\res\values\apikey.xml
 		
 	!!! Ezt a két fájlt SVN-en nem kell frissíteni, mert úgyis minden gépen más!

@@ -4,7 +4,7 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">#9C9A9C</item>
-        <item name="android:paddingTop">5sp</item>
+        <item name="android:paddingTop">5dp</item>
         <item name="android:gravity">center</item>
     </style>
     
@@ -14,11 +14,20 @@
         <item name="android:layout_weight">1</item>
     </style>
     
+    <style name="Title">
+    	<item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>    
+    
     <style name="TopLabel">
     	<item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:paddingTop">5sp</item>
+        <item name="android:paddingTop">5dp</item>
     </style>
     
     <style name="TabTitle">
@@ -26,7 +35,10 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#FFFFFF</item>
-        <item name="android:background">#777777</item>
+        <item name="android:background">#7b7d7b</item>
+        <item name="android:paddingLeft">3dp</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:paddingBottom">1dp</item>
     </style>
     
     <style name="ButtonChooser">

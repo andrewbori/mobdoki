@@ -27,7 +27,7 @@
 		<activity android:name=".activity.medicalinfo.SicknessListActivity"></activity>
 		<activity android:name=".activity.medicalinfo.SearchSicknessActivity"></activity>
 		<activity android:name=".activity.medicalinfo.SicknessInfoActivity"></activity>
-		<activity android:name=".activity.medicalinfo.ShowHospitalActivity"></activity>
+		<activity android:name=".activity.medicalinfo.HospitalInfoActivity"></activity>
 		<activity android:name=".activity.medicalinfo.NearestHospitalsActivity"></activity>
 		<activity android:name=".activity.StatisticsActivity"></activity>
 		<uses-library android:name="com.google.android.maps" />

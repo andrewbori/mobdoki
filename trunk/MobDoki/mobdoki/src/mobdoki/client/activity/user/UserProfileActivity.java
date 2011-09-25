@@ -99,7 +99,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
   		tabs.setCurrentTab(0);
   		
   		for (int i = 0; i < tabs.getTabWidget().getTabCount(); i++) {
-  		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 35;
+  		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 45;
   		}
         
   		userID = UserInfo.getInt("userid");

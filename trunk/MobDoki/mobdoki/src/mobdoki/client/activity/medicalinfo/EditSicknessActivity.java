@@ -1,6 +1,7 @@
 package mobdoki.client.activity.medicalinfo;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import mobdoki.client.connection.HttpPostConnection;
 import mobdoki.client.connection.UserInfo;
 
 import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.StringEntity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,17 +43,19 @@ import android.widget.Toast;
 public class EditSicknessActivity extends Activity implements OnClickListener, TextWatcher {
 	private final int TASK_GETDATA = 1;
 	private final int TASK_SETSICKNESS = 2;
-	private final int TASK_SETSYMPTOM = 3;
-	private final int TASK_UPLOAD = 4;
+	private final int TASK_DELETESICKNESS = 3;
+	private final int TASK_SETSYMPTOM = 4;
+	private final int TASK_UPLOAD = 5;
 	
 	private HttpGetJSONConnection downloadData = null;		// szal a betegsegek es tunetek letoltesehez
 	private HttpGetJSONConnection download1 = null;			// szal a webszerverhez csatlakozashoz
+	private HttpPostConnection upload1 = null;				// szal a webszerverhez csatlakozashoz
 	private HttpGetJSONConnection download2 = null;			// szal a webszerverhez csatlakozashoz
-	private HttpPostConnection upload = null;			// szal a kep feltoltesehez
+	private HttpPostConnection upload = null;				// szal a kep feltoltesehez
 	
 	private ArrayList<String> listSickness;			// betegsegek listaja
 	private ArrayList<Float> listSicknessRating;	// betegsegek ertekelesenek listaja
-	private ArrayList<String> listSicknessURL;		// betegsegek url-jenek listaja
+	private ArrayList<String> listSicknessDetails;	// betegsegek leirasanak listaja
 	private ArrayList<String> listSymptom;			// tunetek listaja
 	
 	private ImageView img;						// A tunet kepe
@@ -76,7 +80,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 	private AutoCompleteTextView symptomText3;
 	
 	private RatingBar rating;
-	private EditText urlText1;
+	private EditText detailsText1;
 	
     /** Called when the activity is first created. */
     @Override
@@ -108,7 +112,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
  		tabs.setCurrentTab(0);
  		
  		for (int i = 0; i < tabs.getTabWidget().getTabCount(); i++) {
- 		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 35;
+ 		    tabs.getTabWidget().getChildAt(i).getLayoutParams().height = 45;
  		}
  		
  		tabs.setOnTabChangedListener(new OnTabChangeListener() {
@@ -172,7 +176,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 		symptomText3.addTextChangedListener(this);
 		
 		rating = (RatingBar) findViewById(R.editsickness.sicknessRating);
-		urlText1 = (EditText) findViewById(R.editsickness.sicknessURL);
+		detailsText1 = (EditText) findViewById(R.editsickness.sicknessDetails);
 		
     }
 
@@ -182,11 +186,11 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 		switch (v.getId()) {
 		case R.editsickness.buttonSickness1:
 		case R.editsickness.buttonSickness2:
-			sicknessDialog.show();
+			if (sicknessDialog!=null) sicknessDialog.show();
 			break;
 		case R.editsickness.buttonSymptom2:
 		case R.editsickness.buttonSymptom3:
-			symptomDialog.show();
+			if (symptomDialog!=null) symptomDialog.show();
 			break;
 		case R.editsickness.saveSickness:
 			if (download1==null || (download1!=null && !download1.isAlive())) saveSicknessRequest(true);
@@ -234,11 +238,11 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 				if (listSickness.contains(str)) {									// ha a listan szerepel, akkor adatok frissitese
 					int position = listSickness.indexOf(str);
 	                rating.setRating(listSicknessRating.get(position));
-	                urlText1.setText(listSicknessURL.get(position));
+	                detailsText1.setText(listSicknessDetails.get(position));
 				}
 				else {																// egyebkent torles
 	                rating.setRating(0);
-	                urlText1.setText("");
+	                detailsText1.setText("");
 				}	
 			}
 			break;
@@ -305,8 +309,8 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 				        listSickness.add(0, "");		// az elso listaelem ures
 				        listSicknessRating = downloadData.getFloatArrayList("seriousness");										// Tobbi adat listaja
 				        listSicknessRating.add(0, new Float(0.0));
-				        listSicknessURL = downloadData.getStringArrayList("url");
-				        listSicknessURL.add(0, "");
+				        listSicknessDetails = downloadData.getStringArrayList("details");
+				        listSicknessDetails.add(0, "");
 				        
 				        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
@@ -315,7 +319,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 					            sicknessText2.setText(listSickness.get(position));
 					            
 				                rating.setRating(listSicknessRating.get(position));						// adatok frissitese
-				                urlText1.setText(listSicknessURL.get(position));
+				                detailsText1.setText(listSicknessDetails.get(position));
 				            }
 				        });
 				        sicknessDialog = builder.create();
@@ -341,6 +345,13 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 					break;
 				// A megadott betegseg felvetele/modositasa sikeres
 				case TASK_SETSICKNESS:
+					if (upload1.hasMessage()) {
+						String message = upload1.getMessage();							// Uzenet lekerdezese es megjelenitese
+						Log.v("EditSicknessActivity", message);
+						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+					}
+					break;
+				case TASK_DELETESICKNESS:
 					if (download1.hasMessage()) {
 						String message = download1.getMessage();							// Uzenet lekerdezese es megjelenitese
 						Log.v("EditSicknessActivity", message);
@@ -389,7 +400,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
     private void saveSicknessRequest(boolean isSave){
     	
     	String sickness = sicknessText1.getText().toString();	// a mezobe beirt betegseg
-    	String webpage = urlText1.getText().toString();	// a mezobe beirt betegseg
+    	String details = detailsText1.getText().toString();		// a mezobe beirt betegseg leirasa
     	float seriousness = rating.getRating();
     	
     	if (sickness.equals("")) {																	// ha nincs megadva adat: hibauzenet
@@ -399,10 +410,21 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
     	setProgressBarIndeterminateVisibility(true);
     	
 	    String url;
-	    if (isSave) url = "SetSickness?sickness=" + URLEncoder.encode(sickness) + "&seriousness=" + seriousness + "&url=" + webpage + "&ssid=" + UserInfo.getSSID();
-	    else url = "DeleteSickness?sickness=" + URLEncoder.encode(sickness) + "&ssid=" + UserInfo.getSSID();
-	    download1 = new HttpGetJSONConnection(url, mHandler, TASK_SETSICKNESS);
-	    download1.start();
+	    if (isSave) {
+	    	StringEntity se = null;
+			try {
+				se = new StringEntity(details);
+			} catch (UnsupportedEncodingException e) {}
+	    	
+	    	url = "SetSickness?sickness=" + URLEncoder.encode(sickness) + "&seriousness=" + seriousness + "&ssid=" + UserInfo.getSSID();
+			upload1 = new HttpPostConnection(url, mHandler, se, TASK_SETSICKNESS);
+			upload1.start();
+	    }
+	    else {
+	    	url = "DeleteSickness?sickness=" + URLEncoder.encode(sickness) + "&ssid=" + UserInfo.getSSID();
+		    download1 = new HttpGetJSONConnection(url, mHandler, TASK_DELETESICKNESS);
+		    download1.start();
+	    }
     }
     
 	// Tunet hozzaadas kezdemenyezes

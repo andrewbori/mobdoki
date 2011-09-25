@@ -10,13 +10,4 @@
     		  android:layout_weight="1">
     </ListView>
     
-    <LinearLayout style="@style/BottomLayout">
-
-        <Button android:text="Vissza"
-        		android:id="@+exploresickness/back"
-        		style="@style/BottomButton">
-        </Button>
-        
-    </LinearLayout>
-    
 </LinearLayout>

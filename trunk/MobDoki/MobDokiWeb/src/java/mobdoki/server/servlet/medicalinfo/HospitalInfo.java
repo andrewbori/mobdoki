@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package mobdoki.server.servlet.medicalinfo;
 
 import java.io.IOException;
@@ -15,17 +14,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.postgresql.geometric.PGpoint;
 import mobdoki.server.Connect;
 import mobdoki.server.JSONObj;
 import mobdoki.server.Sessions;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.postgresql.geometric.PGpoint;
 
 /**
  *
  * @author Andreas
  */
-public class SetHospital extends HttpServlet {
-   
+public class HospitalInfo extends HttpServlet {
+
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -37,69 +38,67 @@ public class SetHospital extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
         JSONObj json = new JSONObj();
-               
-
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String phone = request.getParameter("phone");
-        String email = request.getParameter("email");
+        
         String SSID = request.getParameter("ssid");
+        String hospital = request.getParameter("hospital");
         
         try {
-            if (!Sessions.MySessions().isDoctorAndValid(SSID)) {
+            if (!Sessions.MySessions().isValid(SSID)) {
                 json.setUnauthorizedError();
                 return;
             }
-            
-            double x = Double.parseDouble(request.getParameter("x"));
-            double y = Double.parseDouble(request.getParameter("y"));
             
             Class.forName(Connect.driver); //load the driver
             Connection db = DriverManager.getConnection(Connect.url, Connect.user, Connect.pass);
 
             if (db!=null) {
-                String sqlText = "SELECT id FROM \"Hospital\" WHERE name LIKE ?";
+
+                String sqlText = "SELECT address,coordinates,coalesce(phone,'-'),coalesce(email,'-'),id FROM \"Hospital\" WHERE name LIKE ?";     // Betegseg adatainak lekerese
                 PreparedStatement ps = db.prepareStatement(sqlText);
-                ps.setString(1,name);
-                ResultSet results = ps.executeQuery();                  // Mar van ilyen nevu korhaz?
-                if (results != null) {
-                    if (results.next()) {                                  // Ha van, akkor modositas
-                        int hospitalID=results.getInt(1);
-                        
-                        sqlText = "UPDATE \"Hospital\" SET address=?, coordinates=?, phone=?, email=? WHERE id=?";
-                        ps = db.prepareStatement(sqlText);
-                        ps.setString(1,address);
-                        ps.setObject(2, new PGpoint(x,y));
-                        ps.setString(3,phone);
-                        ps.setString(4,email);
-                        ps.setInt(5,hospitalID);
-                        ps.executeUpdate();
-                        json.setOKMessage("Sikeres módosítás.");
-                    } else {                                                // Ha nincs, akkor felvetel...
-                        sqlText = "INSERT INTO \"Hospital\"(name,address,coordinates,phone,email) VALUES (?,?,?,?,?)";
-                        ps = db.prepareStatement(sqlText);
-                        ps.setString(1,name);
-                        ps.setString(2,address);
-                        ps.setObject(3, new PGpoint(x,y));
-                        ps.setString(4,phone);
-                        ps.setString(5,email);
-                        ps.executeUpdate();
-                        json.setOKMessage("Sikeres felvétel.");
-                    }
+                ps.setString(1,hospital);                           // parameter beallitasa az adott tunetre
+                ResultSet results = ps.executeQuery();
+                
+                int hospitalID=0;
+                if (results != null && results.next()) {            // Ha van talalat
+                    json.put("address", results.getString(1));      // irjuk ki a megtalalalt cimet
+                    PGpoint point = (PGpoint)results.getObject(2);      // irjuk ki a megtalalalt korhaz koordinatait
+                    json.put("coordinates",(new JSONObject()).put("x", point.x).put("y", point.y));
+                    json.put("phone", results.getString(3));        // irjuk ki a megtalalalt telefon szamot
+                    json.put("email", results.getString(4));        // irjuk ki a megtalalalt email cimet szamot
+                    hospitalID=results.getInt(5);
                     results.close();
-                }  else json.setDBError();
+                }
+                
+                JSONArray sickness = new JSONArray();
+
+                sqlText = "SELECT s.name " +
+                          "FROM \"Curing\" c INNER JOIN \"Sickness\" s ON (c.\"sicknessID\"=s.id) " +
+                          "WHERE c.\"hospitalID\"=? " +
+                          "ORDER BY s.name";     // Kezelo korhazak keresese
+                ps = db.prepareStatement(sqlText);
+                ps.setInt(1,hospitalID);                             // parameter beallitasa az adott tunetre
+                results = ps.executeQuery();
+
+                if (results != null) {
+                    while (results.next()) {                        // menjunk vegig a talalatokon
+                        sickness.put(results.getString(1));                 // irjuk ki a megtalalalt korhaz nevet
+                    }
+                    json.put("sickness", sickness);                  // korhaznevek
+                    results.close();
+                }
+                json.setOK();
                 db.close();
             } else json.setServerError();        // adatbazis nem erheto el
             
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
-        } finally {
+        }
+        finally {
             json.write(out);
             out.close();
         }
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
@@ -111,9 +110,9 @@ public class SetHospital extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -124,7 +123,7 @@ public class SetHospital extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -134,7 +133,6 @@ public class SetHospital extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "NewHospital";
+        return "Short description";
     }// </editor-fold>
-
 }

@@ -1,1 +1,26 @@
-ALTER TABLE User ADD COLUMN lastmailcheck timestamp without time zone NOT NULL DEFAULT now();
+ALTER TABLE "User" ADD COLUMN lastmailcheck timestamp without time zone NOT NULL DEFAULT now();
+
+ALTER TABLE "Sickness" RENAME COLUMN url TO description;
+
+ALTER TABLE "Hospital" ADD COLUMN phone text;
+ALTER TABLE "Hospital" ADD COLUMN email text;
+
+-- Table: "Comment"
+
+-- DROP TABLE "Comment";
+
+CREATE TABLE "Comment"
+(
+  id serial NOT NULL,
+  "userID" integer NOT NULL,
+  date timestamp without time zone NOT NULL DEFAULT now(),
+  "comment" text,
+  "tableID" integer NOT NULL,
+  "rowID" integer NOT NULL,
+  CONSTRAINT "Comment_PK" PRIMARY KEY (id),
+  CONSTRAINT "tableID_Check" CHECK ("tableID" = 1 OR "tableID" = 2)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "Comment" OWNER TO postgres;

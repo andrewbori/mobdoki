@@ -69,6 +69,11 @@ public class DeleteSickness extends HttpServlet {
                         ps.setInt(1,sicknessID);
                         ps.executeUpdate();
                         
+                        sqlText = "DELETE FROM \"Comment\" WHERE \"tableID\"=1 AND \"rowID\"=?";             // Kuralas torles
+                        ps = db.prepareStatement(sqlText);
+                        ps.setInt(1,sicknessID);
+                        ps.executeUpdate();
+                        
                         sqlText = "DELETE FROM \"Sickness\" WHERE id=?";                // Betegseg torles
                         ps = db.prepareStatement(sqlText);
                         ps.setInt(1,sicknessID);
