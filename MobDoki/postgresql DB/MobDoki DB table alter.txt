@@ -1,6 +1,6 @@
 ALTER TABLE "User" ADD COLUMN lastmailcheck timestamp without time zone NOT NULL DEFAULT now();
 
-ALTER TABLE "Sickness" RENAME COLUMN url TO description;
+ALTER TABLE "Sickness" RENAME COLUMN url TO details;
 
 ALTER TABLE "Hospital" ADD COLUMN phone text;
 ALTER TABLE "Hospital" ADD COLUMN email text;
