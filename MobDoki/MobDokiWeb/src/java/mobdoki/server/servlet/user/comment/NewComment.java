@@ -53,6 +53,7 @@ public class NewComment extends HttpServlet {
         StringBuilder builder = new StringBuilder();
         while ((line = reader.readLine()) != null) {                    // Uezenet beolvasasa
             builder.append(line);
+            builder.append("\n");
         }
         String text =  builder.toString();                              // Uzenet String-gé alakitasa
         reader.close();

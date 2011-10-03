@@ -49,6 +49,7 @@ public class SetSickness extends HttpServlet {
         StringBuilder builder = new StringBuilder();
         while ((line = reader.readLine()) != null) {                    // Uezenet beolvasasa
             builder.append(line);
+            builder.append("\n");
         }
         String details =  builder.toString();                              // Uzenet String-gé alakitasa
         reader.close();

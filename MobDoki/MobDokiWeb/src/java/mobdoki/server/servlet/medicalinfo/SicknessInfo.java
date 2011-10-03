@@ -108,6 +108,7 @@ public class SicknessInfo extends HttpServlet {
             
         } catch (Exception e) {
             json.setDBError();                  // adatbazis hiba
+            json.setErrorMessage(e.getMessage());
         }
         finally {
             json.write(out);
