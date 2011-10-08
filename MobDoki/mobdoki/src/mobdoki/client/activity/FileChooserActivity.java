@@ -57,7 +57,8 @@ public class FileChooserActivity extends ListActivity {
 			            fileformat = filename.substring(indexOfPoint + 1);
 			        }
 			        
-			        if (fileformat.equals("jpg") || fileformat.equals("png") || fileformat.equals("bmp") || fileformat.equals("jpeg")) {
+			        fileformat = fileformat.toLowerCase();
+			        if (fileformat.equals("jpg") || fileformat.equals("png") || fileformat.equals("bmp") || fileformat.equals("jpeg") || fileformat.equals("gif")) {
 			        	fls.add(new FileOption(ff.getName(), "File Size: " + ff.length(), ff.getAbsolutePath()));
 			        }
 				}

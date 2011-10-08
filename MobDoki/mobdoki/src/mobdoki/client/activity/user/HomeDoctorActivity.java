@@ -7,7 +7,7 @@ import mobdoki.client.activity.medicalinfo.EditHospitalActivity;
 import mobdoki.client.activity.medicalinfo.EditSicknessActivity;
 import mobdoki.client.activity.medicalinfo.NearestHospitalsActivity;
 import mobdoki.client.activity.medicalinfo.SearchSicknessActivity;
-import mobdoki.client.activity.medicalinfo.SicknessListActivity;
+import mobdoki.client.activity.medicalinfo.MedicalItemListActivity;
 import mobdoki.client.activity.user.health.DoctorGraphActivity;
 import mobdoki.client.activity.user.message.MessagesActivity;
 import mobdoki.client.connection.HttpGetJSONConnection;
@@ -29,6 +29,7 @@ public class HomeDoctorActivity extends Activity {
 	    "Kórházak adminisztrációja",
 	    "Betegségek listája",
 	    "Betegségek keresése", 
+	    "Kórházak listája",
 	    "Közeli kórházak",
 	    "Üzenetek",
 	    "Páciensek egészségügyi grafikonjai",
@@ -42,6 +43,7 @@ public class HomeDoctorActivity extends Activity {
 	    android.R.drawable.ic_menu_add,
 	    android.R.drawable.ic_menu_slideshow,
 	    android.R.drawable.ic_menu_search,
+	    android.R.drawable.ic_menu_slideshow,
 	    android.R.drawable.ic_menu_compass,
 	    android.R.drawable.ic_menu_send,
 	    android.R.drawable.ic_menu_gallery,
@@ -88,35 +90,41 @@ public class HomeDoctorActivity extends Activity {
                         startActivity(myIntent);
                 		break;
                 	case 2:
-                		myIntent.setClass(view.getContext(), SicknessListActivity.class);
+                		myIntent.setClass(view.getContext(), MedicalItemListActivity.class);
+                		myIntent.putExtra("type", "Sickness");
                         startActivity(myIntent);
                 		break;
                 	case 3:
                 		myIntent.setClass(view.getContext(), SearchSicknessActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 4: 
+                	case 4:
+                		myIntent.setClass(view.getContext(), MedicalItemListActivity.class);
+                		myIntent.putExtra("type", "Hospital");
+                        startActivity(myIntent);
+                		break;
+                	case 5: 
                 		myIntent.setClass(view.getContext(), NearestHospitalsActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 5:
+                	case 6:
                 		myIntent.setClass(view.getContext(), MessagesActivity.class);
                 		myIntent.putExtra("inbox", true);
                 		startActivity(myIntent);
                 		break;
-                	case 6:
+                	case 7:
                 		myIntent.setClass(view.getContext(),DoctorGraphActivity.class);
                 		startActivity(myIntent);
                 		break;
-                 	case 7: 
+                 	case 8: 
                 		myIntent.setClass(view.getContext(), StatisticsActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 8: 
+                	case 9: 
                 		myIntent.setClass(view.getContext(), UserProfileActivity.class);
                         startActivity(myIntent);
                 		break;
-                	case 9:
+                	case 10:
                 		HttpGetJSONConnection logout = new HttpGetJSONConnection("Logout?ssid=" + UserInfo.getSSID(), new Handler());
                 		logout.start();
                 		

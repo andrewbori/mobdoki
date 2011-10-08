@@ -17,6 +17,7 @@ import org.apache.http.entity.StringEntity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -73,6 +74,8 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 	
 	private AlertDialog sicknessDialog;
 	private AlertDialog symptomDialog;
+	
+	private ProgressDialog progress;
 	
 	private AutoCompleteTextView sicknessText1;
 	private AutoCompleteTextView sicknessText2;
@@ -193,19 +196,19 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 			if (symptomDialog!=null) symptomDialog.show();
 			break;
 		case R.editsickness.saveSickness:
-			if (download1==null || (download1!=null && !download1.isAlive())) saveSicknessRequest(true);
+			if (download1==null || (download1!=null && download1.isNotUsed())) saveSicknessRequest(true);
 			break;
 		case R.editsickness.deleteSickness:
-			if (download1==null || (download1!=null && !download1.isAlive())) saveSicknessRequest(false);
+			if (download1==null || (download1!=null && download1.isNotUsed())) saveSicknessRequest(false);
 			break;
 		case R.editsickness.addSymptom:
-			if (download2==null || (download2!=null && !download2.isAlive())) addSymptomRequest(true);
+			if (download2==null || (download2!=null && download2.isNotUsed())) addSymptomRequest(true);
 			break;
 		case R.editsickness.deleteSymptom:
-			if (download2==null || (download2!=null && !download2.isAlive())) addSymptomRequest(false);
+			if (download2==null || (download2!=null && download2.isNotUsed())) addSymptomRequest(false);
 			break;
 		case R.editsickness.addPicture:
-			if (upload==null || (upload!=null && !upload.isAlive())) uploadPictureRequest();	// Feltoltes
+			if (upload==null || (upload!=null && upload.isNotUsed())) uploadPictureRequest();	// Feltoltes
 			break;
 		case R.editsickness.image:
 			Intent myIntent = new Intent(activity,FileChooserActivity.class);	// filechooser betoltese a kep kivalasztasahoz
@@ -280,102 +283,104 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
     // A szalak valaszat kezelo Handler
     public Handler mHandler = new Handler() {
 		@Override
-		public void handleMessage(Message msg) {
-			if (msg.arg1==0) {			// Sikertelen
-				switch (msg.what) {
-				case TASK_SETSICKNESS:
-				case TASK_SETSYMPTOM:
-				case TASK_UPLOAD:
-					Log.v("EditSicknessActivity","Sikertelen lekeres.");
-					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
-					break;
+		public void handleMessage(Message msg) {			
+			switch (msg.what) {
+			// Betegsegek es tunetek betoltese
+			case TASK_GETDATA:
+				if(msg.arg1==1 && downloadData.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
+					Log.v("EditSicknessActivity","Betegsegek es tunetek betoltve");
+			         
+					// Betegsegek
+					listSickness = downloadData.getStringArrayList("sickness");
+			        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSickness);
+			        
+			        sicknessText1.setAdapter(adapter);																		// Autocomplete lista
+			        sicknessText2.setAdapter(adapter);
+			        
+			        listSickness.add(0, "");		// az elso listaelem ures
+			        listSicknessRating = downloadData.getFloatArrayList("seriousness");										// Tobbi adat listaja
+			        listSicknessRating.add(0, new Float(0.0));
+			        listSicknessDetails = downloadData.getStringArrayList("details");
+			        listSicknessDetails.add(0, "");
+			        
+			        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int position) {
+			            	sicknessText1.setText(listSickness.get(position));							// texview-ba  a kivalasztott
+				            sicknessText2.setText(listSickness.get(position));
+				            
+			                rating.setRating(listSicknessRating.get(position));						// adatok frissitese
+			                detailsText1.setText(listSicknessDetails.get(position));
+			            }
+			        });
+			        sicknessDialog = builder.create();
+			        
+			        // Tunetek
+			        listSymptom = downloadData.getStringArrayList("symptom");
+			        adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSymptom);
+			        
+			        symptomText2.setAdapter(adapter);																		// Autocomplete lista
+			        symptomText3.setAdapter(adapter);
+			        
+			        listSymptom.add(0, "");		// az elso listaelem ures
+
+			        builder = new AlertDialog.Builder(activity);
+			        builder.setItems(downloadData.getStringArray("symptom", true), new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int position) {
+			            	symptomText2.setText(listSymptom.get(position));							// TextView-ba a kivalasztott
+			                symptomText3.setText(listSymptom.get(position));
+			            }
+			        });
+			        symptomDialog = builder.create();
 				}
-				
-			} else
-			if (msg.arg1==1) {			// Sikeres
-				switch (msg.what) {
-				// Betegsegek es tunetek betoltese
-				case TASK_GETDATA:
-					if(downloadData.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
-						Log.v("EditSicknessActivity","Betegsegek es tunetek betoltve");
-				         
-						// Betegsegek
-						listSickness = downloadData.getStringArrayList("sickness");
-				        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSickness);
-				        
-				        sicknessText1.setAdapter(adapter);																		// Autocomplete lista
-				        sicknessText2.setAdapter(adapter);
-				        
-				        listSickness.add(0, "");		// az elso listaelem ures
-				        listSicknessRating = downloadData.getFloatArrayList("seriousness");										// Tobbi adat listaja
-				        listSicknessRating.add(0, new Float(0.0));
-				        listSicknessDetails = downloadData.getStringArrayList("details");
-				        listSicknessDetails.add(0, "");
-				        
-				        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
-				            public void onClick(DialogInterface dialog, int position) {
-				            	sicknessText1.setText(listSickness.get(position));							// texview-ba  a kivalasztott
-					            sicknessText2.setText(listSickness.get(position));
-					            
-				                rating.setRating(listSicknessRating.get(position));						// adatok frissitese
-				                detailsText1.setText(listSicknessDetails.get(position));
-				            }
-				        });
-				        sicknessDialog = builder.create();
-				        
-				        // Tunetek
-				        listSymptom = downloadData.getStringArrayList("symptom");
-				        adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSymptom);
-				        
-				        symptomText2.setAdapter(adapter);																		// Autocomplete lista
-				        symptomText3.setAdapter(adapter);
-				        
-				        listSymptom.add(0, "");		// az elso listaelem ures
-	
-				        builder = new AlertDialog.Builder(activity);
-				        builder.setItems(downloadData.getStringArray("symptom", true), new DialogInterface.OnClickListener() {
-				            public void onClick(DialogInterface dialog, int position) {
-				            	symptomText2.setText(listSymptom.get(position));							// TextView-ba a kivalasztott
-				                symptomText3.setText(listSymptom.get(position));
-				            }
-				        });
-				        symptomDialog = builder.create();
-					}
-					break;
-				// A megadott betegseg felvetele/modositasa sikeres
-				case TASK_SETSICKNESS:
-					if (upload1.hasMessage()) {
-						String message = upload1.getMessage();							// Uzenet lekerdezese es megjelenitese
-						Log.v("EditSicknessActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
-				case TASK_DELETESICKNESS:
-					if (download1.hasMessage()) {
-						String message = download1.getMessage();							// Uzenet lekerdezese es megjelenitese
-						Log.v("EditSicknessActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
-				// A megadott tunet felvetele/modositasa sikeres
-				case TASK_SETSYMPTOM:
-					if (download2.hasMessage()) {
-						String message = download2.getMessage();							// Uzenet lekerdezese es megjelenitese
-						Log.v("EditSicknessActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
-				// A megadott kep feltoltese sikeres
-				case TASK_UPLOAD:
-					if (upload.hasMessage()) {
-						String message = upload.getMessage();								// Uzenet lekerdezese es megjelenitese
-						Log.v("EditSicknessActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
-				}	
-			}
+				downloadData.setNotUsed();
+				break;
+			// A megadott betegseg felvetele/modositasa sikeres
+			case TASK_SETSICKNESS:
+				if (msg.arg1==0) {
+					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
+				}
+				else if (upload1.hasMessage()) {
+					String message = upload1.getMessage();							// Uzenet lekerdezese es megjelenitese
+					Log.v("EditSicknessActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				upload1.setNotUsed();
+				break;
+			case TASK_DELETESICKNESS:
+				if (msg.arg1==1 && download1.hasMessage()) {
+					String message = download1.getMessage();							// Uzenet lekerdezese es megjelenitese
+					Log.v("EditSicknessActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				download1.setNotUsed();
+				break;
+			// A megadott tunet felvetele/modositasa sikeres
+			case TASK_SETSYMPTOM:
+				if (msg.arg1==0) {
+					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
+				}
+				else if (download2.hasMessage()) {
+					String message = download2.getMessage();							// Uzenet lekerdezese es megjelenitese
+					Log.v("EditSicknessActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				download2.setNotUsed();
+				break;
+			// A megadott kep feltoltese sikeres
+			case TASK_UPLOAD:
+				if (msg.arg1==0) {
+					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
+				}
+				else if (upload.hasMessage()) {
+					String message = upload.getMessage();								// Uzenet lekerdezese es megjelenitese
+					Log.v("EditSicknessActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				progress.cancel();
+				upload.setNotUsed();
+				break;
+			}	
 			setProgressBarIndeterminateVisibility(false);
 		}
 	};
@@ -413,7 +418,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 	    if (isSave) {
 	    	StringEntity se = null;
 			try {
-				se = new StringEntity(details);
+				se = new StringEntity(details, "UTF-8");				
 			} catch (UnsupportedEncodingException e) {}
 	    	
 	    	url = "SetSickness?sickness=" + URLEncoder.encode(sickness) + "&seriousness=" + seriousness + "&ssid=" + UserInfo.getSSID();
@@ -464,6 +469,11 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
     	}
     	
     	setProgressBarIndeterminateVisibility(true);
+    	progress = new ProgressDialog(this);
+    	progress.setMessage("Kép feltöltése...");
+        progress.setIndeterminate(true);
+        progress.show();
+        
     	FileEntity fe = new FileEntity(file, URLConnection.guessContentTypeFromName(file.getName()));
 	    String url = "ImageUpload?table=Symptom&symptom=" + URLEncoder.encode(symptom) + "&ssid=" + UserInfo.getSSID();
 	    upload = new HttpPostConnection(url, mHandler, fe, TASK_UPLOAD);

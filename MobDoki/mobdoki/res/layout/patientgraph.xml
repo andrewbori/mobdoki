@@ -10,8 +10,8 @@
 
 	 <LinearLayout style="@style/BottomLayout">
     			  
-		<Button android:id="@+patientgraph/backbutton"
-				android:text="@string/backbutton"
+		<Button android:id="@+patientgraph/healthBtn"
+				android:text="Egészségügyi állapot megadása"
 				style="@style/BottomButton" />
         
     </LinearLayout>

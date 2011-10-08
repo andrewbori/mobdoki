@@ -87,6 +87,20 @@ public class CameraActivity extends Activity {
 		}
 		return true;
 	}
+	
+	// Visszagomb megnyomasakor...
+	@Override
+	public void onBackPressed() {
+		Intent intent = new Intent();
+		if (hasImage) {									// Ha keszult kep
+			intent.putExtra("source", "camera");
+			intent.putExtra("filepath", filepath);
+			setResult(RESULT_OK, intent);
+		} else {
+			setResult(RESULT_CANCELED, intent);
+		}
+		finish();
+	}
 
 	// Handles data for jpeg picture
 	PictureCallback jpegCallback = new PictureCallback() {

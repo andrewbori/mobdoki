@@ -46,9 +46,11 @@ public class MessageUpload extends HttpServlet {
         BufferedReader reader = request.getReader();                // bejovo adatok
         String line = null;
         StringBuilder builder = new StringBuilder();
+        boolean firstline = true;
         while ((line = reader.readLine()) != null) {                    // Uezenet beolvasasa
+            if (!firstline) builder.append("\n");
             builder.append(line);
-            builder.append("\n");
+            firstline=false;
         }
         String text =  builder.toString();                              // Uzenet String-gé alakitasa
         reader.close();

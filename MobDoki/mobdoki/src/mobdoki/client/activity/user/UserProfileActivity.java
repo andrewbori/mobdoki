@@ -17,6 +17,7 @@ import org.apache.http.entity.FileEntity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -60,7 +61,8 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 	private EditText password2Text;
 	private ImageView img;
 	private AlertDialog imageDialog = null;
-	private ProgressBar progress;
+	private ProgressBar progressImageLoad;
+	private ProgressDialog progress;
 	
 	private int imageID=0;
 	private String filepath;
@@ -116,7 +118,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 		img = (ImageView)findViewById(R.userprofile.image);
 		img.setOnClickListener(this);
 		
-		progress = (ProgressBar) findViewById(R.userprofile.progress);
+		progressImageLoad = (ProgressBar) findViewById(R.userprofile.progress);
 		
         ((Button) findViewById(R.userprofile.save)).setOnClickListener(this);
         ((Button) findViewById(R.userprofile.back)).setOnClickListener(this);
@@ -255,7 +257,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 					imageBytes = downloadImage.getResponse();
 					img.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
 				}
-				progress.setVisibility(ProgressBar.GONE);
+				progressImageLoad.setVisibility(ProgressBar.GONE);
 				downloadImage.setNotUsed();
 				break;
 			case TASK_UPLOADIMAGE:
@@ -264,6 +266,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 					Log.v("NewMessage", message);
 					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
 				}
+				progress.cancel();
 				uploadImage.setNotUsed();
 				break;
 			}
@@ -291,7 +294,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
     private void downloadImage() {	    	
     	setProgressBarIndeterminateVisibility(true);
     	img.setImageResource(ImageView.NO_ID);
-    	progress.setVisibility(ProgressBar.VISIBLE);
+    	progressImageLoad.setVisibility(ProgressBar.VISIBLE);
     	
     	String url = "ImageDownload?large=true&id=" + imageID + "&ssid=" + UserInfo.getSSID();
 	    downloadImage = new HttpGetByteConnection(url, mHandler, TASK_DOWNLOADIMAGE);
@@ -301,7 +304,11 @@ public class UserProfileActivity extends Activity implements OnClickListener {
 	// Kep feltoltesenek kezdemenyezese
     private void uploadImage(HttpEntity he){	    	
     	setProgressBarIndeterminateVisibility(true);
-
+    	progress = new ProgressDialog(this);
+    	progress.setMessage("Kép feltöltése...");
+        progress.setIndeterminate(true);
+        progress.show();
+    	
     	String url = "ImageUpload?table=User&id=" + userID + "&ssid=" + UserInfo.getSSID();
 	    uploadImage = new HttpPostConnection(url, mHandler, he, TASK_UPLOADIMAGE);
 	    uploadImage.start();

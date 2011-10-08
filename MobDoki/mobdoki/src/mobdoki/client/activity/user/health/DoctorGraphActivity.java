@@ -30,7 +30,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -68,7 +67,6 @@ public class DoctorGraphActivity extends Activity implements OnClickListener, Te
 		this.setContentView(R.layout.doctorgraph);
 		setTitle("Egészségügyi grafikonok");
 		
-		((Button) findViewById(R.doctorgraph.backbutton)).setOnClickListener(this);
 		((ImageButton) findViewById(R.doctorgraph.buttonUsers)).setOnClickListener(this);
 		
 		patientText = (AutoCompleteTextView) findViewById(R.doctorgraph.username);
@@ -84,9 +82,6 @@ public class DoctorGraphActivity extends Activity implements OnClickListener, Te
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.doctorgraph.backbutton:
-			finish();
-			break;
 		case R.doctorgraph.buttonUsers:
 			if (patientDialog!=null) patientDialog.show();
 			break;

@@ -65,7 +65,7 @@ public class MessageService extends Service {
 				download = new HttpGetJSONConnection(url, handler);
 				download.run();
 				try {
-					Thread.sleep(15000);				// ellenorzes 15 sec-enkent
+					Thread.sleep(30000);				// ellenorzes 30 sec-enkent
 				} catch (InterruptedException e) {}
 			}
 		}

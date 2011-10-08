@@ -76,6 +76,18 @@
 				        		android:layout_height="wrap_content">
 				        </Button>
 				         
+				        <Button android:text="Tárcsáz"
+				        		android:id="@+hospitalinfo/dialBtn"
+				        		android:layout_width="wrap_content"
+				        		android:layout_height="wrap_content">
+				        </Button> 
+				        
+				        <Button android:text="E-Mail"
+				        		android:id="@+hospitalinfo/emailBtn"
+				        		android:layout_width="wrap_content"
+				        		android:layout_height="wrap_content">
+				        </Button> 
+				         
 				        <Button android:text="Google"
 				        		android:id="@+hospitalinfo/google"
 				        		android:layout_width="wrap_content"

@@ -28,9 +28,6 @@
 						  android:orientation="vertical"
 			  			  android:layout_width="fill_parent"
 			  			  android:layout_height="fill_parent">
-			 	<TextView android:text="Felhasználó adatlapja:"
-			    		  style="@style/TabTitle">
-			    </TextView>
 			
 			    <TextView android:text="Felhasználónév:"
 			    		  style="@style/TopLabel">
@@ -72,16 +69,13 @@
 						  android:orientation="vertical"
 			  			  android:layout_width="fill_parent"
 			  			  android:layout_height="fill_parent">
-			 	<TextView android:text="Profilkép:"
-			    		  style="@style/TabTitle">
-			    </TextView>
 			
 			    <ImageView android:id="@+userprofile/image"
 			    			android:src="@drawable/clickhere"
-			    			android:scaleType="fitCenter"
+			    			android:scaleType="fitStart"
 			    			android:layout_width="fill_parent"
 			    			android:layout_height="wrap_content"
-			    			android:paddingTop="10sp">
+			    			android:paddingTop="10dp">
 			    </ImageView>
 			    
 			    <ProgressBar android:id="@+userprofile/progress"
@@ -99,9 +93,6 @@
 						  android:orientation="vertical"
 			  			  android:layout_width="fill_parent"
 			  			  android:layout_height="fill_parent">
-  			 	<TextView android:text="Jelszó megváltoztatása:"
-			    		  style="@style/TabTitle">
-			    </TextView>
 			    
 			    <TextView android:text="Régi jelszó:"
 			    		  style="@style/TopLabel">

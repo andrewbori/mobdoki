@@ -23,13 +23,5 @@
 			  android:layout_weight="2"
 			  android:id="@+doctorgraph/list1">
 	</ListView>
-
-	 <LinearLayout style="@style/BottomLayout">
-   			  
-		<Button android:text="@string/backbutton"
-				android:id="@+doctorgraph/backbutton"
-				style="@style/BottomButton"/>
-       
-   </LinearLayout>
 	
 </LinearLayout>
