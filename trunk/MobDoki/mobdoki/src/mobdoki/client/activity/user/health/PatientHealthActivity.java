@@ -27,6 +27,11 @@ public class PatientHealthActivity extends Activity implements OnClickListener {
 	private Activity activity=this;
 	private SeekBar seekbarMood;
 	private TextView textMood;
+	private EditText bp1Text;
+	private EditText bp2Text;
+	private EditText pulseText;
+	private EditText tempText;
+	private EditText weightText;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +53,14 @@ public class PatientHealthActivity extends Activity implements OnClickListener {
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 		});
+        
+        bp1Text = (EditText)findViewById(R.patienthealth.bloodpressure1);		// Vernyomas: systoles erek
+		bp2Text = (EditText)findViewById(R.patienthealth.bloodpressure2);		// Vernyomas: diastoles ertek
+		pulseText = (EditText)findViewById(R.patienthealth.pulse);				// Pulzus
+		tempText = (EditText)findViewById(R.patienthealth.temperature);			// Testhomerseklet
+		weightText = (EditText)findViewById(R.patienthealth.weight);			// Testtomeg
 		
-		((Button) findViewById(R.patienthealth.back)).setOnClickListener(this);
+		((Button) findViewById(R.patienthealth.clean)).setOnClickListener(this);
 		((Button) findViewById(R.patienthealth.upload)).setOnClickListener(this);
 	}
 	
@@ -64,8 +75,13 @@ public class PatientHealthActivity extends Activity implements OnClickListener {
 				break;
 		    
 		    // Vissza gomb esemenykezeloje
-			case R.patienthealth.back:
-				finish();
+			case R.patienthealth.clean:
+				bp1Text.setText("");
+				bp2Text.setText("");
+				pulseText.setText("");
+				tempText.setText("");
+				weightText.setText("");
+				seekbarMood.setProgress(0);
 				break;
 		}
 	}
@@ -102,11 +118,11 @@ public class PatientHealthActivity extends Activity implements OnClickListener {
 	};
 	
 	public void uploadData(){
-		String bp1 = ((EditText)findViewById(R.patienthealth.bloodpressure1)).getText().toString();			// Vernyomas: systoles erek
-		String bp2 = ((EditText)findViewById(R.patienthealth.bloodpressure2)).getText().toString();			// Vernyomas: diastoles ertek
-		String pulse = ((EditText)findViewById(R.patienthealth.pulse)).getText().toString();				// Pulzus
-		String temperature = ((EditText)findViewById(R.patienthealth.temperature)).getText().toString();	// Testhomerseklet
-		String weight = ((EditText)findViewById(R.patienthealty.weight)).getText().toString();				// Testtomeg
+		String bp1 = bp1Text.getText().toString();				// Vernyomas: systoles erek
+		String bp2 = bp2Text.getText().toString();				// Vernyomas: diastoles ertek
+		String pulse = pulseText.getText().toString();			// Pulzus
+		String temperature = tempText.getText().toString();		// Testhomerseklet
+		String weight = weightText.getText().toString();		// Testtomeg
 		
     	if (bp1.equals("") || bp2.equals("") || pulse.equals("") || temperature.equals("") || weight.equals("")) {				// Mindegyik adat kell
     		Toast.makeText(activity, "Nincs minden adat megadva!", Toast.LENGTH_SHORT).show();

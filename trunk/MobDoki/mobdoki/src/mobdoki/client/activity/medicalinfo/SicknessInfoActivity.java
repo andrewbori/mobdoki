@@ -358,7 +358,7 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 		
 		StringEntity se = null;
 		try {
-			se = new StringEntity(comment);
+			se = new StringEntity(comment, "UTF-8");
 		} catch (UnsupportedEncodingException e) {}
 		
 		setProgressBarIndeterminateVisibility(true);

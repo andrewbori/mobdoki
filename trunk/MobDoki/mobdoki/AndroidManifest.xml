@@ -24,7 +24,7 @@
 		<activity android:name=".activity.medicalinfo.EditSicknessActivity"></activity>
 		<activity android:name=".activity.medicalinfo.EditHospitalActivity"></activity>
 		<activity android:name=".activity.FileChooserActivity"></activity>
-		<activity android:name=".activity.medicalinfo.SicknessListActivity"></activity>
+		<activity android:name=".activity.medicalinfo.MedicalItemListActivity"></activity>
 		<activity android:name=".activity.medicalinfo.SearchSicknessActivity"></activity>
 		<activity android:name=".activity.medicalinfo.SicknessInfoActivity"></activity>
 		<activity android:name=".activity.medicalinfo.HospitalInfoActivity"></activity>
@@ -42,6 +42,7 @@
 		
 		<service android:name="MessageService"></service>
     </application>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  
     <uses-permission android:name="android.permission.INTERNET" />

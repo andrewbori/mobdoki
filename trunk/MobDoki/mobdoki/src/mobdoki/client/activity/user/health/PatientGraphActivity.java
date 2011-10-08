@@ -57,7 +57,7 @@ public class PatientGraphActivity extends Activity implements OnClickListener, O
 
 		username = UserInfo.getString("username");
 
-		((Button) findViewById(R.patientgraph.backbutton)).setOnClickListener(this);
+		((Button) findViewById(R.patientgraph.healthBtn)).setOnClickListener(this);
 
 		listview = (ListView) findViewById(R.patientgraph.list1);
 		listview.setOnItemClickListener(this);
@@ -68,7 +68,11 @@ public class PatientGraphActivity extends Activity implements OnClickListener, O
 	// Kattintas esemenykezeloje
 	@Override
 	public void onClick(View view) {
-		finish();
+		switch (view.getId()) {
+		case R.patientgraph.healthBtn:
+    		startActivity(new Intent(activity, PatientHealthActivity.class));
+			break;
+		}
 	}
 	
 	// Lista esemenykezeloje

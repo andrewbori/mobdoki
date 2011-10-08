@@ -53,7 +53,7 @@
 				  style="@style/TopLabel" />
 		<EditText android:layout_height="wrap_content"
 				  android:layout_width="match_parent"
-				  android:id="@+patienthealty/weight"
+				  android:id="@+patienthealth/weight"
 				  android:numeric="decimal"
 				  android:hint="Testtömeg" />
 				  
@@ -91,8 +91,8 @@
 	</ScrollView>
 	<LinearLayout style="@style/BottomLayout">
     		
-    	<Button android:text="@string/backbutton"
-				android:id="@+patienthealth/back"
+    	<Button android:text="Mezők törlése"
+				android:id="@+patienthealth/clean"
 				style="@style/BottomButton"
 		/>	  
 		<Button android:text="@string/uploadbutton"

@@ -59,8 +59,8 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 	
 	private String hospital;								// adott korhaz neve
 	private String address;									// 		címe
-	private String phone;									// 		telefonszama
-	private String email;									// 		e-mail cime
+	private String phone = null;							// 		telefonszama
+	private String email = null;							// 		e-mail cime
 	private ArrayList<String> listSicknesses = null;		// korhazban kezelt betegsegek listaja
 	
 	private ArrayList<String> commentList = null;			// komment lista
@@ -125,6 +125,8 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 		switcher = (ViewSwitcher) findViewById(R.hospitalinfo.viewSwitcher);
 		
 		((Button) findViewById(R.hospitalinfo.showmap)).setOnClickListener(this);
+		((Button) findViewById(R.hospitalinfo.dialBtn)).setOnClickListener(this);
+		((Button) findViewById(R.hospitalinfo.emailBtn)).setOnClickListener(this);
 		((Button) findViewById(R.hospitalinfo.google)).setOnClickListener(this);
 		((Button) findViewById(R.hospitalinfo.newcomment)).setOnClickListener(this);
 		
@@ -164,6 +166,30 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 		case R.hospitalinfo.showmap:
     		isMapDisplayed = true;
     		switcher.showNext();
+			break;
+		// Tarcsazas gomb esemenykezeloje
+		case R.hospitalinfo.dialBtn:
+			if (phone!=null) {
+				try {
+					startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone)));
+				} catch (Exception e) {
+					Toast.makeText(activity, "Sikertelen tárcsázás.", Toast.LENGTH_SHORT).show();
+				}
+			}
+			break;
+		// E-mail kuldes gombe esemenykezeloje
+		case R.hospitalinfo.emailBtn:
+			if (email==null || email.equals("") || email.equals("-")) break;
+			Intent i = new Intent(Intent.ACTION_SEND);
+			i.setType("text/plain");
+			i.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+//			i.putExtra(Intent.EXTRA_SUBJECT, "subject of email");
+//			i.putExtra(Intent.EXTRA_TEXT   , "body of email");
+			try {
+			    startActivity(Intent.createChooser(i, "Üzenet küldése..."));
+			} catch (android.content.ActivityNotFoundException ex) {
+			    Toast.makeText(activity, "Nem található e-mail kliens a készüléken.", Toast.LENGTH_SHORT).show();
+			}
 			break;
 		case R.hospitalinfo.google:
 			Uri uri = Uri.parse("http://www.google.hu/search?q=" + hospital);
@@ -345,7 +371,7 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 		
 		StringEntity se = null;
 		try {
-			se = new StringEntity(comment);
+			se = new StringEntity(comment, "UTF-8");
 		} catch (UnsupportedEncodingException e) {}
 		
 		setProgressBarIndeterminateVisibility(true);

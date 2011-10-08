@@ -70,7 +70,6 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
 
         ((ImageButton) findViewById(R.searchsickness.buttonSymptom)).setOnClickListener(this);
 		((Button) findViewById(R.searchsickness.search)).setOnClickListener(this);
-		((Button) findViewById(R.searchsickness.back)).setOnClickListener(this);
 	}
 	
 	// Kattintas esemenykezeloje
@@ -82,9 +81,6 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
 			break;
 		case R.searchsickness.search:
 			if (download==null || download.isNotUsed()) searchRequest();
-			break;
-		case R.searchsickness.back:
-			finish();
 			break;
 		}	
 	}

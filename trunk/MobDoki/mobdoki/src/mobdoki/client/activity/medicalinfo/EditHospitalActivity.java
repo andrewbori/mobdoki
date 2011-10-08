@@ -158,16 +158,16 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 			if (sicknessDialog!=null) sicknessDialog.show();
 			break;
 		case R.edithospital.saveHospital:
-			if (download1==null || (download1!=null && !download1.isAlive())) saveHospitalRequest(true);
+			if (download1==null || (download1!=null && download1.isNotUsed())) saveHospitalRequest(true);
 			break;
 		case R.edithospital.deleteHospital:
-			if (download1==null || (download1!=null && !download1.isAlive())) saveHospitalRequest(false);
+			if (download1==null || (download1!=null && download1.isNotUsed())) saveHospitalRequest(false);
 			break;
 		case R.edithospital.addSickness:
-			if (download2==null || (download2!=null && !download2.isAlive())) addSicknessRequest(true);
+			if (download2==null || (download2!=null && download2.isNotUsed())) addSicknessRequest(true);
 			break;
 		case R.edithospital.deleteSickness:
-			if (download2==null || (download2!=null && !download2.isAlive())) addSicknessRequest(false);
+			if (download2==null || (download2!=null && download2.isNotUsed())) addSicknessRequest(false);
 			break;
 		case R.edithospital.back:
 			finish();
@@ -236,112 +236,113 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
     public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			setProgressBarIndeterminateVisibility(false);
-			if (msg.arg1==0) {			// Sikertelen
-				switch (msg.what) {
-				case TASK_SETHOSPITAL:
-				case TASK_SETSICKNESS:
-					Log.v("EditHospitalActivity","Sikertelen lekeres.");
+			switch (msg.what) {
+			// Korhazak betoltese
+			case TASK_GETDATA:
+				if(msg.arg1==1 && downloadData.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
+					Log.v("EditHospitalActivity","Korhazak es betegsegek betoltve");
+			         
+			        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, downloadData.getStringArrayList("hospital"));
+			        
+			        hospitalText1.setAdapter(adapter);																		// Autocomplete lista
+			        
+			        listHospital = downloadData.getStringArrayList("hospital");												// Spinner lista
+			        listHospital.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
+			        listAddress = downloadData.getStringArrayList("address");
+			        listAddress.add(0, "");
+			        listPhone = downloadData.getStringArrayList("phone");
+			        listPhone.add(0, "");
+			        listEmail = downloadData.getStringArrayList("email");
+			        listEmail.add(0, "");
+			        
+			        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			        builder.setItems(downloadData.getStringArray("hospital", true), new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int position) {
+			            	hospitalText1.setText(listHospital.get(position));							// texview-ba  a kivalasztott
+			                hospitalText2.setText(listHospital.get(position));
+			                addressText1.setText(listAddress.get(position));
+			                phoneText1.setText(listPhone.get(position));
+			                emailText1.setText(listEmail.get(position));
+			            }
+			        });
+			        hospitalDialog = builder.create();
+
+			        // Betegsegek
+			        adapter = new ArrayAdapter<String>(activity, R.layout.list_item, downloadData.getStringArrayList("sickness"));	
+			        sicknessText2.setAdapter(adapter);																		// Autocomplete lista
+			        
+			        listSickness = downloadData.getStringArrayList("sickness");												// Spinner lista
+			        listSickness.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
+
+			        builder = new AlertDialog.Builder(activity);
+			        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int position) {
+							sicknessText2.setText(listSickness.get(position));
+			            }
+			        });
+			        sicknessDialog = builder.create();
+				}
+				downloadData.setNotUsed();
+				break;
+			// A megadott korhaz felvetele/modositasa sikeres
+			case TASK_SETHOSPITAL:
+				if (msg.arg1==0) {
 					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
-					break;
-				case TASK_GETCOORDINATES:
-					Log.v("EditHospitalActivity","Sikertelen GeoCode lekeres.");
+				}
+				else if (download1.hasMessage()) {
+					String message = download1.getMessage();							// Uzenet lekerdezese es megjelenitese
+					Log.v("EditHospitalActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				download1.setNotUsed();
+				break;
+			// A megadott betegseg felvetele/modositasa sikeres
+			case TASK_SETSICKNESS:
+				if (msg.arg1==0) {
+					Toast.makeText(activity, "A szerver nem érhetõ el.", Toast.LENGTH_LONG).show();
+				}
+				else if (download2.hasMessage()) {
+					String message = download2.getMessage();							// Uzenet lekerdezese es megjelenitese
+					Log.v("EditHospitalActivity", message);
+					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+				}
+				download2.setNotUsed();
+				break;
+			
+			// A megadott cim koordinatainak feldolgozasa
+			case TASK_GETCOORDINATES:
+				if (msg.arg1==0) {
 					Toast.makeText(activity, "Nem sikerült a megadott címet kódolni.", Toast.LENGTH_LONG).show();
+					downloadGeoCode.setNotUsed();
 					break;
 				}
-			} else
-			if (msg.arg1==1) {			// Sikeres
-				switch (msg.what) {
-				// Korhazak betoltese
-				case TASK_GETDATA:
-					if(downloadData.isOK()) {				// Ha sikeres lekerdezes, akkor betolt...
-						Log.v("EditHospitalActivity","Korhazak es betegsegek betoltve");
-				         
-				        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, downloadData.getStringArrayList("hospital"));
-				        
-				        hospitalText1.setAdapter(adapter);																		// Autocomplete lista
-				        
-				        listHospital = downloadData.getStringArrayList("hospital");												// Spinner lista
-				        listHospital.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
-				        listAddress = downloadData.getStringArrayList("address");
-				        listAddress.add(0, "");
-				        listPhone = downloadData.getStringArrayList("phone");
-				        listPhone.add(0, "");
-				        listEmail = downloadData.getStringArrayList("email");
-				        listEmail.add(0, "");
-				        
-				        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				        builder.setItems(downloadData.getStringArray("hospital", true), new DialogInterface.OnClickListener() {
-				            public void onClick(DialogInterface dialog, int position) {
-				            	hospitalText1.setText(listHospital.get(position));							// texview-ba  a kivalasztott
-				                hospitalText2.setText(listHospital.get(position));
-				                addressText1.setText(listAddress.get(position));
-				                phoneText1.setText(listPhone.get(position));
-				                emailText1.setText(listEmail.get(position));
-				            }
-				        });
-				        hospitalDialog = builder.create();
-
-				        // Betegsegek
-				        adapter = new ArrayAdapter<String>(activity, R.layout.list_item, downloadData.getStringArrayList("sickness"));	
-				        sicknessText2.setAdapter(adapter);																		// Autocomplete lista
-				        
-				        listSickness = downloadData.getStringArrayList("sickness");												// Spinner lista
-				        listSickness.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
-	
-				        builder = new AlertDialog.Builder(activity);
-				        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
-				            public void onClick(DialogInterface dialog, int position) {
-								sicknessText2.setText(listSickness.get(position));
-				            }
-				        });
-				        sicknessDialog = builder.create();
-					}
-					break;
-				// A megadott korhaz felvetele/modositasa sikeres
-				case TASK_SETHOSPITAL:
-					if (download1.hasMessage()) {
-						String message = download1.getMessage();							// Uzenet lekerdezese es megjelenitese
-						Log.v("EditHospitalActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
-				// A megadott betegseg felvetele/modositasa sikeres
-				case TASK_SETSICKNESS:
-					if (download2.hasMessage()) {
-						String message = download2.getMessage();							// Uzenet lekerdezese es megjelenitese
-						Log.v("EditHospitalActivity", message);
-						Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
-					}
-					break;
 				
-				// A megadott cim koordinatainak feldolgozasa
-				case TASK_GETCOORDINATES:
-					JSONObject json = downloadGeoCode.getJSONObject();
-					try {
-						if (json.getJSONObject("Status").getInt("code") == 200) {	// Ha ervenyes a megadott cim
-							JSONArray coordinates = json.getJSONArray("Placemark").getJSONObject(0).getJSONObject("Point").getJSONArray("coordinates");
-							double longitude=coordinates.getDouble(0);	// y		// koordinatak lekerdezese
-							double latitude=coordinates.getDouble(1);	// x
-	
-							setProgressBarIndeterminateVisibility(true);
-		    	            String url = "SetHospital?name=" + URLEncoder.encode(name) + "&address=" + URLEncoder.encode(address) + 
-	    	            																 "&x=" + latitude +
-	    	            																 "&y=" + longitude  + 
-	    	            																 "&phone=" + URLEncoder.encode(phone) +
-	    	            																 "&email=" + URLEncoder.encode(email) +
-	    	            																 "&ssid=" + UserInfo.getSSID();
-		    	        	download1 = new HttpGetJSONConnection(url, mHandler, TASK_SETHOSPITAL);		// a megadott korhaz felvetele az adatbazisba
-		    	        	download1.start();   
-						} else {													// Ha a megadott cim ervenytelen
-		            		Toast.makeText(activity, "A megadott cím hibás.", Toast.LENGTH_SHORT).show();
-						}
-					} catch (Exception e) {
-	            		Toast.makeText(activity, "Geokódolási hiba.", Toast.LENGTH_SHORT).show();
+				JSONObject json = downloadGeoCode.getJSONObject();
+				try {
+					if (json.getJSONObject("Status").getInt("code") == 200) {	// Ha ervenyes a megadott cim
+						JSONArray coordinates = json.getJSONArray("Placemark").getJSONObject(0).getJSONObject("Point").getJSONArray("coordinates");
+						double longitude=coordinates.getDouble(0);	// y		// koordinatak lekerdezese
+						double latitude=coordinates.getDouble(1);	// x
+
+						setProgressBarIndeterminateVisibility(true);
+	    	            String url = "SetHospital?name=" + URLEncoder.encode(name) + "&address=" + URLEncoder.encode(address) + 
+    	            																 "&x=" + latitude +
+    	            																 "&y=" + longitude  + 
+    	            																 "&phone=" + URLEncoder.encode(phone) +
+    	            																 "&email=" + URLEncoder.encode(email) +
+    	            																 "&ssid=" + UserInfo.getSSID();
+	    	        	download1 = new HttpGetJSONConnection(url, mHandler, TASK_SETHOSPITAL);		// a megadott korhaz felvetele az adatbazisba
+	    	        	download1.start();   
+					} else {													// Ha a megadott cim ervenytelen
+	            		Toast.makeText(activity, "A megadott cím hibás.", Toast.LENGTH_SHORT).show();
 					}
-					break;
-				}	
+				} catch (Exception e) {
+            		Toast.makeText(activity, "Geokódolási hiba.", Toast.LENGTH_SHORT).show();
+				}
+				downloadGeoCode.setNotUsed();
+				break;
 			}
+			setProgressBarIndeterminateVisibility(false);
 		}
 	};
 
@@ -367,7 +368,7 @@ public class EditHospitalActivity extends Activity implements OnClickListener, T
 	    	
 	    	setProgressBarIndeterminateVisibility(true);
 	
-	    	String url = "http://maps.google.com/maps/geo?key=yourkeyhere&output=json&q="+URLEncoder.encode(address);
+	    	String url = "http://maps.google.com/maps/geo?key=" + R.string.apiKey + "&output=json&q="+URLEncoder.encode(address);
 	    	downloadGeoCode = new HttpGetJSONConnection(mHandler, TASK_GETCOORDINATES);
 	    	downloadGeoCode.setURL(url);
 	    	downloadGeoCode.start();		// megadott cim kodolasa

@@ -279,7 +279,7 @@ public class NewMessageActivity extends Activity implements OnClickListener {
 		
 		StringEntity se = null;
 		try {
-			se = new StringEntity(text);
+			se = new StringEntity(text, "UTF-8");
 		} catch (UnsupportedEncodingException e) {}
 		
 		setProgressBarIndeterminateVisibility(true);
