@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import mobdoki.client.R;
+import mobdoki.client.R.editsickness;
 import mobdoki.client.activity.FileChooserActivity;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.HttpPostConnection;
@@ -29,35 +30,46 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.Toast;
 
-public class EditSicknessActivity extends Activity implements OnClickListener, TextWatcher {
+public class EditSicknessActivity extends Activity implements OnClickListener, OnItemClickListener, TextWatcher {
 	private final int TASK_GETDATA = 1;
 	private final int TASK_SETSICKNESS = 2;
 	private final int TASK_DELETESICKNESS = 3;
 	private final int TASK_SETSYMPTOM = 4;
 	private final int TASK_UPLOAD = 5;
+	private final int TASK_GETSICKNESSINFO = 6;
 	
 	private HttpGetJSONConnection downloadData = null;		// szal a betegsegek es tunetek letoltesehez
+	private HttpGetJSONConnection downloadSicknessInfo = null;		// szal a betegsegek adatainak letoltesehez
 	private HttpGetJSONConnection download1 = null;			// szal a webszerverhez csatlakozashoz
 	private HttpPostConnection upload1 = null;				// szal a webszerverhez csatlakozashoz
 	private HttpGetJSONConnection download2 = null;			// szal a webszerverhez csatlakozashoz
 	private HttpPostConnection upload = null;				// szal a kep feltoltesehez
 	
 	private ArrayList<String> listSickness;			// betegsegek listaja
-	private ArrayList<Float> listSicknessRating;	// betegsegek ertekelesenek listaja
-	private ArrayList<String> listSicknessDetails;	// betegsegek leirasanak listaja
 	private ArrayList<String> listSymptom;			// tunetek listaja
+	
+	private String sicknessName = "";				// betoltott betegseg neve
+	private float sicknessSeriousness = 0;			//					  sulyossaga
+	private String sicknessDetails = "";			// 					  leirasa
+	private ArrayList<String> listDiagnosis = new ArrayList<String>(); // tunetei
+	private ListView diagnosisList;
 	
 	private ImageView img;						// A tunet kepe
 	private File file = null;					// A tunethez kivalaszott kepfajl
@@ -180,7 +192,8 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 		
 		rating = (RatingBar) findViewById(R.editsickness.sicknessRating);
 		detailsText1 = (EditText) findViewById(R.editsickness.sicknessDetails);
-		
+		diagnosisList = (ListView) findViewById(R.editsickness.diagnosislist);
+		diagnosisList.setOnItemClickListener(this);
     }
 
     // Kattintas esemenykezeloje
@@ -220,6 +233,20 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 		}	
 	}
 	
+	// Listak esemenykezeloje
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long arg3) {
+		switch(parent.getId()) {
+		case editsickness.diagnosislist:
+			if (listDiagnosis!=null) {
+				String str = listDiagnosis.get(position);
+				symptomText2.setText(str);
+				symptomText3.setText(str);
+			}
+			break;
+		}
+	}
+	
 	// A beviteli mezok valtozasanak esemenykezeloje
 	@Override
 	public void afterTextChanged(Editable editable) {
@@ -238,14 +265,15 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 			if (!sicknessText1.getText().toString().equals(str)) sicknessText1.setText(str);			// texview-ba  a valtozott ertek
 			if (!sicknessText2.getText().toString().equals(str)) sicknessText2.setText(str);
 			if (listSickness!=null) {
-				if (listSickness.contains(str)) {									// ha a listan szerepel, akkor adatok frissitese
-					int position = listSickness.indexOf(str);
-	                rating.setRating(listSicknessRating.get(position));
-	                detailsText1.setText(listSicknessDetails.get(position));
+				if (listSickness.contains(str) && !str.equals("")) {									// ha a listan szerepel, akkor adatok frissitese
+	            	if (str.equals(sicknessName)) loadSicknessInfo();
+	            	else {
+	            		sicknessName = str;
+	            		getSicknessInfo();
+	            	}
 				}
-				else {																// egyebkent torles
-	                rating.setRating(0);
-	                detailsText1.setText("");
+				else {																					// egyebkent torles
+					deleteSicknessInfo();
 				}	
 			}
 			break;
@@ -298,19 +326,23 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 			        sicknessText2.setAdapter(adapter);
 			        
 			        listSickness.add(0, "");		// az elso listaelem ures
-			        listSicknessRating = downloadData.getFloatArrayList("seriousness");										// Tobbi adat listaja
-			        listSicknessRating.add(0, new Float(0.0));
-			        listSicknessDetails = downloadData.getStringArrayList("details");
-			        listSicknessDetails.add(0, "");
 			        
 			        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 			        builder.setItems(downloadData.getStringArray("sickness", true), new DialogInterface.OnClickListener() {
 			            public void onClick(DialogInterface dialog, int position) {
-			            	sicknessText1.setText(listSickness.get(position));							// texview-ba  a kivalasztott
-				            sicknessText2.setText(listSickness.get(position));
+			            	String str = listSickness.get(position);
+			            	sicknessText1.setText(str);							// texview-ba  a kivalasztott
+				            sicknessText2.setText(str);
 				            
-			                rating.setRating(listSicknessRating.get(position));						// adatok frissitese
-			                detailsText1.setText(listSicknessDetails.get(position));
+				            if (!str.equals("")) {
+				            	if (str.equals(sicknessName)) loadSicknessInfo();
+				            	else {
+				            		sicknessName = str;
+				            		getSicknessInfo();
+				            	}
+				            } else {
+				            	deleteSicknessInfo();
+				            }
 			            }
 			        });
 			        sicknessDialog = builder.create();
@@ -335,6 +367,18 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 				}
 				downloadData.setNotUsed();
 				break;
+			case TASK_GETSICKNESSINFO:
+				if (msg.arg1==1 && downloadSicknessInfo.isOK()) {		// Ha sikeres lekerdezes...
+					Log.v("EditSicknessActivity","Sikeres adatlap lekerdezes");
+					
+					sicknessSeriousness = (float)downloadSicknessInfo.getDouble("seriousness");			// lekerdezett adatok
+					sicknessDetails = downloadSicknessInfo.getString("details");
+					listDiagnosis = downloadSicknessInfo.getStringArrayList("symptom");
+
+					loadSicknessInfo();
+				}	
+				downloadSicknessInfo.setNotUsed();
+				break;
 			// A megadott betegseg felvetele/modositasa sikeres
 			case TASK_SETSICKNESS:
 				if (msg.arg1==0) {
@@ -345,6 +389,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 					Log.v("EditSicknessActivity", message);
 					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
 				}
+				if (upload1.isOK()) getData();
 				upload1.setNotUsed();
 				break;
 			case TASK_DELETESICKNESS:
@@ -353,6 +398,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 					Log.v("EditSicknessActivity", message);
 					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
 				}
+				if (download1.isOK()) getData();
 				download1.setNotUsed();
 				break;
 			// A megadott tunet felvetele/modositasa sikeres
@@ -365,6 +411,7 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
 					Log.v("EditSicknessActivity", message);
 					Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
 				}
+				if (download2.isOK()) getSicknessInfo();
 				download2.setNotUsed();
 				break;
 			// A megadott kep feltoltese sikeres
@@ -486,5 +533,49 @@ public class EditSicknessActivity extends Activity implements OnClickListener, T
     	String url = "GetAllSicknessSymptom?ssid=" + UserInfo.getSSID();
 	    downloadData = new HttpGetJSONConnection(url, mHandler, TASK_GETDATA);
 	    downloadData.start();
+    }
+
+    // Betegseg adatainak lekerese 
+    private void getSicknessInfo(){
+    	setProgressBarIndeterminateVisibility(true);
+    	String url = "SicknessInfo?sickness=" + sicknessName + "&ssid=" + UserInfo.getSSID();
+	    downloadSicknessInfo = new HttpGetJSONConnection(url, mHandler, TASK_GETSICKNESSINFO);
+	    downloadSicknessInfo.start();
+    }
+
+    // Betegseg adatainak betoltese 
+    private void loadSicknessInfo(){
+        rating.setRating(sicknessSeriousness);
+        detailsText1.setText(sicknessDetails);
+        diagnosisList.setAdapter(new ArrayAdapter<String>(activity, R.layout.listview_item, listDiagnosis));
+        setListViewHeightBasedOnChildren(diagnosisList);
+    }
+    
+    // Betegseg adatainak torlese
+    private void deleteSicknessInfo() {
+        rating.setRating(0);
+        detailsText1.setText("");
+        diagnosisList.setAdapter (new ArrayAdapter<String>(activity, R.layout.listview_item, new ArrayList<String>()));
+    	setListViewHeightBasedOnChildren(diagnosisList);
+    }
+    
+    // ListView meretezese
+    private void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter(); 
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 }

@@ -390,7 +390,7 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 		progress.setVisibility(ProgressBar.VISIBLE);
 		symptomImageDialog.show();
 		
-		String url = "ImageDownload?large=true&symptom=" + URLEncoder.encode(symptom) + "&ssid=" + UserInfo.getSSID();
+		String url = "ImageDownload?size=medium&symptom=" + URLEncoder.encode(symptom) + "&ssid=" + UserInfo.getSSID();
 	    downloadImage = new HttpGetByteConnection(url, mHandler, TASK_GETIMAGE);
 	    downloadImage.start();
 	}
@@ -410,7 +410,7 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
     	if (username==null) return;
     	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "ImageDownload?large=false&username=" + username +
+	    String url = "ImageDownload?size=medium&username=" + username +
 	    						  "&ssid=" + UserInfo.getSSID();
 	    downloadUserImage = new HttpGetByteConnection(url, mHandler, TASK_GETUSERIMAGE);
 	    downloadUserImage.start();

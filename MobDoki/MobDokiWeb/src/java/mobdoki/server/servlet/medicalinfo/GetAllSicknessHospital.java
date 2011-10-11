@@ -64,26 +64,17 @@ public class GetAllSicknessHospital extends HttpServlet {
                     json.setOK();
                 } else json.setDBError();                  // adatbazis hiba
                 
-                sqlText = "SELECT name,address,coalesce(phone,''),coalesce(email,'') FROM \"Hospital\" ORDER BY name";
+                sqlText = "SELECT name FROM \"Hospital\" ORDER BY name";
                 ps = db.prepareStatement(sqlText);                 // A Hospital tabla osszes soranak a name es address attributuma
                 results = ps.executeQuery();
                 
                 JSONArray hospital = new JSONArray();              // JSON tomb a lekerdezett neveknek
-                JSONArray address = new JSONArray();
-                JSONArray phone = new JSONArray();
-                JSONArray email = new JSONArray();
                 if (results != null) {
                     while (results.next()) {
                         hospital.put(results.getString(1));            // nev hozzaadasa a tombhoz
-                        address.put(results.getString(2));
-                        phone.put(results.getString(3));
-                        email.put(results.getString(4));
                     }
                     results.close();
                     json.put("hospital", hospital);                   // nevek tomb hozzafuzese az kimeneti JSON objektumhoz
-                    json.put("address", address);
-                    json.put("phone", phone);
-                    json.put("email", email);
                     json.setOK();
                 } else json.setDBError();                  // adatbazis hiba
                 db.close();

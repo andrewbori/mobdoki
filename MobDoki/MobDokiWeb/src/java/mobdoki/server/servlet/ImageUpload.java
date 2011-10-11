@@ -79,10 +79,10 @@ public class ImageUpload extends HttpServlet {
 
         int width,height;                                                               // Magassag es szelesseg kiszamitasa
         if (bufferedImage.getHeight()>bufferedImage.getWidth()) {
-            height = 320;
+            height = 800;
             width = height * bufferedImage.getWidth() / bufferedImage.getHeight();
         } else {
-            width = 320;
+            width = 800;
             height = width * bufferedImage.getHeight() / bufferedImage.getWidth();
         }
 

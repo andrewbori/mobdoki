@@ -38,7 +38,18 @@ public class ImageDownload extends HttpServlet {
         String username = request.getParameter("username");
         String symptom = request.getParameter("symptom");
         String idString = request.getParameter("id");
-        boolean large = Boolean.parseBoolean(request.getParameter("large"));
+        String size = request.getParameter("size");
+
+if (size==null || size.equals("")) {    // ˇEzt a blokkot majd törölni kell!!!
+try {
+boolean large = Boolean.parseBoolean(request.getParameter("large"));
+if (large) size="medium";
+else size="small";
+} catch (Exception e) {
+size="original";
+}
+}                                       // ^Ezt a blokkot majd törölni kell!!!
+
         int id=0;// = Integer.parseInt(request.getParameter("id"));
 
         try {
@@ -68,8 +79,9 @@ public class ImageDownload extends HttpServlet {
                 else id = Integer.parseInt(idString);
                 
                 String sqlText;
-                if (large) sqlText = "SELECT medium FROM \"Image\" WHERE id=?";
-                else sqlText = "SELECT small FROM \"Image\" WHERE id=?";
+                if      (size.equals("medium")) sqlText = "SELECT medium FROM \"Image\" WHERE id=?";
+                else if (size.equals("small"))  sqlText = "SELECT small FROM \"Image\" WHERE id=?";
+                else                            sqlText = "SELECT image FROM \"Image\" WHERE id=?";
                 PreparedStatement ps = db.prepareStatement(sqlText);
                 ps.setInt(1, id);
                 ResultSet rs = ps.executeQuery();

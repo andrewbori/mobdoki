@@ -16,12 +16,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
@@ -159,6 +161,7 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
 																				R.layout.listview_item,  
 																				listElements2);  
 						listview.setAdapter(adapter);
+						setListViewHeightBasedOnChildren(listview);
 					}
 					else {
 						Toast.makeText(activity, download.getMessage(), Toast.LENGTH_LONG).show();
@@ -196,5 +199,25 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
     	String url = "GetAll?table=Symptom"  + "&ssid=" + UserInfo.getSSID();
 	    downloadSymptom = new HttpGetJSONConnection(url, mHandler, TASK_GETSYMPTOMS);
 	    downloadSymptom.start();
+    }
+    
+ // ListView meretezese
+    private void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter(); 
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 }

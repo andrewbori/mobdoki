@@ -403,7 +403,7 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
     	
     	if (username==null) return;
     	
-	    String url = "ImageDownload?large=false&username=" + username +
+	    String url = "ImageDownload?size=medium&username=" + username +
 	    						  "&ssid=" + UserInfo.getSSID();
 	    downloadUserImage = new HttpGetByteConnection(url, mHandler, TASK_GETUSERIMAGE);
 	    downloadUserImage.start();
