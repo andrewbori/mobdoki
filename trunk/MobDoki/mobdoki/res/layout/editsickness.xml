@@ -105,6 +105,12 @@
 					 			 style="@style/ButtonChooser">		 
 					</ImageButton>
 				</LinearLayout>
+				
+				<ListView android:id="@+editsickness/diagnosislist"
+			    		  android:layout_height="fill_parent"
+			    		  android:layout_width="fill_parent">
+    			</ListView>
+    			
 		    </LinearLayout>
 	    	<!-- ***************************************** -->
 			<!-- 		TÜNETHEZ KÉP HOZZÁRENDELÉSE 	   -->

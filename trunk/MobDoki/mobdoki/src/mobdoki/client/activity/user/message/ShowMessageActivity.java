@@ -209,7 +209,7 @@ public class ShowMessageActivity extends Activity implements OnClickListener {
     	if (imageID==0) return;
     	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "ImageDownload?large=true&id=" + imageID +
+	    String url = "ImageDownload?size=medium&id=" + imageID +
 	    						  "&ssid=" + UserInfo.getSSID();
 	    downloadImage = new HttpGetByteConnection(url, mHandler, TASK_GETIMAGE);
 	    downloadImage.start();
@@ -220,7 +220,7 @@ public class ShowMessageActivity extends Activity implements OnClickListener {
     	if (username.equals("[Minden orvos]")) return;
     	setProgressBarIndeterminateVisibility(true);
     	
-	    String url = "ImageDownload?large=false&username=" + username +
+	    String url = "ImageDownload?size=small&username=" + username +
 	    						  "&ssid=" + UserInfo.getSSID();
 	    downloadUserImage = new HttpGetByteConnection(url, mHandler, TASK_GETUSERIMAGE);
 	    downloadUserImage.start();

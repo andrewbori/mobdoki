@@ -296,7 +296,7 @@ public class UserProfileActivity extends Activity implements OnClickListener {
     	img.setImageResource(ImageView.NO_ID);
     	progressImageLoad.setVisibility(ProgressBar.VISIBLE);
     	
-    	String url = "ImageDownload?large=true&id=" + imageID + "&ssid=" + UserInfo.getSSID();
+    	String url = "ImageDownload?size=medium&id=" + imageID + "&ssid=" + UserInfo.getSSID();
 	    downloadImage = new HttpGetByteConnection(url, mHandler, TASK_DOWNLOADIMAGE);
 	    downloadImage.start();
     }
