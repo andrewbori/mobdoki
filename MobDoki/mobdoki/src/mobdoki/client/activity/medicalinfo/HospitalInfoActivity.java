@@ -12,6 +12,7 @@ import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetByteConnection;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.HttpPostConnection;
+import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
 
 import org.apache.http.entity.StringEntity;
@@ -22,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -128,7 +130,8 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 		((Button) findViewById(R.hospitalinfo.dialBtn)).setOnClickListener(this);
 		((Button) findViewById(R.hospitalinfo.emailBtn)).setOnClickListener(this);
 		((Button) findViewById(R.hospitalinfo.google)).setOnClickListener(this);
-		((Button) findViewById(R.hospitalinfo.newcomment)).setOnClickListener(this);
+		if (!UserInfo.isOffline()) ((Button) findViewById(R.hospitalinfo.newcomment)).setOnClickListener(this);
+		else ((Button) findViewById(R.hospitalinfo.newcomment)).setVisibility(Button.GONE);
 		
 		// Kommentek listaja
 		listviewComments = (ListView) findViewById(R.hospitalinfo.commentlist);
@@ -225,8 +228,11 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
     @Override
     public void onStart() {
     	super.onStart();
-    	getData();
-    	getComments();
+    	if (UserInfo.isOffline()) offlineLoad();
+    	else {
+    		getData();
+    		getComments();
+    	}
     }
     
     // Megszakitaskor a futo szalak leallitasa
@@ -431,4 +437,37 @@ public class HospitalInfoActivity extends MapActivity implements OnClickListener
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
+	
+    private void offlineLoad() {
+		Cursor cursor = LocalDatabase.getDB().HospitalInfo(hospital);
+		double lat=0, lon=0;
+		if (cursor!=null && cursor.moveToFirst()) {
+			lat = cursor.getDouble(0);
+			lon = cursor.getDouble(1);
+			address = cursor.getString(2);
+			phone = cursor.getString(3);
+			email = cursor.getString(4);
+		}
+		if (cursor != null && !cursor.isClosed()) {
+ 		   cursor.close();
+ 		}
+		if (LocalDatabase.getDB().getOpenedDB()!=null) LocalDatabase.getDB().getOpenedDB().close();
+		
+		((TextView) findViewById(R.hospitalinfo.address)).setText(address);
+		((TextView) findViewById(R.hospitalinfo.phone)).setText(phone);
+		((TextView) findViewById(R.hospitalinfo.email)).setText(email);
+		
+
+		try {
+			int x = (int)(lat*1E6);
+			int y = (int)(lon*1E6);
+			GeoPoint coordinates = new GeoPoint(x,y);
+			setMap(coordinates);						// terkep beallitasa
+		} catch (Exception e) {}
+		
+		listSicknesses = LocalDatabase.getDB().getAllSickness(hospital);
+		((ListView) findViewById(R.hospitalinfo.sicknesslist)).setAdapter (new ArrayAdapter<String>(activity,
+																		   R.layout.listview_item,  
+																		   listSicknesses));
+    }
 }

@@ -10,6 +10,7 @@ import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetByteConnection;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.HttpPostConnection;
+import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
 
 import org.apache.http.entity.StringEntity;
@@ -20,6 +21,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -112,8 +114,8 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 	    
 		spec = tabs.newTabSpec("commentTab");   
 		spec.setContent(R.sicknessinfo.commentTab);
-	   	spec.setIndicator("Kommentek");
-  		tabs.addTab(spec);
+		spec.setIndicator("Kommentek");
+		tabs.addTab(spec);
 		
 		tabs.setCurrentTab(0);
 		
@@ -124,7 +126,8 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 	
 		((Button) findViewById(R.sicknessinfo.google)).setOnClickListener(this);
 		((Button) findViewById(R.sicknessinfo.wiki)).setOnClickListener(this);
-		((Button) findViewById(R.sicknessinfo.newcomment)).setOnClickListener(this);
+		if (!UserInfo.isOffline()) ((Button) findViewById(R.sicknessinfo.newcomment)).setOnClickListener(this);
+		else ((Button) findViewById(R.sicknessinfo.newcomment)).setVisibility(Button.GONE);
 		
 		// Kommentek listaja
 		listviewComments = (ListView) findViewById(R.sicknessinfo.commentlist);
@@ -133,7 +136,7 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 		listview.setOnItemClickListener(this);
 		// A tunetek listajanak esemenykezeloje
 		listview = (ListView)findViewById(R.sicknessinfo.symptomlist);
-		listview.setOnItemClickListener(this);
+		if (!UserInfo.isOffline()) listview.setOnItemClickListener(this);
 	}
 	
 	// Kattintas esemenykezelo
@@ -199,8 +202,11 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
     @Override
     public void onStart() {
     	super.onStart();
-    	getData();
-    	getComments();
+    	if (UserInfo.isOffline()) offlineLoad();
+    	else {
+    		getData();
+    		getComments();
+    	}
     }
     
     // Megszakitaskor a futo szalak leallitasa
@@ -414,5 +420,29 @@ public class SicknessInfoActivity extends Activity implements OnClickListener, A
 	    						  "&ssid=" + UserInfo.getSSID();
 	    downloadUserImage = new HttpGetByteConnection(url, mHandler, TASK_GETUSERIMAGE);
 	    downloadUserImage.start();
-    }    
+    }
+    
+    private void offlineLoad() {
+		listSymptoms = LocalDatabase.getDB().getAllSymptom(sickness);
+		listHospitals = LocalDatabase.getDB().getAllHospital(sickness);
+		Cursor cursor = LocalDatabase.getDB().SicknessInfo(sickness);
+		if (cursor!=null && cursor.moveToFirst()) {
+			sicknessSeriousness = cursor.getFloat(0);
+			sicknessDetails = cursor.getString(1);
+		}
+		if (cursor != null && !cursor.isClosed()) {
+ 		   cursor.close();
+ 		}
+		if (LocalDatabase.getDB().getOpenedDB()!=null) LocalDatabase.getDB().getOpenedDB().close();
+		
+		((RatingBar) findViewById(R.sicknessinfo.sicknessRating)).setRating(sicknessSeriousness);
+		((TextView) findViewById(R.sicknessinfo.sicknessDetails)).setText(sicknessDetails);
+		
+		((ListView) findViewById(R.sicknessinfo.symptomlist)).setAdapter (new ArrayAdapter<String>(activity,	// Listak feltoltese
+																		  R.layout.listview_item,  
+																		  listSymptoms));
+		((ListView) findViewById(R.sicknessinfo.hospitallist)).setAdapter (new ArrayAdapter<String>(activity,
+																		   R.layout.listview_item,  
+																		   listHospitals));
+    }
 }

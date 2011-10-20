@@ -24,6 +24,10 @@ public class UserInfo {
 		return getString("ssid");
 	}
 	
+	public static boolean isOffline() {
+		return getBoolean("offline");
+	}
+	
 	public static void putString(String key, String value){
 		userinfo.editor.putString(key, value);
 		userinfo.editor.commit();

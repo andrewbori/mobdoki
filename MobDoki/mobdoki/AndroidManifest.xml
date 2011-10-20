@@ -20,6 +20,7 @@
 		<activity android:name=".activity.user.RegisterActivity"></activity>
 		<activity android:name=".activity.user.HomeDoctorActivity"></activity>
 		<activity android:name=".activity.user.HomePatientActivity"></activity>
+		<activity android:name=".activity.user.HomeOfflineActivity"></activity>
 		<activity android:name=".activity.user.UserProfileActivity" android:configChanges="orientation"></activity>
 		<activity android:name=".activity.medicalinfo.EditSicknessActivity"></activity>
 		<activity android:name=".activity.medicalinfo.EditHospitalActivity"></activity>
