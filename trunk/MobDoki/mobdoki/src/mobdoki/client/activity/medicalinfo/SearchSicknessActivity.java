@@ -3,9 +3,11 @@ package mobdoki.client.activity.medicalinfo;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,8 +18,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -82,7 +84,10 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
 			if (symptomDialog!=null) symptomDialog.show();
 			break;
 		case R.searchsickness.search:
-			if (download==null || download.isNotUsed()) searchRequest();
+			if (download==null || download.isNotUsed()) {
+				if (UserInfo.isOffline()) offlineSearch();
+				else searchRequest();
+			}
 			break;
 		}	
 	}
@@ -91,7 +96,8 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
     @Override
     public void onStart() {
     	super.onStart();
-    	getSymptom();
+    	if (UserInfo.isOffline()) offlineLoad();
+    	else getSymptom();
     }
     
     // Megszakitaskor a futo szalak leallitasa
@@ -201,7 +207,7 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
 	    downloadSymptom.start();
     }
     
- // ListView meretezese
+    // ListView meretezese
     private void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter(); 
         if (listAdapter == null) {
@@ -219,5 +225,66 @@ public class SearchSicknessActivity extends Activity implements OnClickListener 
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
+    }
+    
+    private void offlineLoad() {
+    	listSymptom = LocalDatabase.getDB().getAll("Symptom");
+        MultiAutoCompleteTextView symptoms = (MultiAutoCompleteTextView) findViewById(R.searchsickness.symptoms);	// Autocomplete lista
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, R.layout.list_item, listSymptom);
+        symptoms.setAdapter(adapter);
+        symptoms.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        
+        listSymptom.add(0, "");		// az elso listaelem ures (mindig ez van kivalasztva)
+        
+        String[] arraySymtpom = new String[listSymptom.size()];
+		
+		for (int i=0; i<listSymptom.size(); i++) {
+			arraySymtpom[i]=listSymptom.get(i);
+		}
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setItems(arraySymtpom, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int position) {
+            	if (position!=0) {
+            		symptomsText.setText(symptomsText.getText() + listSymptom.get(position) + ", ");			// TextView-ba a kivalasztott hozzadasa
+                } else {
+                	symptomsText.setText("");			// TextView torlese
+                }
+            }
+        });
+        symptomDialog = builder.create();
+    }
+    
+    private void offlineSearch() {
+    	String symptoms = ((MultiAutoCompleteTextView)findViewById(R.searchsickness.symptoms)).getText().toString();		// a mezobe beirt tunetek beolvasasa
+    	
+    	if (symptoms.equals("")) {																							// ha nincs adat: hibauzenet
+    		Toast.makeText(activity, "Adja meg a tüneteket!", Toast.LENGTH_SHORT).show();
+    		return;
+    	}
+    	
+    	TreeMap<String, Integer> sicknessMap = LocalDatabase.getDB().SearchSickness(symptoms);
+    	ArrayList<String> listElements2 = new ArrayList<String>();
+    	listElements = new ArrayList<String>();
+		int MAX = 0;
+		for (String s : sicknessMap.keySet()) {
+		   int v = sicknessMap.get(s);
+		   if (v>MAX) MAX=v;
+		}
+		for (int i=MAX; i>0; i--) {
+		   for (String s : sicknessMap.keySet()) {
+		       if (sicknessMap.get(s)==i) {
+		    	   listElements.add(s);
+		    	   listElements2.add(s + " (" + sicknessMap.get(s) + ") ");
+		       }
+		   }
+		}
+		
+		listview = (ListView) findViewById(R.searchsickness.sicknesslist);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
+																R.layout.listview_item,  
+																listElements2);  
+		listview.setAdapter(adapter);
+		setListViewHeightBasedOnChildren(listview);
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.content.Intent;
@@ -68,7 +69,8 @@ public class MedicalItemListActivity extends Activity {
     @Override
     public void onStart() {
     	super.onStart();
-    	refreshRequest();
+    	if (UserInfo.isOffline()) offlineLoad();
+    	else refreshRequest();
     }
     
     // Megszakitaskor a futo szalak leallitasa
@@ -116,5 +118,14 @@ public class MedicalItemListActivity extends Activity {
 	    String url = "GetAll?table=" + URLEncoder.encode(type) + "&ssid=" + UserInfo.getSSID();
 	    download = new HttpGetJSONConnection(url, mHandler);
 	    download.start();
+    }
+    
+    // Offline modban a localis adatbazisbol toltjuk be az adatokat
+    private void offlineLoad() {
+    	listElements = LocalDatabase.getDB().getAll(type);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,
+																R.layout.listview_item,  
+																listElements);  
+		listview.setAdapter(adapter);
     }
 }

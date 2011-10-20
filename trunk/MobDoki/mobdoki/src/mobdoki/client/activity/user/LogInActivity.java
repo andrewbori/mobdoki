@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import mobdoki.client.MessageService;
 import mobdoki.client.R;
 import mobdoki.client.connection.HttpGetJSONConnection;
+import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,6 +47,7 @@ public class LogInActivity extends Activity implements OnClickListener {
         setTitle("MobDoki: Bejelentkezés");
         
         UserInfo.init(this.getApplicationContext());
+        LocalDatabase.init(this.getApplicationContext());
         
         usernameText = (EditText)findViewById(R.login.username);
         passwordText = (EditText)findViewById(R.login.password);
@@ -55,17 +57,28 @@ public class LogInActivity extends Activity implements OnClickListener {
 	    
         ((Button) findViewById(R.login.login)).setOnClickListener(this);
 	    ((Button) findViewById(R.login.register)).setOnClickListener(this);
+	    ((Button) findViewById(R.login.offline)).setOnClickListener(this);
     }
     
     @Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.login.login:				// Bejelentkezes
-			if (download==null || download.isNotUsed()) loginRequest();
+			if (download==null || download.isNotUsed()) {
+				UserInfo.putBoolean("offline", false);
+				loginRequest();
+			}
 			break;
 		case R.login.register:			// Regisztracio
 			Intent myIntent = new Intent(activity, RegisterActivity.class);
             startActivity(myIntent);
+			break;
+		case R.login.offline:			// Regisztracio
+			if (download==null || download.isNotUsed()) {
+				UserInfo.putBoolean("offline", true);
+				myIntent = new Intent(activity, HomeOfflineActivity.class);		// orvos fomenujenek betoltese
+				startActivityForResult(myIntent, 0);
+			}
 			break;
 		case R.login.checkBox1:
 			UserInfo.putBoolean("isSaved", checkbox.isChecked());
@@ -151,6 +164,8 @@ public class LogInActivity extends Activity implements OnClickListener {
 						UserInfo.putString("usertype", usertype);
 						UserInfo.putString("password", password);
 						UserInfo.putString("lastmailcheck", lastmailcheck);
+						
+						LocalDatabase.fillDB();
 						
 						if (usertype.equals("doctor")) {										// ha a felhazsnalo orvos
 							startService(new Intent(activity, MessageService.class));

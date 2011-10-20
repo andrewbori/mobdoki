@@ -176,6 +176,10 @@
         <servlet-name>HospitalInfo</servlet-name>
         <servlet-class>mobdoki.server.servlet.medicalinfo.HospitalInfo</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>GetEverything</servlet-name>
+        <servlet-class>mobdoki.server.servlet.medicalinfo.GetEverything</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -351,6 +355,10 @@
     <servlet-mapping>
         <servlet-name>HospitalInfo</servlet-name>
         <url-pattern>/HospitalInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetEverything</servlet-name>
+        <url-pattern>/GetEverything</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
