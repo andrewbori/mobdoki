@@ -63,7 +63,7 @@ public abstract class HttpConnection extends Thread {
 		int password = UserInfo.getString("password").hashCode();
 		
 		try {
-			URL url = new URL(Connection.myhost + "RefreshSession?ssid=" + URLEncoder.encode(ssid) +
+			URL url = new URL(UserInfo.getServerAdress() + "RefreshSession?ssid=" + URLEncoder.encode(ssid) +
 											  				"&username=" + URLEncoder.encode(username) +
 											  				"&password=" + password);
 			URLConnection urlConn = url.openConnection();

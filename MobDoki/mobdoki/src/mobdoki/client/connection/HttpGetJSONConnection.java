@@ -20,12 +20,12 @@ public class HttpGetJSONConnection extends HttpConnection {
 	
 	// Konstruktorok
 	public HttpGetJSONConnection (String url0, Handler handler0, int what0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 		what = what0;
 	} 
 	public HttpGetJSONConnection (String url0, Handler handler0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 	} 
 	public HttpGetJSONConnection (Handler handler0, int what0) {
