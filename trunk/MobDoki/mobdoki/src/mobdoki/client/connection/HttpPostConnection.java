@@ -20,13 +20,13 @@ public class HttpPostConnection extends HttpConnection {
 
 	// Konstruktorok
 	public HttpPostConnection (String url0, Handler handler0, HttpEntity data0, int what0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 		data = data0;
 		what = what0;
 	}
 	public HttpPostConnection (String url0, Handler handler0, HttpEntity data0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 		data = data0;
 	}

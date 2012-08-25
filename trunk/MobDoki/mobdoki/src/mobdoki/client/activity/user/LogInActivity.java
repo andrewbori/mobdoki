@@ -4,6 +4,7 @@ import java.net.URLEncoder;
 
 import mobdoki.client.MessageService;
 import mobdoki.client.R;
+import mobdoki.client.activity.SettingsActivity;
 import mobdoki.client.connection.HttpGetJSONConnection;
 import mobdoki.client.connection.LocalDatabase;
 import mobdoki.client.connection.UserInfo;
@@ -17,6 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -59,6 +62,27 @@ public class LogInActivity extends Activity implements OnClickListener {
 	    ((Button) findViewById(R.login.register)).setOnClickListener(this);
 	    ((Button) findViewById(R.login.offline)).setOnClickListener(this);
     }
+    
+    private static final int MENU_SETTINGS = 1;
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(Menu.NONE, MENU_SETTINGS, Menu.NONE, "Settings")
+			.setIcon(android.R.drawable.ic_menu_preferences);
+		return true;
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		super.onMenuItemSelected(featureId, item);
+		Intent intent = null;
+		switch (item.getItemId()) {
+			case MENU_SETTINGS:
+				intent = new Intent(this, SettingsActivity.class);
+				startActivity(intent);
+				break;
+		}
+		return true;
+	}
     
     @Override
 	public void onClick(View v) {

@@ -28,6 +28,10 @@ public class UserInfo {
 		return getBoolean("offline");
 	}
 	
+	public static String getServerAdress() {
+		return getString("server_address");
+	}
+	
 	public static void putString(String key, String value){
 		userinfo.editor.putString(key, value);
 		userinfo.editor.commit();

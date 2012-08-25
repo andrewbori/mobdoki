@@ -23,12 +23,12 @@ public class HttpGetByteConnection extends Thread {
 	private volatile boolean isUsed = true;			// A szal fut vagy hasznalatban van
 	
 	public HttpGetByteConnection (String url0, Handler handler0, int what0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 		what=what0;
 	}
 	public HttpGetByteConnection (String url0, Handler handler0) {
-		url = new String(Connection.myhost + url0);
+		url = new String(UserInfo.getServerAdress() + url0);
 		handler = handler0;
 	}
 	public HttpGetByteConnection (Handler handler0) {
