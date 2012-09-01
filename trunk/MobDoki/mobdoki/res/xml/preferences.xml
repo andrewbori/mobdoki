@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <EditTextPreference
+        android:key="server_address"
+        android:defaultValue="http://152.66.213.185:8080/MobDoki/"
+        android:dialogTitle="A szerver címe"
+        android:summary="http://&lt;IP&gt;:&lt;PORT&gt;/MobDoki/"
+        android:title="A szerver címe" />
+    
+</PreferenceScreen>
